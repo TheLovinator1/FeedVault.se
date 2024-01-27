@@ -1,17 +1,16 @@
 # FeedVault
 
-*A seed vault for your feeds.*
+_A seed vault for your feeds._
 
-FeedVault is an open-source web application written in Golang that allows users to easily archive RSS, Atom, and JSON feeds. 
+FeedVault is an open-source web application written in Python that allows users to easily archive RSS, Atom, and JSON feeds.
 
 With FeedVault, users can effortlessly add their favorite feeds, ensuring they have a centralized location for accessing and preserving valuable content.
 
 ## Features
 
-*Note: Some features are currently in development.*
+_Note: Some features are currently in development._
 
 - **Unified Feed Archiving**: Archive RSS, Atom, and JSON feeds seamlessly in one centralized location.
-- **Efficiency and Scalability**: Built with Go for optimal efficiency and scalability, with no rate limits or throttling.
 - **Content Search**: Easily search your archive for specific content.
 - **Export Options**: Export your archive to various formats, including JSON, CSV, HTML, ODS, RST, TSV, XLS, XLSX, or YAML.
 - **API**: Access your archive programmatically through a API.
@@ -23,24 +22,47 @@ With FeedVault, users can effortlessly add their favorite feeds, ensuring they h
 
 ### Prerequisites
 
-Ensure you have Go installed on your machine. If you do not, you can download it [here](https://go.dev/dl/).
+#### Development
+
+Ensure you have the following installed on your machine if you plan to run FeedVault locally for development purposes:
+
+- [Python 3.12](https://www.python.org/downloads/)
+- [Poetry](https://python-poetry.org/docs/master/#installation)
+- [PostgreSQL](https://www.postgresql.org/download/)
+
+#### Production
+
+Ensure you have the following installed on your machine if you plan to run FeedVault locally for production purposes:
+
+- [Docker](https://docs.docker.com/get-docker/)
+- [PostgreSQL](https://www.postgresql.org/download/)
 
 ### Installation
 
 Clone the repository:
+
 ```bash
 git clone https://github.com/TheLovinator1/FeedVault.git
 ```
 
 Navigate to the project directory:
+
 ```bash
 cd FeedVault
 ```
 
-Run the application:
+Install the project dependencies:
+
 ```bash
-go run main.go
+poetry install
 ```
+
+Run the project:
+
+```bash
+poetry run site
+```
+
 Access FeedVault in your browser at http://localhost:8080.
 
 ## Usage
