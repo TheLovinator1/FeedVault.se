@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import ipaddress
 import logging
-import re
+import socket
 from urllib.parse import urlparse
 
 import requests
@@ -45,7 +45,7 @@ def is_ip(feed_url: str) -> bool:
     try:
         ipaddress.ip_address(feed_url)
     except ValueError:
-        logger.info(f"{feed_url} is not an IP address")  # noqa: G004
+        logger.info(f"{feed_url} passed isn't either a v4 or a v6 address")  # noqa: G004
         return False
     else:
         logger.info(f"{feed_url} is an IP address")  # noqa: G004
@@ -97,30 +97,28 @@ def update_blocklist() -> str:
 
 def is_local(feed_url: str) -> bool:
     """Check if feed is a local address."""
-    # Regexes from https://github.com/gwarser/filter-lists
-    regexes: list[str] = [
-        # 10.0.0.0 - 10.255.255.255
-        r"^\w+:\/\/10\.(?:(?:[1-9]?\d|1\d\d|2(?:[0-4]\d|5[0-5]))\.){2}(?:[1-9]?\d|1\d\d|2(?:[0-4]\d|5[0-5]))[:/]",
-        # 172.16.0.0 - 172.31.255.255
-        r"^\w+:\/\/172\.(?:1[6-9]|2\d|3[01])(?:\.(?:[1-9]?\d|1\d\d|2(?:[0-4]\d|5[0-5]))){2}[:/]",
-        # 192.168.0.0 - 192.168.255.255
-        r"^\w+:\/\/192\.168(?:\.(?:[1-9]?\d|1\d\d|2(?:[0-4]\d|5[0-5]))){2}[:/]",
-        # https://en.wikipedia.org/wiki/Private_network#Link-local_addresses
-        r"^\w+:\/\/169\.254\.(?:[1-9]\d?|1\d{2}|2(?:[0-4]\d|5[0-4]))\.(?:[1-9]?\d|1\d{2}|2(?:[0-4]\d|5[0-5]))[:/]",
-        # https://en.wikipedia.org/wiki/IPv6_address#Transition_from_IPv4
-        r"^\w+:\/\/\[::ffff:(?:7f[0-9a-f]{2}|a[0-9a-f]{2}|ac1[0-9a-f]|c0a8|a9fe):[0-9a-f]{1,4}\][:/]",
-        # localhost
-        r"^\w+:\/\/127\.(?:(?:[1-9]?\d|1\d\d|2(?:[0-4]\d|5[0-5]))\.){2}(?:[1-9]?\d|1\d\d|2(?:[0-4]\d|5[0-5]))[:/]",
-    ]
+    network_location: str = urlparse(url=feed_url).netloc
 
-    domain: str | None = urlparse(feed_url).hostname
-    if not domain:
-        return False
+    # Check if network location is an IP address
+    if is_ip(feed_url=network_location):
+        try:
+            ip: ipaddress.IPv4Address | ipaddress.IPv6Address = ipaddress.ip_address(address=network_location)
+        except ValueError:
+            return False
+        else:
+            return ip.is_private
 
-    if domain in {"localhost", "127.0.0.1", "::1", "0.0.0.0", "::", "local", "[::1]"}:  # noqa: S104
+    try:
+        ip_address: str = socket.gethostbyname(network_location)
+        is_private: bool = ipaddress.ip_address(address=ip_address).is_private
+    except socket.gaierror as e:
+        logger.info(f"{feed_url} failed to resolve: {e}")  # noqa: G004
+        return True
+    except ValueError as e:
+        logger.info(f"{feed_url} failed to resolve: {e}")  # noqa: G004
         return True
 
-    if domain.endswith((".local", ".home.arpa")):
-        return True
+    msg: str = f"{feed_url} is a local URL" if is_private else f"{feed_url} is not a local URL"
+    logger.info(msg)
 
-    return any(re.match(regex, feed_url) for regex in regexes)
+    return is_private
