@@ -13,20 +13,39 @@
         {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
     </head>
     <body>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
+                {% endfor %}
+            </ul>
+            <hr>
+        {% endif %}
         <span class="title">
-            <a href="{% url 'feeds:index' %}">
-                <h1>FeedVault</h1>
-            </a>
+            <h1>
+                <a href="{% url 'feeds:index' %}">FeedVault</a>
+            </h1>
         </span>
-        <small>An archive of <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>. Currently archiving {{ feed_count }} feeds. ~{{ database_size|floatformat:2 }} MB of data.</small>
+        <div class="leftright">
+            <div class="left">
+                <small>Archive of <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>. {{ feed_count }} feeds. ~{{ database_size|floatformat:2 }} MB.</small>
+            </div>
+            <div class="right">
+                <!-- Search -->
+                <form action="#" method="get">
+                    <input type="text" name="q" placeholder="Search">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+        </div>
         <nav>
             <small>
                 <div class="leftright">
                     <div class="left">
-                        <a href="{% url 'feeds:feeds' %}">Feeds</a> | <a href="">About</a> | <a href="">API</a> | <a href="">Stats</a> | <a href="">GitHub</a> | <a href="">Donate</a>
+                        <a href="{% url 'feeds:feeds' %}">Feeds</a> | <a href="{% url 'feeds:api' %}">API</a> | <a href="https://github.com/TheLovinator1/FeedVault">GitHub</a> | <a href="https://github.com/sponsors/TheLovinator1">Donate</a>
                     </div>
                     <div class="right">
-                        <a href="">Login</a>
+                        <a href="">Register</a> | <a href="">Login</a>
                     </div>
                 </div>
             </small>

@@ -4,6 +4,7 @@
     "feedburner",
     "feedparser",
     "feedvault",
+    "leftright",
     "PGHOST",
     "PGPORT",
     "PGUSER",

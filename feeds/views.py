@@ -8,11 +8,16 @@ from __future__ import annotations
 
 import typing
 
+from django.contrib import messages
 from django.db import connection
+from django.shortcuts import redirect
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 
 from feeds.models import Feed
+
+if typing.TYPE_CHECKING:
+    from django.http import HttpRequest, HttpResponseRedirect
 
 
 def get_database_size() -> int:
@@ -60,6 +65,48 @@ class FeedsView(ListView):
     ordering: typing.ClassVar[list[str]] = ["-created_at"]
 
     def get_context_data(self: FeedsView, **kwargs: dict) -> dict:
+        """Add feed count and database size to context data."""
+        context: dict = super().get_context_data(**kwargs)
+        context["feed_count"] = Feed.objects.count()
+        context["database_size"] = get_database_size()
+        return context
+
+
+def add_feeds(request: HttpRequest) -> HttpResponseRedirect:
+    """Add feeds to the database.
+
+    Args:
+        request: The request object.
+
+    Returns:
+        A redirect to the index page.
+    """
+    if request.method == "POST":
+        urls = request.POST.get("urls")
+        if not urls:
+            messages.error(request, "No URLs provided")
+            return redirect("feeds:index", permanent=False)
+
+        if urls == "Test":
+            messages.error(request, "Hello, world!")
+            return redirect("feeds:index", permanent=False)
+
+        for url in urls.splitlines():
+            print(f"Adding {url} to the database...")  # noqa: T201
+
+        return redirect("feeds:feeds", permanent=False)
+
+    msg: str = f"You must use a POST request. You used a {request.method} request. You can find out how to use this endpoint here: <a href=''>http://127.0.0.1:8000/</a>. If you think this is a mistake, please contact the administrator."  # noqa: E501
+    messages.error(request, msg)
+    return redirect("feeds:index", permanent=False)
+
+
+class APIView(TemplateView):
+    """Index page."""
+
+    template_name = "api.html"
+
+    def get_context_data(self: APIView, **kwargs: dict) -> dict:
         """Add feed count and database size to context data."""
         context: dict = super().get_context_data(**kwargs)
         context["feed_count"] = Feed.objects.count()

@@ -1,25 +1,19 @@
 html {
   max-width: 70ch;
-  /* larger spacing on larger screens, very small spacing on tiny screens */
   padding: calc(1vmin + 0.5rem);
-  /* shorthand for margin-left/margin-right */
   margin-inline: auto;
-  /* fluid sizing: https://frontaid.io/blog/fluid-typography-2d-css-locks-clamp/ */
   font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
-  /* use dark mode if user prefers it */
   color-scheme: light dark;
 }
 
-/* h1 */
 h1 {
   font-size: 2.5rem;
   font-weight: 600;
   margin: 0;
 }
 
-/* FeedVault logo */
 .title {
   text-align: center;
 }
@@ -27,21 +21,15 @@ h1 {
 .search {
   display: flex;
   justify-content: center;
-
-  /* Spacing between search bar and nav bar */
   margin-top: 1rem;
-
-  /* Center the search bar */
   margin-inline: auto;
 }
 
-/* Links at the top and bottom of the page */
 .leftright {
   display: flex;
   justify-content: center;
 }
 
-/* Align the links to the left and right */
 .left {
   margin-right: auto;
 }
@@ -50,9 +38,16 @@ h1 {
   margin-left: auto;
 }
 
-/* Add feeds box */
 textarea {
   width: 100%;
   height: 10rem;
   resize: vertical;
+}
+
+.error {
+  color: red;
+}
+
+.messages {
+  list-style-type: none;
 }

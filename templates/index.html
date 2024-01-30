@@ -15,46 +15,67 @@
     <br>
     <br>
     <details>
-        <summary>What is RSS and Atom?</summary>
+        <summary>What are web feeds?</summary>
         <p>
-            RSS and Atom are two different formats for <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>. They are used to publish frequently updated content such as blog posts, news articles, etc.
+            Web feeds are a way for you to "subscribe" to content on a website. When you subscribe to a feed, you will be notified when new content is published. You can then read the content in a feed reader.
+            Feeds are usually available in the RSS or Atom format. You can recognize a feed by the following icon:
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMjU2IDI1NiIgY3Vyc29yPSJkZWZhdWx0Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgeDE9Ii4wODUiIHkxPSIuMDg1IiB4Mj0iLjkxNSIgeTI9Ii45MTUiIGlkPSJwcmVmaXhfX2EiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0UzNzAyRCIvPjxzdG9wIG9mZnNldD0iLjEwNyIgc3RvcC1jb2xvcj0iI0VBN0QzMSIvPjxzdG9wIG9mZnNldD0iLjM1IiBzdG9wLWNvbG9yPSIjRjY5NTM3Ii8+PHN0b3Agb2Zmc2V0PSIuNSIgc3RvcC1jb2xvcj0iI0ZCOUUzQSIvPjxzdG9wIG9mZnNldD0iLjcwMiIgc3RvcC1jb2xvcj0iI0VBN0MzMSIvPjxzdG9wIG9mZnNldD0iLjg4NyIgc3RvcC1jb2xvcj0iI0RFNjQyQiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0Q5NUIyOSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2IiByeD0iNTUiIHJ5PSI1NSIgZmlsbD0iI0NDNUQxNSIvPjxyZWN0IHdpZHRoPSIyNDYiIGhlaWdodD0iMjQ2IiByeD0iNTAiIHJ5PSI1MCIgeD0iNSIgeT0iNSIgZmlsbD0iI0Y0OUM1MiIvPjxyZWN0IHdpZHRoPSIyMzYiIGhlaWdodD0iMjM2IiByeD0iNDciIHJ5PSI0NyIgeD0iMTAiIHk9IjEwIiBmaWxsPSJ1cmwoI3ByZWZpeF9fYSkiLz48Y2lyY2xlIGN4PSI2OCIgY3k9IjE4OSIgcj0iMjQiIGZpbGw9IiNGRkYiLz48cGF0aCBkPSJNMTYwIDIxM2gtMzRhODIgODIgMCAwMC04Mi04MlY5N2ExMTYgMTE2IDAgMDExMTYgMTE2eiIgZmlsbD0iI0ZGRiIvPjxwYXRoIGQ9Ik0xODQgMjEzQTE0MCAxNDAgMCAwMDQ0IDczVjM4YTE3NSAxNzUgMCAwMTE3NSAxNzV6IiBmaWxsPSIjRkZGIi8+PC9zdmc+"
+                 alt="Feed icon"
+                 width="16"
+                 height="16">
+            <br>
+            <br>
+            You can read more about web feeds on <a href="https://en.wikipedia.org/wiki/Web_feed">Wikipedia</a>.
+        </p>
+        <hr>
+    </details>
+    <details>
+        <summary>What is FeedVault?</summary>
+        <p>
+            FeedVault is designed to collect, organize, and store information from RSS feeds. It parses XML data using the <a href="https://github.com/kurtmckee/feedparser">feedparser by Kurt McKee</a> library and stores the relevant information in a PostgreSQL database managed by Django.
         </p>
         <hr>
     </details>
     <details>
         <summary>Why archive feeds?</summary>
         <p>
-            <h3>Preserving Content History</h3>
-            <p>
-                The web is constantly changing. Websites are redesigned, articles are deleted, and content is lost. By archiving feeds, we can preserve the history of the web.
-            </p>
-            <h3>Research and Reference</h3>
-            <p>
-                Researchers, journalists, or individuals conducting studies may find value in archiving RSS feeds to create a reference library. This can aid in analyzing trends, tracking changes in information, or referencing past data for various purposes.
-            </p>
-            <h3>Long-Term Availability</h3>
-            <p>
-                Websites and feeds may change or disappear over time due to various reasons. Archiving ensures that users have a reliable and persistent source for accessing content even if the original sources are no longer available.
-            </p>
-            <h3>Content Analysis and Statistics</h3>
-            <p>
-                Archiving feeds can facilitate content analysis and statistical insights. Users may want to track the frequency of updates, analyze the popularity of certain topics, or gather data for research purposes.
-            </p>
+            The web is constantly changing. Websites are redesigned, content is removed, and links are broken. By archiving feeds, we can preserve the content that is published on the web.
         </p>
         <hr>
     </details>
     <details>
         <summary>How does it work?</summary>
         <p>
-            FeedVault uses <a href="https://github.com/kurtmckee/feedparser">feedparser</a> to parse the feeds. The parsed feeds are then stored in a database. The feeds are updated every 30 minutes.
+            <ul>
+                <li>
+                    Parse XML data using the <a href="https://github.com/kurtmckee/feedparser">feedparser</a> library.
+                </li>
+                <li>
+                    Before saving the parsed data to the database, HTML content is <a href="https://feedparser.readthedocs.io/en/latest/html-sanitization.html">sanitized</a>.
+                </li>
+                <li>The sanitized data is then stored in a PostgreSQL database using Django's ORM.</li>
+                <li>
+                    The data is then made available through the website and the <a href="/api">API</a>.
+                </li>
+            </ul>
         </p>
         <hr>
     </details>
     <details>
         <summary>How can I access the archived feeds?</summary>
         <p>
-            You can find feeds by using the search bar at the top of the page. You can also use the <a href="/api">API</a> to access the feeds.
+            <ul>
+                <li>You can search for feeds through the search bar at the top of the page.</li>
+                <li>
+                    You can access the archived feeds through the <a href="/feeds">website</a>.
+                </li>
+                <li>
+                    You can access the archived feeds through the <a href="/api">API</a>.
+                </li>
+                <li>
+                    You can download database dumps from <a href="">here</a>.
+                </li>
+            </ul>
         </p>
-        <hr>
     </details>
 {% endblock %}
