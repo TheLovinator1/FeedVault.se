@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description"
+              content="{% block description %}FeedVault - A feed archive{% endblock %}">
+        <meta name="keywords"
+              content="{% block keywords %}RSS, Atom, Feed, Archive{% endblock %}">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        {% block title %}<title>FeedVault</title>{% endblock %}
+        <link rel="stylesheet" href="{% static 'style.css' %}">
+        {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}">{% endif %}
+    </head>
+    <body>
+        <span class="title">
+            <h1>FeedVault</h1>
+        </span>
+        <small>An archive of <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>. Currently archiving {{ feed_count }} feeds. ~{{ database_size|floatformat:2 }} MB of data.</small>
+        <nav>
+            <small>
+                <div class="leftright">
+                    <div class="left">
+                        <a href="">Feeds</a> | <a href="">About</a> | <a href="">API</a> | <a href="">Stats</a> | <a href="">GitHub</a> | <a href="">Donate</a>
+                    </div>
+                    <div class="right">
+                        <a href="">Login</a>
+                    </div>
+                </div>
+            </small>
+        </nav>
+        <hr>
+        {% block content %}<!-- default content -->{% endblock %}
+        <hr>
+        <footer>
+            <small>
+                <div class="leftright">
+                    <div class="left">
+                        Made by <a href="">Joakim Hellsén</a>.
+                    </div>
+                    <div class="right">No rights reserved.</div>
+                </div>
+                <div class="leftright">
+                    <div class="left">
+                        <a href="mailto:hello@feedvault.se">hello@localhost</a>
+                    </div>
+                    <div class="right">
+                        <a href="">Terms of Service</a> | <a href="">Privacy Policy</a>
+                    </div>
+                </div>
+            </small>
+        </footer>
+    </body>
+</html>

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}<title>FeedVault</title>{% endblock %}
+{% block description %}FeedVault{% endblock %}
+{% block keywords %}RSS, Atom, Feed, Archive{% endblock %}
+{% block content %}
+    <h2>Feeds to archive</h2>
+    <p>
+        Enter the URLs of the feeds you want to archive below. You can enter as many as you want. The feeds will be added to the archive and you will be able to access them through the website or the API.
+    </p>
+    <form action="/add" method="post">
+        {% csrf_token %}
+        <textarea id="urls" name="urls" rows="5" cols="50" required></textarea>
+        <button type="submit">Add feeds</button>
+    </form>
+    <br>
+    <br>
+    <details>
+        <summary>What is RSS and Atom?</summary>
+        <p>
+            RSS and Atom are two different formats for <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>. They are used to publish frequently updated content such as blog posts, news articles, etc.
+        </p>
+        <hr>
+    </details>
+    <details>
+        <summary>Why archive feeds?</summary>
+        <p>
+            <h3>Preserving Content History</h3>
+            <p>
+                The web is constantly changing. Websites are redesigned, articles are deleted, and content is lost. By archiving feeds, we can preserve the history of the web.
+            </p>
+            <h3>Research and Reference</h3>
+            <p>
+                Researchers, journalists, or individuals conducting studies may find value in archiving RSS feeds to create a reference library. This can aid in analyzing trends, tracking changes in information, or referencing past data for various purposes.
+            </p>
+            <h3>Long-Term Availability</h3>
+            <p>
+                Websites and feeds may change or disappear over time due to various reasons. Archiving ensures that users have a reliable and persistent source for accessing content even if the original sources are no longer available.
+            </p>
+            <h3>Content Analysis and Statistics</h3>
+            <p>
+                Archiving feeds can facilitate content analysis and statistical insights. Users may want to track the frequency of updates, analyze the popularity of certain topics, or gather data for research purposes.
+            </p>
+        </p>
+        <hr>
+    </details>
+    <details>
+        <summary>How does it work?</summary>
+        <p>
+            FeedVault uses <a href="https://github.com/kurtmckee/feedparser">feedparser</a> to parse the feeds. The parsed feeds are then stored in a database. The feeds are updated every 30 minutes.
+        </p>
+        <hr>
+    </details>
+    <details>
+        <summary>How can I access the archived feeds?</summary>
+        <p>
+            You can find feeds by using the search bar at the top of the page. You can also use the <a href="/api">API</a> to access the feeds.
+        </p>
+        <hr>
+    </details>
+{% endblock %}
