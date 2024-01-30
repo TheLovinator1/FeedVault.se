@@ -3,7 +3,7 @@
 {% block description %}FeedVault - A feed archive{% endblock %}
 {% block keywords %}RSS, Atom, Feed, Archive{% endblock %}
 {% block content %}
-    {% for feed in object_list %}
+    {% for feed in feeds %}
         <div class="feed">
             <h2>
                 <a href="{{ feed.url }}">{{ feed.title }}</a>
