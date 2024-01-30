@@ -112,7 +112,9 @@ MIDDLEWARE: list[str] = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.cache.UpdateCacheMiddleware",
     "django.middleware.common.CommonMiddleware",
+    "django.middleware.cache.FetchFromCacheMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -167,3 +169,17 @@ STORAGES: dict[str, dict[str, str]] = {
 
 # Our site ID
 SITE_ID = 1
+
+REDIS_PASSWORD: str = os.getenv(key="REDIS_PASSWORD", default="")
+REDIS_HOST: str = os.getenv(key="REDIS_HOST", default="192.168.1.2")
+REDIS_PORT: str = os.getenv(key="REDIS_PORT", default="6379")
+CACHES: dict[str, dict[str, str]] = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0",
+    },
+}
+
+CACHE_MIDDLEWARE_ALIAS = "default"
+CACHE_MIDDLEWARE_SECONDS = 600  # 10 minutes
+CACHE_MIDDLEWARE_KEY_PREFIX = "feedvault"
