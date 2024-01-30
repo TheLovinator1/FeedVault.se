@@ -14,9 +14,12 @@
                     {% endif %}
                 </a>
             </h2>
-            <p>{{ feed.description }}</p>
             <p>
-                <small>Updated {{ feed.updated }}</small>
+                {% if feed.created %}Added {{ feed.created|date:"F j, Y" }}{% endif %}
+                {% if feed.last_updated %}
+                    {% if feed.created %}·{% endif %}
+                    Last updated {{ feed.last_updated|date:"F j, Y" }}
+                {% endif %}
             </p>
         </div>
     {% empty %}
