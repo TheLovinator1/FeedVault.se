@@ -6,7 +6,13 @@
     {% for feed in feeds %}
         <div class="feed">
             <h2>
-                <a href="{{ feed.url }}">{{ feed.title }}</a>
+                <a href="{{ feed.url }}">
+                    {% if feed.title %}
+                        {{ feed.title }}
+                    {% else %}
+                        {{ feed.url }}
+                    {% endif %}
+                </a>
             </h2>
             <p>{{ feed.description }}</p>
             <p>

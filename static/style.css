@@ -44,10 +44,14 @@ textarea {
   resize: vertical;
 }
 
+.messages {
+  list-style-type: none;
+}
+
 .error {
   color: red;
 }
 
-.messages {
-  list-style-type: none;
+.success {
+  color: green;
 }

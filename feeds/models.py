@@ -963,3 +963,21 @@ class Feed(models.Model):
     def __str__(self: Feed) -> str:
         """Feed URL."""
         return f"{self.url}"
+
+
+class Blocklist(models.Model):
+    """A list of URLs to block."""
+
+    url = models.CharField(max_length=2000, unique=True, help_text="The URL to block.")
+    active = models.BooleanField(default=True, help_text="Is this URL still blocked?")
+
+    class Meta:
+        """Blocklist meta."""
+
+        verbose_name: typing.ClassVar[str] = "Blocklist"
+        verbose_name_plural: typing.ClassVar[str] = "Blocklists"
+        db_table_comment: typing.ClassVar[str] = "A list of URLs to block."
+
+    def __str__(self: Blocklist) -> str:
+        """Blocklist URL."""
+        return f"{self.url}"

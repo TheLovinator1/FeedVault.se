@@ -1,13 +1,18 @@
 {
   "cSpell.words": [
+    "arpa",
+    "blocklist",
+    "blocklists",
     "chartboost",
     "feedburner",
     "feedparser",
     "feedvault",
     "leftright",
+    "levelname",
     "PGHOST",
     "PGPORT",
     "PGUSER",
+    "regexes",
     "webmail"
   ]
 }
