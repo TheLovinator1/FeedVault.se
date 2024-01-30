@@ -14,14 +14,16 @@
     </head>
     <body>
         <span class="title">
-            <h1>FeedVault</h1>
+            <a href="{% url 'feeds:index' %}">
+                <h1>FeedVault</h1>
+            </a>
         </span>
         <small>An archive of <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>. Currently archiving {{ feed_count }} feeds. ~{{ database_size|floatformat:2 }} MB of data.</small>
         <nav>
             <small>
                 <div class="leftright">
                     <div class="left">
-                        <a href="">Feeds</a> | <a href="">About</a> | <a href="">API</a> | <a href="">Stats</a> | <a href="">GitHub</a> | <a href="">Donate</a>
+                        <a href="{% url 'feeds:feeds' %}">Feeds</a> | <a href="">About</a> | <a href="">API</a> | <a href="">Stats</a> | <a href="">GitHub</a> | <a href="">Donate</a>
                     </div>
                     <div class="right">
                         <a href="">Login</a>
