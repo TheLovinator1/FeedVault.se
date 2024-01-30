@@ -13,7 +13,7 @@ from urllib import parse
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import connection
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 
@@ -94,20 +94,20 @@ def add_feeds(request: HttpRequest) -> HttpResponse:
         urls: str | None = request.POST.get("urls")
         if not urls:
             messages.error(request, "No URLs provided")
-            return render(request, "index.html")
+            return redirect("feeds:index")
 
         if urls == "Test":
             messages.error(request, "Test test hello")
-            return render(request, "index.html")
+            return redirect("feeds:index")
 
         for url in urls.splitlines():
             check_feeds(feed_urls=[url], request=request)
 
-        return render(request, "index.html")
+        return redirect("feeds:index")
 
     msg: str = f"You must use a POST request. You used a {request.method} request. You can find out how to use this endpoint here: <a href=''>http://127.0.0.1:8000/</a>. If you think this is a mistake, please contact the administrator."  # noqa: E501
     messages.error(request, msg)
-    return render(request, "index.html")
+    return redirect("feeds:index")
 
 
 def check_feeds(feed_urls: list[str], request: HttpRequest) -> HttpResponse:
@@ -178,3 +178,21 @@ class APIView(TemplateView):
         context["feed_count"] = Feed.objects.count()
         context["database_size"] = get_database_size()
         return context
+
+
+def upload_opml(request: HttpRequest) -> HttpResponse:
+    """Add feeds to the database.
+
+    Args:
+        request: The request object.
+
+    Returns:
+        A redirect to the index page if there are errors, otherwise a redirect to the feeds page.
+    """
+    if request.method == "POST":
+        opml: str | None = request.POST.get("opml")
+        if not opml:
+            messages.error(request, "No OPML provided")
+            return redirect("feeds:feeds")
+
+    return redirect("feeds:feeds")
