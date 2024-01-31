@@ -5,7 +5,7 @@
 {% block content %}
     <h2>Feeds to archive</h2>
     <p>
-        Enter the URLs of the feeds you want to archive below. You can enter as many as you want. The feeds will be added to the archive and you will be able to access them through the website or the API.
+        Input the URLs of the feeds you wish to archive below. You can add as many as needed, and access them through the website or API. Alternatively, include links to .opml files, and the feeds within will be archived.
     </p>
     <form action="/add" method="post">
         {% csrf_token %}
@@ -17,22 +17,21 @@
     <details>
         <summary>What are web feeds?</summary>
         <p>
-            Web feeds are a way for you to "subscribe" to content on a website. When you subscribe to a feed, you will be notified when new content is published. You can then read the content in a feed reader.
-            Feeds are usually available in the RSS or Atom format. You can recognize a feed by the following icon:
+            Web feeds let you "subscribe" to website content, notifying you of new updates. Feeds are typically in RSS or Atom formats, recognizable by this icon:
             <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMjgiIGhlaWdodD0iMTI4IiB2aWV3Qm94PSIwIDAgMjU2IDI1NiIgY3Vyc29yPSJkZWZhdWx0Ij48ZGVmcz48bGluZWFyR3JhZGllbnQgeDE9Ii4wODUiIHkxPSIuMDg1IiB4Mj0iLjkxNSIgeTI9Ii45MTUiIGlkPSJwcmVmaXhfX2EiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI0UzNzAyRCIvPjxzdG9wIG9mZnNldD0iLjEwNyIgc3RvcC1jb2xvcj0iI0VBN0QzMSIvPjxzdG9wIG9mZnNldD0iLjM1IiBzdG9wLWNvbG9yPSIjRjY5NTM3Ii8+PHN0b3Agb2Zmc2V0PSIuNSIgc3RvcC1jb2xvcj0iI0ZCOUUzQSIvPjxzdG9wIG9mZnNldD0iLjcwMiIgc3RvcC1jb2xvcj0iI0VBN0MzMSIvPjxzdG9wIG9mZnNldD0iLjg4NyIgc3RvcC1jb2xvcj0iI0RFNjQyQiIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI0Q5NUIyOSIvPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxyZWN0IHdpZHRoPSIyNTYiIGhlaWdodD0iMjU2IiByeD0iNTUiIHJ5PSI1NSIgZmlsbD0iI0NDNUQxNSIvPjxyZWN0IHdpZHRoPSIyNDYiIGhlaWdodD0iMjQ2IiByeD0iNTAiIHJ5PSI1MCIgeD0iNSIgeT0iNSIgZmlsbD0iI0Y0OUM1MiIvPjxyZWN0IHdpZHRoPSIyMzYiIGhlaWdodD0iMjM2IiByeD0iNDciIHJ5PSI0NyIgeD0iMTAiIHk9IjEwIiBmaWxsPSJ1cmwoI3ByZWZpeF9fYSkiLz48Y2lyY2xlIGN4PSI2OCIgY3k9IjE4OSIgcj0iMjQiIGZpbGw9IiNGRkYiLz48cGF0aCBkPSJNMTYwIDIxM2gtMzRhODIgODIgMCAwMC04Mi04MlY5N2ExMTYgMTE2IDAgMDExMTYgMTE2eiIgZmlsbD0iI0ZGRiIvPjxwYXRoIGQ9Ik0xODQgMjEzQTE0MCAxNDAgMCAwMDQ0IDczVjM4YTE3NSAxNzUgMCAwMTE3NSAxNzV6IiBmaWxsPSIjRkZGIi8+PC9zdmc+"
                  alt="Feed icon"
                  width="16"
                  height="16">
             <br>
             <br>
-            You can read more about web feeds on <a href="https://en.wikipedia.org/wiki/Web_feed">Wikipedia</a>.
+            Learn more about web feeds on <a href="https://en.wikipedia.org/wiki/Web_feed">Wikipedia</a>.
         </p>
         <hr>
     </details>
     <details>
         <summary>What is FeedVault?</summary>
         <p>
-            FeedVault is designed to collect, organize, and store information from RSS feeds. It parses XML data using the <a href="https://github.com/kurtmckee/feedparser">feedparser by Kurt McKee</a> library and stores the relevant information in a PostgreSQL database managed by Django.
+            FeedVault is a platform crafted to gather, arrange, and preserve information sourced from RSS feeds. It utilizes the <a href="https://github.com/kurtmckee/feedparser">feedparser library by Kurt McKee</a> to parse XML data, storing pertinent details in a Django-managed PostgreSQL database.
         </p>
         <hr>
     </details>
@@ -51,11 +50,11 @@
                     Parse XML data using the <a href="https://github.com/kurtmckee/feedparser">feedparser</a> library.
                 </li>
                 <li>
-                    Before saving the parsed data to the database, HTML content is <a href="https://feedparser.readthedocs.io/en/latest/html-sanitization.html">sanitized</a>.
+                    Sanitize HTML content <a href="https://feedparser.readthedocs.io/en/latest/html-sanitization.html">before</a> saving parsed data to the database.
                 </li>
-                <li>The sanitized data is then stored in a PostgreSQL database using Django's ORM.</li>
+                <li>Store the sanitized data in a PostgreSQL database using Django's ORM.</li>
                 <li>
-                    The data is then made available through the website and the <a href="/api">API</a>.
+                    Data is made available through the website and the <a href="/api">API</a>.
                 </li>
             </ul>
         </p>
@@ -65,15 +64,32 @@
         <summary>How can I access the archived feeds?</summary>
         <p>
             <ul>
-                <li>You can search for feeds through the search bar at the top of the page.</li>
+                <li>Search for feeds using the top-page search bar.</li>
                 <li>
-                    You can access the archived feeds through the <a href="/feeds">website</a>.
+                    Access the archived feeds on the <a href="/feeds">website</a>.
                 </li>
                 <li>
-                    You can access the archived feeds through the <a href="/api">API</a>.
+                    Access the archived feeds via the <a href="/api">API</a>.
                 </li>
                 <li>
-                    You can download database dumps from <a href="">here</a>.
+                    Download database dumps from <a href="">here</a>.
+                </li>
+            </ul>
+        </p>
+    </details>
+    <details>
+        <summary>How can I contribute?</summary>
+        <p>
+            <ul>
+                <li>Add feeds to the archive.</li>
+                <li>
+                    <a href="https://github.com/TheLovinator1/FeedVault/issues">Report bugs</a> and <a href="https://github.com/TheLovinator1/FeedVault/issues">suggest features</a>.
+                </li>
+                <li>
+                    <a href="">Donate</a> to support the project.
+                </li>
+                <li>
+                    <a href="">Contribute</a> to the project on GitHub.
                 </li>
             </ul>
         </p>
