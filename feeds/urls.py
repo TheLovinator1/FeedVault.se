@@ -2,7 +2,7 @@
 
 from django.urls import path
 
-from feeds.views import APIView, DonateView, FeedsView, IndexView, add_feeds
+from feeds.views import APIView, DonateView, FeedsView, IndexView, add_feeds, upload_opml
 
 app_name = "feeds"
 
@@ -17,4 +17,6 @@ urlpatterns = [
     path("api", APIView.as_view(), name="api"),
     # /donate
     path("donate", DonateView.as_view(), name="donate"),
+    # /upload_opml
+    path("upload_opml", upload_opml, name="upload_opml"),
 ]

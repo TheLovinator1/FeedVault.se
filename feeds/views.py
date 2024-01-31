@@ -10,6 +10,7 @@ import logging
 import typing
 from urllib import parse
 
+import listparser
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.db import connection
@@ -17,11 +18,13 @@ from django.shortcuts import redirect
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
 
+from feeds.forms import UploadOPMLForm
 from feeds.models import Blocklist, Feed
 from feeds.validator import is_ip, is_local, validate_scheme
 
 if typing.TYPE_CHECKING:
     from django.http import HttpRequest, HttpResponse
+    from listparser.common import SuperDict
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -110,6 +113,90 @@ def add_feeds(request: HttpRequest) -> HttpResponse:
     return redirect("feeds:index")
 
 
+def handle_opml(opml_url: str, request: HttpRequest) -> None:
+    """Add feeds from an OPML file.
+
+    Args:
+        opml_url: The URL of the OPML file.
+        request: The request object.
+
+    Returns:
+        Errors
+    """
+    if not opml_url:
+        msg: str = "No URL provided when parsing OPML file."
+        messages.error(request, msg)
+        logger.error(msg)
+        return
+
+    url_html: str = f"<a href='{opml_url}'>{opml_url}</a>"
+    result: SuperDict = listparser.parse(opml_url)
+    if result.bozo:
+        msg: str = f"Error when parsing {url_html}: '{result.bozo_exception}'"
+        messages.error(request, msg)
+        logger.error(msg)
+        return
+
+    for feed in result.feeds:
+        logger.debug(f"Found {feed.url} in OPML file '{opml_url}' for '{feed.title}'")  # noqa: G004
+        check_feeds(feed_urls=feed.url, request=request)
+
+
+def validate_and_add(url: str, request: HttpRequest) -> None:
+    """Check if a feed is valid.
+
+    Args:
+        url: The URL of the feed.
+        request: The request object.
+    """
+    # TODO(TheLovinator): #4 Rewrite this so we check the content instead of the URL
+    # https://github.com/TheLovinator1/FeedVault/issues/4
+    list_of_opml_urls: list[str] = [".opml", ".ttl", ".trig", ".rdf"]
+    if url.endswith(tuple(list_of_opml_urls)):
+        handle_opml(opml_url=url, request=request)
+        return
+
+    url_html: str = f"<a href='{url}'>{url}</a>"
+    if Feed.objects.filter(url=url).exists():
+        msg: str = f"{url_html} is already in the database."
+        messages.error(request, msg)
+        return
+
+    # Only allow HTTP and HTTPS URLs
+    if not validate_scheme(feed_url=url):
+        msg = f"{url_html} is not a HTTP or HTTPS URL."
+        messages.error(request, msg)
+        return
+
+    # Don't allow IP addresses
+    if is_ip(feed_url=url):
+        msg = f"{url_html} is an IP address. IP addresses are not allowed."
+        messages.error(request, msg)
+        return
+
+    # Check if in blocklist
+    domain: str = parse.urlparse(url).netloc
+    if Blocklist.objects.filter(url=domain).exists():
+        msg = f"{url_html} is in the blocklist."
+        messages.error(request, msg)
+        return
+
+    # Check if local URL
+    if is_local(feed_url=url):
+        msg = f"{url_html} is not accessible from the internet."
+        messages.error(request, msg)
+        return
+
+    # Create feed
+    try:
+        Feed.objects.create(url=url)
+        msg = f"{url_html} was added to the database."
+        messages.success(request, msg)
+    except ValidationError:
+        msg = f"{url_html} is not a valid URL."
+        messages.error(request, msg)
+
+
 def check_feeds(feed_urls: list[str], request: HttpRequest) -> HttpResponse:
     """Check feeds before adding them to the database.
 
@@ -121,45 +208,7 @@ def check_feeds(feed_urls: list[str], request: HttpRequest) -> HttpResponse:
         A redirect to the index page if there are errors, otherwise a redirect to the feeds page.
     """
     for url in feed_urls:
-        url_html: str = f"<a href='{url}'>{url}</a>"
-        if Feed.objects.filter(url=url).exists():
-            msg: str = f"{url_html} is already in the database."
-            messages.error(request, msg)
-            continue
-
-        # Only allow HTTP and HTTPS URLs
-        if not validate_scheme(feed_url=url):
-            msg = f"{url_html} is not a HTTP or HTTPS URL."
-            messages.error(request, msg)
-            continue
-
-        # Don't allow IP addresses
-        if is_ip(feed_url=url):
-            msg = f"{url_html} is an IP address. IP addresses are not allowed."
-            messages.error(request, msg)
-            continue
-
-        # Check if in blocklist
-        domain: str = parse.urlparse(url).netloc
-        if Blocklist.objects.filter(url=domain).exists():
-            msg = f"{url_html} is in the blocklist."
-            messages.error(request, msg)
-            continue
-
-        # Check if local URL
-        if is_local(feed_url=url):
-            msg = f"{url_html} is a local URL."
-            messages.error(request, msg)
-            continue
-
-        # Create feed
-        try:
-            Feed.objects.create(url=url)
-            msg = f"{url_html} was added to the database."
-            messages.success(request, msg)
-        except ValidationError:
-            msg = f"{url_html} is not a valid URL."
-            messages.error(request, msg)
+        validate_and_add(url=url, request=request)
 
     # Return to feeds page if no errors
     # TODO(TheLovinator): Return to search page with our new feeds  # noqa: TD003
@@ -168,7 +217,7 @@ def check_feeds(feed_urls: list[str], request: HttpRequest) -> HttpResponse:
 
 
 class APIView(TemplateView):
-    """Index page."""
+    """API page."""
 
     template_name = "api.html"
 
@@ -180,8 +229,21 @@ class APIView(TemplateView):
         return context
 
 
+class DonateView(TemplateView):
+    """Donate page."""
+
+    template_name = "donate.html"
+
+    def get_context_data(self: DonateView, **kwargs: dict) -> dict:
+        """Add feed count and database size to context data."""
+        context: dict = super().get_context_data(**kwargs)
+        context["feed_count"] = Feed.objects.count()
+        context["database_size"] = get_database_size()
+        return context
+
+
 def upload_opml(request: HttpRequest) -> HttpResponse:
-    """Add feeds to the database.
+    """Upload an OPML file.
 
     Args:
         request: The request object.
@@ -190,9 +252,32 @@ def upload_opml(request: HttpRequest) -> HttpResponse:
         A redirect to the index page if there are errors, otherwise a redirect to the feeds page.
     """
     if request.method == "POST":
-        opml: str | None = request.POST.get("opml")
-        if not opml:
-            messages.error(request, "No OPML provided")
-            return redirect("feeds:feeds")
+        form = UploadOPMLForm(request.POST, request.FILES)
+        if form.is_valid():
+            opml_file = request.FILES["file"]
 
-    return redirect("feeds:feeds")
+            # Read file
+            with opml_file.open() as file:
+                opml_file = file.read().decode("utf-8")
+
+            result: SuperDict = listparser.parse(opml_file)
+            if result.bozo:
+                msg: str = f"Error when parsing OPML file: '{result.bozo_exception}'"
+                messages.error(request, msg)
+                logger.error(msg)
+                return redirect("feeds:index")
+
+            for feed in result.feeds:
+                logger.debug(f"Found {feed.url} in OPML file for '{feed.title}'")  # noqa: G004
+                validate_and_add(url=feed.url, request=request)
+
+            for _list in result.lists:
+                logger.debug(f"Found {_list.url} in OPML file for '{_list.title}'")  # noqa: G004
+                validate_and_add(url=_list.url, request=request)
+
+            return redirect("feeds:index")
+
+    msg: str = "Invalid form"
+    messages.error(request, msg)
+    logger.error(msg)
+    return redirect("feeds:index")

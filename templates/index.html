@@ -13,7 +13,13 @@
         <button type="submit">Add feeds</button>
     </form>
     <br>
-    <br>
+    <p>You can also upload .opml files containing the feeds you wish to archive:</p>
+    <form enctype="multipart/form-data" method="post" action="/upload_opml">
+        {% csrf_token %}
+        <input type="file" name="file" id="file" accept=".opml" required>
+        <button type="submit">Upload OPML</button>
+    </form>
+    <hr>
     <details>
         <summary>What are web feeds?</summary>
         <p>
