@@ -170,14 +170,11 @@ STORAGES: dict[str, dict[str, str]] = {
 # Our site ID
 SITE_ID = 1
 
-REDIS_PASSWORD: str = os.getenv(key="REDIS_PASSWORD", default="")
-REDIS_HOST: str = os.getenv(key="REDIS_HOST", default="192.168.1.2")
-REDIS_PORT: str = os.getenv(key="REDIS_PORT", default="6379")
 if not DEBUG:
     CACHES: dict[str, dict[str, str]] = {
         "default": {
-            "BACKEND": "django.core.cache.backends.redis.RedisCache",
-            "LOCATION": f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/0",
+            "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+            "LOCATION": "feedvault_cache",  # The cache table will be created in the default database
         },
     }
     CACHE_MIDDLEWARE_ALIAS = "default"
