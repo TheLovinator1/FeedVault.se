@@ -94,7 +94,6 @@ INSTALLED_APPS: list[str] = [
     # Third-party apps
     "whitenoise.runserver_nostatic",  # https://whitenoise.readthedocs.io/en/latest/index.html
     "debug_toolbar",  # https://github.com/jazzband/django-debug-toolbar/
-    "django_celery_results",  # https://github.com/celery/django-celery-results
     # Django apps
     "django.contrib.sites",
     "django.contrib.admin",
