@@ -1,0 +1,19 @@
+{{ define "content" }}
+<span style="text-align: center;">
+<h2>405 - Method Not Allowed</h2>
+<p>The method ({{ .Request.Method }}) is not allowed for the requested URL.</p>
+</span>
+
+<p>
+Extra information:
+<ul>
+    <li>Host: {{ .Request.Host }}</li>
+    <li>Method: {{ .Request.Method }}</li>
+    <li>Proto: {{ .Request.Proto }}</li>
+    <li>RemoteAddr: {{ .Request.RemoteAddr }}</li>
+    <li>RequestURI: {{ .Request.RequestURI }}</li>
+    <li>URL: {{ .Request.URL }}</li>
+    <li>UserAgent: {{ .Request.UserAgent }}</li>
+</ul>
+
+{{ end }}

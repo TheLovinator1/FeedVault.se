@@ -27,6 +27,7 @@ func main() {
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
 	r.NotFound(NotFoundHandler)
+	r.MethodNotAllowed(MethodNotAllowedHandler)
 
 	log.Println("Listening on http://localhost:8000/ <Ctrl-C> to stop")
 	http.ListenAndServe("127.0.0.1:8000", r)
@@ -82,6 +83,20 @@ func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNotFound)
+	t.ExecuteTemplate(w, "base", data)
+}
+
+func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
+	data := Data{
+		Request: r,
+	}
+	data.GetDatabaseSizeAndFeedCount()
+	t, err := template.ParseFiles("templates/base.tmpl", "templates/405.tmpl")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Internal Server Error: %v", err), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusMethodNotAllowed)
 	t.ExecuteTemplate(w, "base", data)
 }
 
