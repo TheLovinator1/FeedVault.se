@@ -26,6 +26,8 @@ func main() {
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
+	r.NotFound(NotFoundHandler)
+
 	log.Println("Listening on http://localhost:8000/ <Ctrl-C> to stop")
 	http.ListenAndServe("127.0.0.1:8000", r)
 }
@@ -38,6 +40,7 @@ type Data struct {
 	CanonicalURL string
 	FeedCount    int
 	DatabaseSize int
+	Request      *http.Request
 }
 
 func (d *Data) GetDatabaseSizeAndFeedCount() {
@@ -68,9 +71,22 @@ func renderPage(w http.ResponseWriter, title, description, keywords, author, url
 	t.ExecuteTemplate(w, "base", data)
 }
 
+func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
+	data := Data{
+		Request: r,
+	}
+	data.GetDatabaseSizeAndFeedCount()
+	t, err := template.ParseFiles("templates/base.tmpl", "templates/404.tmpl")
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Internal Server Error: %v", err), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusNotFound)
+	t.ExecuteTemplate(w, "base", data)
+}
+
 func IndexHandler(w http.ResponseWriter, _ *http.Request) {
 	renderPage(w, "FeedVault", "FeedVault - A feed archive", "RSS, Atom, Feed, Archive", "TheLovinator", "http://localhost:8000/", "index")
-
 }
 
 func ApiHandler(w http.ResponseWriter, _ *http.Request) {
