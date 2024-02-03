@@ -9,6 +9,7 @@ cmd = "go build -o ./tmp/main.exe ."
 delay = 1000
 exclude_dir = [
   "assets",
+  "static",
   "tmp",
   "vendor",
   "testdata",

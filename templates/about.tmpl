@@ -1,0 +1,16 @@
+{{ define "content" }}
+<h2>Feeds to archive</h2>
+<p>
+    Input the URLs of the feeds you wish to archive below. You can add as many as needed, and access them through the website or API. Alternatively, include links to .opml files, and the feeds within will be archived.
+</p>
+<form action="/add" method="post">
+    <textarea id="urls" name="urls" rows="5" cols="50" required></textarea>
+    <button type="submit">Add feeds</button>
+</form>
+<br>
+<p>You can also upload .opml files containing the feeds you wish to archive:</p>
+<form enctype="multipart/form-data" method="post" action="/upload_opml">
+    <input type="file" name="file" id="file" accept=".opml" required>
+    <button type="submit">Upload OPML</button>
+</form>
+{{ end }}

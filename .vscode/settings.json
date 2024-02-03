@@ -16,6 +16,8 @@
     "PGPORT",
     "PGUSER",
     "regexes",
+    "stylesheet",
+    "tmpl",
     "webmail"
   ]
 }
