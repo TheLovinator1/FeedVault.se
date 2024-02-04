@@ -13,6 +13,16 @@
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+    {{ if .ParseErrors }}
+    <h2>Results</h2>
+    <ul>
+        {{ range .ParseErrors }}
+        <li class="{{ if .IsError }}error{{ else }}success{{ end }}"><a href="{{ .FeedURL }}">{{ .FeedURL }}</a> - {{ .Msg }}</li>
+        {{ end }}
+    </ul>
+    {{ end }}
+
+
     <span class="title">
         <h1>
             <a href="/">FeedVault</a>
