@@ -43,6 +43,7 @@ func main() {
 	log.Println("Starting FeedVault...")
 
 	// Scrape the bad URLs in the background
+	// TODO: Run this in a goroutine
 	scrapeBadURLs()
 
 	// Create a new router
@@ -55,9 +56,9 @@ func main() {
 
 	r.Get("/", IndexHandler)
 	r.Get("/api", ApiHandler)
-	r.Get("/about", AboutHandler)
 	r.Get("/donate", DonateHandler)
 	r.Get("/feeds", FeedsHandler)
+	r.Get("/privacy", PrivacyHandler)
 	r.Post("/add", AddFeedHandler)
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -71,6 +72,7 @@ func main() {
 
 func scrapeBadURLs() {
 	// TODO: We should only scrape the bad URLs if the file has been updated
+	// TODO: Use brotli compression https://gitlab.com/malware-filter/urlhaus-filter#compressed-version
 	filterListURLs := []string{
 		"https://malware-filter.gitlab.io/malware-filter/phishing-filter-dnscrypt-blocked-names.txt",
 		"https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-dnscrypt-blocked-names-online.txt",
@@ -212,6 +214,10 @@ func DonateHandler(w http.ResponseWriter, _ *http.Request) {
 
 func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 	renderPage(w, "Feeds", "Feeds Page", "feeds, page", "TheLovinator", "http://localhost:8000/feeds", "feeds")
+}
+
+func PrivacyHandler(w http.ResponseWriter, _ *http.Request) {
+	renderPage(w, "Privacy", "Privacy Page", "privacy, page", "TheLovinator", "http://localhost:8000/privacy", "privacy")
 }
 
 // Run some simple validation on the URL
