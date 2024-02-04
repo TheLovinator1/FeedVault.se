@@ -59,6 +59,7 @@ func main() {
 	r.Get("/donate", DonateHandler)
 	r.Get("/feeds", FeedsHandler)
 	r.Get("/privacy", PrivacyHandler)
+	r.Get("/terms", TermsHandler)
 	r.Post("/add", AddFeedHandler)
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
@@ -218,6 +219,10 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 
 func PrivacyHandler(w http.ResponseWriter, _ *http.Request) {
 	renderPage(w, "Privacy", "Privacy Page", "privacy, page", "TheLovinator", "http://localhost:8000/privacy", "privacy")
+}
+
+func TermsHandler(w http.ResponseWriter, _ *http.Request) {
+	renderPage(w, "Terms", "Terms and Conditions Page", "terms, page", "TheLovinator", "http://localhost:8000/terms", "terms")
 }
 
 // Run some simple validation on the URL
