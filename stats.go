@@ -17,18 +17,23 @@ func GetDBSize() string {
 	// Get the file size in bytes
 	fileSize := fileInfo.Size()
 
-	// Convert to human readable size and append the unit (KB, MB, GB)
+	// Convert to human readable size and append the unit (KiB, MiB, GiB, TiB)
 	var size float64
 	if fileSize < 1024*1024 {
 		size = float64(fileSize) / 1024
-		return fmt.Sprintf("%.2f KB", size)
+		return fmt.Sprintf("%.2f KiB", size)
 	}
 
 	if fileSize < 1024*1024*1024 {
 		size = float64(fileSize) / (1024 * 1024)
-		return fmt.Sprintf("%.2f MB", size)
+		return fmt.Sprintf("%.2f MiB", size)
 	}
 
-	size = float64(fileSize) / (1024 * 1024 * 1024)
-	return fmt.Sprintf("%.2f GB", size)
+	if fileSize < 1024*1024*1024*1024 {
+		size = float64(fileSize) / (1024 * 1024 * 1024)
+		return fmt.Sprintf("%.2f GiB", size)
+	}
+
+	size = float64(fileSize) / (1024 * 1024 * 1024 * 1024)
+	return fmt.Sprintf("%.2f TiB", size)
 }
