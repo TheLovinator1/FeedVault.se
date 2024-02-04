@@ -8,9 +8,27 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
+// Database connection
+var db *gorm.DB
+
 func main() {
+	log.Println("Starting FeedVault...")
+	db, err := gorm.Open(sqlite.Open("feedvault.db"), &gorm.Config{})
+	if err != nil {
+		panic("Failed to connect to database")
+	}
+
+	// Migrate the schema
+	err = db.AutoMigrate(&Feed{}, &Item{}, &Person{}, &Image{}, &Enclosure{}, &DublinCoreExtension{}, &ITunesFeedExtension{}, &ITunesItemExtension{}, &ITunesCategory{}, &ITunesOwner{}, &Extension{})
+	if err != nil {
+		panic("Failed to migrate the database")
+	}
+
+	// Create a new router
 	r := chi.NewRouter()
 	r.Use(middleware.RealIP)
 	r.Use(middleware.Logger)
@@ -40,16 +58,12 @@ type Data struct {
 	Author       string
 	CanonicalURL string
 	FeedCount    int
-	DatabaseSize int
+	DatabaseSize string
 	Request      *http.Request
 }
 
 func (d *Data) GetDatabaseSizeAndFeedCount() {
-	// Set the database size to 0
-	d.DatabaseSize = 0
-
-	// Set the feed count to 0
-	d.FeedCount = 0
+	d.DatabaseSize = GetDBSize()
 }
 
 func renderPage(w http.ResponseWriter, title, description, keywords, author, url, templateName string) {
@@ -60,7 +74,6 @@ func renderPage(w http.ResponseWriter, title, description, keywords, author, url
 		Author:       author,
 		CanonicalURL: url,
 		FeedCount:    0,
-		DatabaseSize: 0,
 	}
 	data.GetDatabaseSizeAndFeedCount()
 

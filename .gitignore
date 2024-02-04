@@ -20,3 +20,6 @@ tmp/
 
 # Environment variables file
 .env
+
+# Database
+*.db
