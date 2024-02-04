@@ -125,6 +125,7 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 	renderPage(w, "Feeds", "Feeds Page", "feeds, page", "TheLovinator", "http://localhost:8000/feeds", "feeds")
 }
 
+// Run some simple validation on the URL
 func validateURL(feed_url string) error {
 	// Check if URL starts with http or https
 	if !strings.HasPrefix(feed_url, "http://") && !strings.HasPrefix(feed_url, "https://") {
@@ -150,14 +151,87 @@ func validateURL(feed_url string) error {
 		return errors.New("IP address URLs are not allowed")
 	}
 
-	// Don't allow localhost URLs
-	if strings.Contains(domain, "localhost") {
-		return errors.New("localhost are not allowed")
+	// Don't allow local URLs (e.g. router URLs)
+	// Taken from https://github.com/uBlockOrigin/uAssets/blob/master/filters/lan-block.txt
+	// https://github.com/gwarser/filter-lists
+	localURLs := []string{
+		"[::]",
+		"[::1]",
+		"airbox.home",
+		"airport",
+		"arcor.easybox",
+		"aterm.me",
+		"bthomehub.home",
+		"bthub.home",
+		"congstar.box",
+		"connect.box",
+		"console.gl-inet.com",
+		"easy.box",
+		"etxr",
+		"fire.walla",
+		"fritz.box",
+		"fritz.nas",
+		"fritz.repeater",
+		"giga.cube",
+		"hi.link",
+		"hitronhub.home",
+		"home.arpa",
+		"homerouter.cpe",
+		"host.docker.internal",
+		"huaweimobilewifi.com",
+		"localbattle.net",
+		"localhost",
+		"mobile.hotspot",
+		"myfritz.box",
+		"ntt.setup",
+		"pi.hole",
+		"plex.direct",
+		"repeater.asus.com",
+		"router.asus.com",
+		"routerlogin.com",
+		"routerlogin.net",
+		"samsung.router",
+		"speedport.ip",
+		"steamloopback.host",
+		"tplinkap.net",
+		"tplinkeap.net",
+		"tplinkmodem.net",
+		"tplinkplclogin.net",
+		"tplinkrepeater.net",
+		"tplinkwifi.net",
+		"web.setup.home",
+		"web.setup",
+	}
+	for _, localURL := range localURLs {
+		if strings.Contains(domain, localURL) {
+			return errors.New("local URLs are not allowed")
+		}
 	}
 
 	// Don't allow URLs that end with .local
 	if strings.HasSuffix(domain, ".local") {
 		return errors.New("URLs ending with .local are not allowed")
+	}
+
+	// Don't allow URLs that end with .onion
+	if strings.HasSuffix(domain, ".onion") {
+		return errors.New("URLs ending with .onion are not allowed")
+	}
+
+	// Don't allow URLs that end with .home.arpa
+	if strings.HasSuffix(domain, ".home.arpa") {
+		return errors.New("URLs ending with .home.arpa are not allowed")
+	}
+
+	// Don't allow URLs that end with .internal
+	// Docker uses host.docker.internal
+	if strings.HasSuffix(domain, ".internal") {
+		return errors.New("URLs ending with .internal are not allowed")
+	}
+
+	// Don't allow URLs that end with .localdomain
+	if strings.HasSuffix(domain, ".localdomain") {
+		return errors.New("URLs ending with .localdomain are not allowed")
 	}
 
 	// Check if the domain is resolvable
@@ -176,14 +250,15 @@ func validateURL(feed_url string) error {
 }
 
 func AddFeedHandler(w http.ResponseWriter, r *http.Request) {
+	var parseErrors []ParseResult
+
+	// Parse the form and get the URLs
 	r.ParseForm()
 	urls := r.Form.Get("urls")
 	if urls == "" {
-		http.Error(w, "No feed URLs provided", http.StatusBadRequest)
+		http.Error(w, "No URLs provided", http.StatusBadRequest)
 		return
 	}
-
-	var parseErrors []ParseResult
 
 	for _, feed_url := range strings.Split(urls, "\n") {
 		// TODO: Try to upgrade to https if http is provided
