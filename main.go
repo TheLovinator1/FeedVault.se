@@ -59,30 +59,8 @@ func main() {
 	http.ListenAndServe("127.0.0.1:8000", r)
 }
 
-type Data struct {
-	Title        string
-	Description  string
-	Keywords     string
-	Author       string
-	CanonicalURL string
-	FeedCount    int
-	DatabaseSize string
-	Request      *http.Request
-	ParseErrors  []ParseResult
-}
-
-type ParseResult struct {
-	FeedURL string
-	Msg     string
-	IsError bool
-}
-
-func (d *Data) GetDatabaseSizeAndFeedCount() {
-	d.DatabaseSize = GetDBSize()
-}
-
 func renderPage(w http.ResponseWriter, title, description, keywords, author, url, templateName string) {
-	data := Data{
+	data := TemplateData{
 		Title:        title,
 		Description:  description,
 		Keywords:     keywords,
@@ -101,7 +79,7 @@ func renderPage(w http.ResponseWriter, title, description, keywords, author, url
 }
 
 func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
-	data := Data{
+	data := TemplateData{
 		Request: r,
 	}
 	data.GetDatabaseSizeAndFeedCount()
@@ -115,7 +93,7 @@ func NotFoundHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func MethodNotAllowedHandler(w http.ResponseWriter, r *http.Request) {
-	data := Data{
+	data := TemplateData{
 		Request: r,
 	}
 	data.GetDatabaseSizeAndFeedCount()
@@ -222,7 +200,7 @@ func AddFeedHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render the index page with the parse errors
-	data := Data{
+	data := TemplateData{
 		Title:       "FeedVault",
 		Description: "FeedVault - A feed archive",
 		Keywords:    "RSS, Atom, Feed, Archive",

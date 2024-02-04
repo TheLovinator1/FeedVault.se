@@ -1,6 +1,7 @@
 package main
 
 import (
+	"net/http"
 	"time"
 
 	"gorm.io/gorm"
@@ -154,4 +155,26 @@ type Extension struct {
 	Value    string                 `json:"value"`
 	Attrs    map[string]string      `gorm:"type:json" json:"attrs"`
 	Children map[string][]Extension `gorm:"type:json" json:"children"`
+}
+
+type TemplateData struct {
+	Title        string
+	Description  string
+	Keywords     string
+	Author       string
+	CanonicalURL string
+	FeedCount    int
+	DatabaseSize string
+	Request      *http.Request
+	ParseErrors  []ParseResult
+}
+
+type ParseResult struct {
+	FeedURL string
+	Msg     string
+	IsError bool
+}
+
+func (d *TemplateData) GetDatabaseSizeAndFeedCount() {
+	d.DatabaseSize = GetDBSize()
 }
