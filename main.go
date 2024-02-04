@@ -16,15 +16,18 @@ import (
 	"gorm.io/gorm"
 )
 
-// Database connection
-var db *gorm.DB
-
 func main() {
 	log.Println("Starting FeedVault...")
 	db, err := gorm.Open(sqlite.Open("feedvault.db"), &gorm.Config{})
 	if err != nil {
 		panic("Failed to connect to database")
 	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		panic("Failed to get database connection")
+	}
+	defer sqlDB.Close()
 
 	// Migrate the schema
 	err = db.AutoMigrate(&Feed{}, &Item{}, &Person{}, &Image{}, &Enclosure{}, &DublinCoreExtension{}, &ITunesFeedExtension{}, &ITunesItemExtension{}, &ITunesCategory{}, &ITunesOwner{}, &Extension{})
