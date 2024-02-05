@@ -34,14 +34,17 @@ func TestMinifyCSS(t *testing.T) {
 // Displays error messages if there are any parse errors
 func TestErrorMessages(t *testing.T) {
 	// Initialize test data
-	h := HTMLData{}
 	parseResult := []ParseResult{
 		{IsError: true, Msg: "Error 1"},
 		{IsError: true, Msg: "Error 2"},
 	}
 
+	h := HTMLData{
+		ParseResult: parseResult,
+	}
+
 	// Invoke function under test
-	result := fullHTML(h, parseResult)
+	result := fullHTML(h)
 
 	// Assert that the result contains the error messages
 	if !strings.Contains(result, "Error 1") || !strings.Contains(result, "Error 2") {

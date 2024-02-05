@@ -53,6 +53,7 @@ func main() {
 	r.Get("/api", ApiHandler)
 	r.Get("/feeds", FeedsHandler)
 	r.Post("/add", AddFeedHandler)
+	r.Post("/upload_opml", UploadOpmlHandler)
 
 	log.Println("Listening on http://localhost:8000/ <Ctrl-C> to stop")
 	http.ListenAndServe("127.0.0.1:8000", r)

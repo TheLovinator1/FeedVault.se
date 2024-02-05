@@ -17,6 +17,7 @@ type HTMLData struct {
 	Author       string
 	CanonicalURL string
 	Content      string
+	ParseResult  []ParseResult
 }
 
 func minifyHTML(h string) string {
@@ -98,7 +99,7 @@ textarea {
 }
 `
 
-func fullHTML(h HTMLData, ParseResult []ParseResult) string {
+func fullHTML(h HTMLData) string {
 	var sb strings.Builder
 	var errorBuilder strings.Builder
 
@@ -106,9 +107,9 @@ func fullHTML(h HTMLData, ParseResult []ParseResult) string {
 	DatabaseSize := GetDBSize()
 
 	// This is the error message that will be displayed if there are any errors
-	if len(ParseResult) > 0 {
-		errorBuilder.WriteString("<h2>Results</h2><ul>")
-		for _, result := range ParseResult {
+	if len(h.ParseResult) > 0 {
+		errorBuilder.WriteString("<ul>")
+		for _, result := range h.ParseResult {
 			var listItemClass, statusMsg string
 			if result.IsError {
 				listItemClass = "error"
