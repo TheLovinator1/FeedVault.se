@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 
 	"github.com/tdewolff/minify/v2"
@@ -170,7 +171,7 @@ func fullHTML(h HTMLData, ParseResult []ParseResult) string {
         <small>
             <div class="leftright">
                 <div class="left">
-                    <a href="/feeds">Feeds</a> | <a href="/api">API</a> | <a href="/export">Export</a> | <a href="/stats">Stats</a>
+					<a href="/">Home</a> | <a href="/feeds">Feeds</a> | <a href="/api">API</a> 
                 </div>
                 <div class="right">
                     <a href="https://github.com/TheLovinator1/FeedVault">GitHub</a> | <a href="https://github.com/sponsors/TheLovinator1">Donate</a>
@@ -196,7 +197,7 @@ func fullHTML(h HTMLData, ParseResult []ParseResult) string {
                     <a href="mailto:hello@feedvault.se">hello@feedvault.se</a>
                 </div>
                 <div class="right">
-                    Web scraping is not a crime.
+                    ` + funMsg[rand.Intn(len(funMsg))] + `
                 </div>
             </div>
         </small>
