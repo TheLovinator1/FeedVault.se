@@ -1,0 +1,36 @@
+name: Go
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          check-latest: true
+          go-version: stable
+
+      - name: Install dependencies
+        run: go get .
+
+      - name: Test
+        run: go test -v
+
+      - name: Lint
+        run: go vet .
+
+      - name: Fmt
+        run: go fmt .
+
+      - name: Build
+        run: go build -v -ldflags="-s -w"
