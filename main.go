@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"html/template"
 	"log"
 	"net/http"
 
@@ -53,38 +51,9 @@ func main() {
 	// Routes
 	r.Get("/", IndexHandler)
 	r.Get("/api", ApiHandler)
-	r.Get("/donate", DonateHandler)
 	r.Get("/feeds", FeedsHandler)
-	r.Get("/privacy", PrivacyHandler)
-	r.Get("/terms", TermsHandler)
 	r.Post("/add", AddFeedHandler)
-
-	// Static files
-	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-
-	// 404 and 405 handlers
-	r.NotFound(NotFoundHandler)
-	r.MethodNotAllowed(MethodNotAllowedHandler)
 
 	log.Println("Listening on http://localhost:8000/ <Ctrl-C> to stop")
 	http.ListenAndServe("127.0.0.1:8000", r)
-}
-
-func renderPage(w http.ResponseWriter, title, description, keywords, author, url, templateName string) {
-	data := TemplateData{
-		Title:        title,
-		Description:  description,
-		Keywords:     keywords,
-		Author:       author,
-		CanonicalURL: url,
-		FeedCount:    0,
-	}
-	data.GetDatabaseSizeAndFeedCount()
-
-	t, err := template.ParseFiles("templates/base.tmpl", fmt.Sprintf("templates/%s.tmpl", templateName))
-	if err != nil {
-		http.Error(w, fmt.Sprintf("Internal Server Error: %v", err), http.StatusInternalServerError)
-		return
-	}
-	t.ExecuteTemplate(w, "base", data)
 }
