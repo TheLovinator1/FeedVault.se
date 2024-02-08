@@ -178,15 +178,3 @@ type ParseResult struct {
 func (d *TemplateData) GetDatabaseSizeAndFeedCount() {
 	d.DatabaseSize = GetDBSize()
 }
-
-type BadURLs struct {
-	gorm.Model
-	URL    string `json:"url"`
-	Active bool   `json:"active"`
-}
-
-type BadURLsMeta struct {
-	gorm.Model
-	URL         string    `json:"url"`
-	LastScraped time.Time `json:"lastScraped"`
-}

@@ -25,7 +25,7 @@ func init() {
 	log.Println("Connected to database")
 
 	// Migrate the schema
-	err = db.AutoMigrate(&BadURLsMeta{}, &BadURLs{}, &Feed{}, &Item{}, &Person{}, &Image{}, &Enclosure{}, &DublinCoreExtension{}, &ITunesFeedExtension{}, &ITunesItemExtension{}, &ITunesCategory{}, &ITunesOwner{}, &Extension{})
+	err = db.AutoMigrate(&Feed{}, &Item{}, &Person{}, &Image{}, &Enclosure{}, &DublinCoreExtension{}, &ITunesFeedExtension{}, &ITunesItemExtension{}, &ITunesCategory{}, &ITunesOwner{}, &Extension{})
 	if err != nil {
 		panic("Failed to migrate the database")
 	}
@@ -36,7 +36,6 @@ func main() {
 
 	// Scrape the bad URLs in the background
 	// TODO: Run this in a goroutine
-	scrapeBadURLs()
 
 	// Create a new router
 	r := chi.NewRouter()

@@ -1,95 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"errors"
-	"log"
 	"net"
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 )
-
-func scrapeBadURLs() {
-	// TODO: We should only scrape the bad URLs if the file has been updated
-	// TODO: Use brotli compression https://gitlab.com/malware-filter/urlhaus-filter#compressed-version
-	filterListURLs := []string{
-		"https://malware-filter.gitlab.io/malware-filter/phishing-filter-dnscrypt-blocked-names.txt",
-		"https://malware-filter.gitlab.io/malware-filter/urlhaus-filter-dnscrypt-blocked-names-online.txt",
-	}
-
-	// Scrape the bad URLs
-	badURLs := []BadURLs{}
-	for _, url := range filterListURLs {
-		// Check if we have scraped the bad URLs in the last 24 hours
-		var meta BadURLsMeta
-		db.Where("url = ?", url).First(&meta)
-		if time.Since(meta.LastScraped).Hours() < 24 {
-			log.Printf("%s was last scraped %.1f hours ago\n", url, time.Since(meta.LastScraped).Hours())
-			continue
-		}
-
-		// Create the meta if it doesn't exist
-		if meta.ID == 0 {
-			meta = BadURLsMeta{URL: url}
-			db.Create(&meta)
-		}
-
-		// Update the last scraped time
-		db.Model(&meta).Update("last_scraped", time.Now())
-
-		// Get the filter list
-		resp, err := http.Get(url)
-		if err != nil {
-			log.Println("Failed to get filter list:", err)
-			continue
-		}
-		defer resp.Body.Close()
-
-		scanner := bufio.NewScanner(resp.Body)
-		for scanner.Scan() {
-			line := scanner.Text()
-			if strings.HasPrefix(line, "#") {
-				log.Println("Comment:", line)
-				continue
-			}
-
-			// Skip the URL if it already exists in the database
-			var count int64
-			db.Model(&BadURLs{}).Where("url = ?", line).Count(&count)
-			if count > 0 {
-				log.Println("URL already exists:", line)
-				continue
-			}
-
-			// Add the bad URL to the list
-			badURLs = append(badURLs, BadURLs{URL: line, Active: true})
-		}
-
-		if err := scanner.Err(); err != nil {
-			log.Println("Failed to scan filter list:", err)
-		}
-	}
-
-	if len(badURLs) == 0 {
-		log.Println("No new URLs found in", len(filterListURLs), "filter lists")
-		return
-	}
-
-	// Log how many bad URLs we found
-	log.Println("Found", len(badURLs), "bad URLs")
-
-	// Mark all the bad URLs as inactive if we have any in the database
-	var count int64
-	db.Model(&BadURLs{}).Count(&count)
-	if count > 0 {
-		db.Model(&BadURLs{}).Update("active", false)
-	}
-
-	// Save the bad URLs to the database
-	db.Create(&badURLs)
-}
 
 // Run some simple validation on the URL
 func validateURL(feed_url string) error {
@@ -172,13 +89,6 @@ func validateURL(feed_url string) error {
 		if strings.Contains(domain, localURL) {
 			return errors.New("local URLs are not allowed")
 		}
-	}
-
-	// Check if the domain is in BadURLs
-	var count int64
-	db.Model(&BadURLs{}).Where("url = ?", domain).Count(&count)
-	if count > 0 {
-		return errors.New("URL is in the bad URLs list")
 	}
 
 	// Don't allow URLs that end with .local
