@@ -4,8 +4,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -34,26 +32,24 @@ func init() {
 func main() {
 	log.Println("Starting FeedVault...")
 
-	// Scrape the bad URLs in the background
-	// TODO: Run this in a goroutine
-
-	// Create a new router
-	r := chi.NewRouter()
-
-	// Middleware
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(middleware.Compress(5))
-	r.Use(middleware.Heartbeat("/ping"))
+	// Create a new ServeMux
+	mux := http.NewServeMux()
 
 	// Routes
-	r.Get("/", IndexHandler)
-	r.Get("/api", ApiHandler)
-	r.Get("/feeds", FeedsHandler)
-	r.Post("/add", AddFeedHandler)
-	r.Post("/upload_opml", UploadOpmlHandler)
+	mux.HandleFunc("/", IndexHandler)
+	mux.HandleFunc("/api", ApiHandler)
+	mux.HandleFunc("/feeds", FeedsHandler)
+	mux.HandleFunc("/add", AddFeedHandler)
+	mux.HandleFunc("/upload_opml", UploadOpmlHandler)
+
+	// Create server
+	server := &http.Server{
+		Addr:    "127.0.0.1:8000",
+		Handler: mux,
+	}
 
 	log.Println("Listening on http://localhost:8000/ <Ctrl-C> to stop")
-	http.ListenAndServe("127.0.0.1:8000", r)
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Server error: %v", err)
+	}
 }
