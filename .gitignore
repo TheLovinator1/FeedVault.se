@@ -22,4 +22,4 @@ tmp/
 .env
 
 # Database
-*.db
+/data
