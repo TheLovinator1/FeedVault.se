@@ -3,9 +3,10 @@ package main
 import (
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/TheLovinator1/FeedVault/pkg/handlers"
 )
 
 func TestIndexHandler(t *testing.T) {
@@ -17,7 +18,7 @@ func TestIndexHandler(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(IndexHandler)
+	handler := http.HandlerFunc(handlers.IndexHandler)
 
 	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
 	// directly and pass in our Request and ResponseRecorder.
@@ -32,7 +33,7 @@ func TestIndexHandler(t *testing.T) {
 	// Check the response contains the expected string.
 	shouldContain := "Input the URLs of the feeds you wish to archive below. You can add as many as needed, and access them through the website or API. Alternatively, include links to .opml files, and the feeds within will be archived."
 	body := rr.Body.String()
-	if !assert.Contains(t, body, shouldContain) {
+	if !strings.Contains(body, shouldContain) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			body, shouldContain)
 	}
@@ -47,7 +48,7 @@ func TestApiHandler(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(ApiHandler)
+	handler := http.HandlerFunc(handlers.ApiHandler)
 
 	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
 	// directly and pass in our Request and ResponseRecorder.
@@ -62,7 +63,7 @@ func TestApiHandler(t *testing.T) {
 	// Check the response contains the expected string.
 	shouldContain := "Here be dragons."
 	body := rr.Body.String()
-	if !assert.Contains(t, body, shouldContain) {
+	if !strings.Contains(body, shouldContain) {
 		t.Errorf("handler returned unexpected body: got %v want %v",
 			body, shouldContain)
 	}

@@ -1,13 +1,13 @@
-package main
+package html
 
 import (
 	"fmt"
 	"math/rand"
 	"strings"
 
-	"github.com/tdewolff/minify/v2"
-	"github.com/tdewolff/minify/v2/css"
-	"github.com/tdewolff/minify/v2/html"
+	"github.com/TheLovinator1/FeedVault/pkg/models"
+	"github.com/TheLovinator1/FeedVault/pkg/quotes"
+	"github.com/TheLovinator1/FeedVault/pkg/stats"
 )
 
 type HTMLData struct {
@@ -17,27 +17,7 @@ type HTMLData struct {
 	Author       string
 	CanonicalURL string
 	Content      string
-	ParseResult  []ParseResult
-}
-
-func minifyHTML(h string) string {
-	m := minify.New()
-	m.AddFunc("text/html", html.Minify)
-	minified, err := m.String("text/html", h)
-	if err != nil {
-		return h
-	}
-	return minified
-}
-
-func minifyCSS(h string) string {
-	m := minify.New()
-	m.AddFunc("text/css", css.Minify)
-	minified, err := m.String("text/css", h)
-	if err != nil {
-		return h
-	}
-	return minified
+	ParseResult  []models.ParseResult
 }
 
 var style = `
@@ -99,12 +79,12 @@ textarea {
 }
 `
 
-func fullHTML(h HTMLData) string {
+func FullHTML(h HTMLData) string {
 	var sb strings.Builder
 	var errorBuilder strings.Builder
 
 	FeedCount := 0
-	DatabaseSize := GetDBSize()
+	DatabaseSize := stats.GetDBSize()
 
 	// This is the error message that will be displayed if there are any errors
 	if len(h.ParseResult) > 0 {
@@ -151,7 +131,7 @@ func fullHTML(h HTMLData) string {
 
 	sb.WriteString(`
 		<title>` + h.Title + `</title>
-		<style>` + minifyCSS(style) + `</style>
+		<style>` + style + `</style>
 	</head>
 	<body>
 	` + StatusMsg + `
@@ -198,7 +178,7 @@ func fullHTML(h HTMLData) string {
                     <a href="mailto:hello@feedvault.se">hello@feedvault.se</a>
                 </div>
                 <div class="right">
-                    ` + funMsg[rand.Intn(len(funMsg))] + `
+                    ` + quotes.FunMsg[rand.Intn(len(quotes.FunMsg))] + `
                 </div>
             </div>
         </small>
@@ -206,6 +186,6 @@ func fullHTML(h HTMLData) string {
 	</body>
 	</html>`)
 
-	return minifyHTML(sb.String())
+	return sb.String()
 
 }

@@ -1,4 +1,4 @@
-package main
+package validate
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 )
 
 // Run some simple validation on the URL
-func validateURL(feed_url string) error {
+func ValidateFeedURL(feed_url string) error {
 	// Check if URL starts with http or https
 	if !strings.HasPrefix(feed_url, "http://") && !strings.HasPrefix(feed_url, "https://") {
 		return errors.New("URL must start with http:// or https://")

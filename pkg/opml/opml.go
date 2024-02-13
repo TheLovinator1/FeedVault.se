@@ -1,4 +1,4 @@
-package main
+package opml
 
 import "encoding/xml"
 
@@ -36,7 +36,7 @@ type linksFromOpml struct {
 	HTMLLinks []string `json:"htmlLinks"`
 }
 
-func removeDuplicates(s []string) []string {
+func RemoveDuplicates(s []string) []string {
 	seen := make(map[string]struct{}, len(s))
 	j := 0
 	for _, v := range s {
@@ -87,8 +87,8 @@ func ParseOpml(s string) (linksFromOpml, error) {
 	}
 
 	// Remove any duplicates
-	links.XMLLinks = removeDuplicates(links.XMLLinks)
-	links.HTMLLinks = removeDuplicates(links.HTMLLinks)
+	links.XMLLinks = RemoveDuplicates(links.XMLLinks)
+	links.HTMLLinks = RemoveDuplicates(links.HTMLLinks)
 
 	return links, nil
 }
