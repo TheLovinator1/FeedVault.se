@@ -51,6 +51,7 @@
     "PGPORT",
     "PGUSER",
     "Prés",
+    "psql",
     "Rawr",
     "regexes",
     "Retour",
@@ -59,6 +60,8 @@
     "Scotty",
     "snek",
     "speedport",
+    "sqlc",
+    "sslmode",
     "steamloopback",
     "stretchr",
     "stylesheet",
@@ -74,6 +77,12 @@
     "Veni",
     "vidi",
     "webmail",
-    "XOXO"
-  ]
+    "XOXO",
+    "zerolog"
+  ],
+  "terminal.integrated.env.windows": {
+    "GOOSE_DRIVER": "postgres",
+    "GOOSE_DBSTRING": "user=feedvault password=feedvault dbname=feedvault sslmode=disable",
+    "GOOSE_MIGRATION_DIR": "${workspaceFolder}/sql/schema"
+  }
 }

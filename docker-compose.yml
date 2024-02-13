@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    container_name: feedvault-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: feedvault
+      POSTGRES_PASSWORD: feedvault # Change this to something more secure in production.
+      # .vscode/settings.json uses feedvault as the password for goose. https://github.com/pressly/goose
+      POSTGRES_DB: feedvault
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
