@@ -20,20 +20,17 @@ jobs:
           check-latest: true
           go-version: stable
 
-      - name: Install dependencies
-        run: go get .
-
       - name: Test
-        run: go test -v
+        run: go test ./... -v
 
       - name: Lint
-        run: go vet .
+        run: go vet ./...
 
       - name: Fmt
-        run: go fmt .
+        run: go fmt ./...
 
       - name: Tidy
         run: go mod tidy
 
       - name: Build
-        run: go build -v -ldflags="-s -w"
+        run: go build -v -ldflags="-s -w" .\cmd\feedvault\
