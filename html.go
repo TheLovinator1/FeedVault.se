@@ -1,14 +1,10 @@
-package html
+package main
 
 import (
 	"fmt"
 	"log"
 	"math/rand"
 	"strings"
-
-	"github.com/TheLovinator1/FeedVault/pkg/models"
-	"github.com/TheLovinator1/FeedVault/pkg/quotes"
-	"github.com/TheLovinator1/FeedVault/pkg/stats"
 )
 
 type HTMLData struct {
@@ -18,7 +14,7 @@ type HTMLData struct {
 	Author       string
 	CanonicalURL string
 	Content      string
-	ParseResult  []models.ParseResult
+	ParseResult  []ParseResult
 }
 
 var style = `
@@ -150,7 +146,7 @@ const (
     </html>`
 )
 
-func buildErrorList(parseResults []models.ParseResult) string {
+func buildErrorList(parseResults []ParseResult) string {
 	var errorBuilder strings.Builder
 	if len(parseResults) > 0 {
 		errorBuilder.WriteString("<ul>")
@@ -170,12 +166,12 @@ func buildErrorList(parseResults []models.ParseResult) string {
 func FullHTML(h HTMLData) string {
 	statusMsg := buildErrorList(h.ParseResult)
 	feedCount := 0
-	databaseSize, err := stats.GetDBSize()
+	databaseSize, err := GetDBSize()
 	if err != nil {
 		databaseSize = "0 KiB"
 		log.Println("Error getting database size:", err)
 	}
 
-	funMsg := quotes.FunMsg[rand.Intn(len(quotes.FunMsg))]
+	funMsg := FunMsg[rand.Intn(len(FunMsg))]
 	return fmt.Sprintf(htmlTemplate, h.Description, h.Keywords, h.Author, h.CanonicalURL, h.Title, style, statusMsg, feedCount, databaseSize, h.Content, funMsg)
 }

@@ -1,4 +1,5 @@
-package quotes
+package main
+
 
 // "Fun" messages that will be displayed in the footer
 var FunMsg = []string{

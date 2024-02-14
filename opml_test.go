@@ -2,8 +2,6 @@ package main
 
 import (
 	"testing"
-
-	"github.com/TheLovinator1/FeedVault/pkg/opml"
 )
 
 var opmlExample = `<?xml version="1.0" encoding="utf-8"?>
@@ -34,7 +32,7 @@ var secondOpmlExample = `<?xml version="1.0" encoding="UTF-8"?>
 
 // Test the opml parser
 func TestParseOpml(t *testing.T) {
-	links, err := opml.ParseOpml(opmlExample)
+	links, err := ParseOpml(opmlExample)
 	if err != nil {
 		t.Error(err)
 	}
@@ -46,8 +44,8 @@ func TestParseOpml(t *testing.T) {
 	}
 
 	// Test that the links are unique
-	links.XMLLinks = opml.RemoveDuplicates(links.XMLLinks)
-	links.HTMLLinks = opml.RemoveDuplicates(links.HTMLLinks)
+	links.XMLLinks = RemoveDuplicates(links.XMLLinks)
+	links.HTMLLinks = RemoveDuplicates(links.HTMLLinks)
 	if len(links.XMLLinks) != 2 {
 		t.Errorf("Expected 2 links, got %d", len(links.XMLLinks))
 	}
@@ -73,7 +71,7 @@ func TestParseOpml(t *testing.T) {
 
 // Test the opml parser with nested outlines
 func TestParseOpmlNested(t *testing.T) {
-	links, err := opml.ParseOpml(secondOpmlExample)
+	links, err := ParseOpml(secondOpmlExample)
 	if err != nil {
 		t.Error(err)
 	}
@@ -85,8 +83,8 @@ func TestParseOpmlNested(t *testing.T) {
 	}
 
 	// Test that the links are unique
-	links.XMLLinks = opml.RemoveDuplicates(links.XMLLinks)
-	links.HTMLLinks = opml.RemoveDuplicates(links.HTMLLinks)
+	links.XMLLinks = RemoveDuplicates(links.XMLLinks)
+	links.HTMLLinks = RemoveDuplicates(links.HTMLLinks)
 	if len(links.XMLLinks) != 2 {
 		t.Errorf("Expected 2 links, got %d", len(links.XMLLinks))
 	}

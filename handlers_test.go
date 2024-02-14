@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	"github.com/TheLovinator1/FeedVault/pkg/handlers"
 )
 
 func TestIndexHandler(t *testing.T) {
@@ -18,7 +16,7 @@ func TestIndexHandler(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.IndexHandler)
+	handler := http.HandlerFunc(IndexHandler)
 
 	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
 	// directly and pass in our Request and ResponseRecorder.
@@ -48,7 +46,7 @@ func TestApiHandler(t *testing.T) {
 
 	// We create a ResponseRecorder (which satisfies http.ResponseWriter) to record the response.
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(handlers.ApiHandler)
+	handler := http.HandlerFunc(ApiHandler)
 
 	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
 	// directly and pass in our Request and ResponseRecorder.

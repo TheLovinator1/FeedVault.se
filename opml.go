@@ -1,4 +1,4 @@
-package opml
+package main
 
 import "encoding/xml"
 

@@ -4,8 +4,6 @@ import (
 	"log"
 
 	"net/http"
-
-	"github.com/TheLovinator1/FeedVault/pkg/handlers"
 )
 
 func init() { log.SetFlags(log.LstdFlags | log.Lshortfile) }
@@ -17,11 +15,11 @@ func main() {
 	mux := http.NewServeMux()
 
 	// Routes
-	mux.HandleFunc("/", handlers.IndexHandler)
-	mux.HandleFunc("/api", handlers.ApiHandler)
-	mux.HandleFunc("/feeds", handlers.FeedsHandler)
-	mux.HandleFunc("/add", handlers.AddFeedHandler)
-	mux.HandleFunc("/upload_opml", handlers.UploadOpmlHandler)
+	mux.HandleFunc("/", IndexHandler)
+	mux.HandleFunc("/api", ApiHandler)
+	mux.HandleFunc("/feeds", FeedsHandler)
+	mux.HandleFunc("/add", AddFeedHandler)
+	mux.HandleFunc("/upload_opml", UploadOpmlHandler)
 
 	// Create server
 	server := &http.Server{

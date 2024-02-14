@@ -33,4 +33,4 @@ jobs:
         run: go mod tidy
 
       - name: Build
-        run: go build -v -ldflags="-s -w" .\cmd\feedvault\
+        run: go build -v -ldflags="-s -w" .

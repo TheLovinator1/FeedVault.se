@@ -5,7 +5,7 @@ tmp_dir = "tmp"
 [build]
 args_bin = []
 bin = "tmp\\main.exe"
-cmd = "go build -o ./tmp/main.exe ./cmd/feedvault/"
+cmd = "go build -o ./tmp/main.exe ."
 delay = 1000
 exclude_dir = [
   "assets",
@@ -15,7 +15,6 @@ exclude_dir = [
   "testdata",
   "tests",
   ".git",
-  ".idea",
   ".vscode",
 ]
 exclude_file = []

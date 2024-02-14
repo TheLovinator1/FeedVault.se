@@ -2,14 +2,12 @@ package main
 
 import (
 	"testing"
-
-	"github.com/TheLovinator1/FeedVault/pkg/validate"
 )
 
 // URL starts with http://
 func TestURLStartsWithHTTP(t *testing.T) {
 	url := "http://example.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -18,7 +16,7 @@ func TestURLStartsWithHTTP(t *testing.T) {
 // URL starts with https://
 func TestURLStartsWithHTTPS(t *testing.T) {
 	url := "https://example.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -27,7 +25,7 @@ func TestURLStartsWithHTTPS(t *testing.T) {
 // URL contains a valid domain
 func TestURLContainsValidDomain(t *testing.T) {
 	url := "http://example.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -36,7 +34,7 @@ func TestURLContainsValidDomain(t *testing.T) {
 // URL is empty
 func TestURLEmpty(t *testing.T) {
 	url := ""
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "URL must start with http:// or https://" {
@@ -47,7 +45,7 @@ func TestURLEmpty(t *testing.T) {
 // URL does not contain a domain
 func TestURLNotNumbers(t *testing.T) {
 	url := "12345"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "URL must start with http:// or https://" {
@@ -58,7 +56,7 @@ func TestURLNotNumbers(t *testing.T) {
 // URL is not a valid URL
 func TestURLNotValidURL(t *testing.T) {
 	url := "example.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "URL must start with http:// or https://" {
@@ -69,7 +67,7 @@ func TestURLNotValidURL(t *testing.T) {
 // Domain is resolvable
 func TestDomainIsResolvable(t *testing.T) {
 	url := "http://example.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -78,7 +76,7 @@ func TestDomainIsResolvable(t *testing.T) {
 // Domain does not end with .local
 func TestDomainDoesNotEndWithLocal(t *testing.T) {
 	url := "http://example.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -87,7 +85,7 @@ func TestDomainDoesNotEndWithLocal(t *testing.T) {
 // Domain is not localhost
 func TestDomainIsNotLocalhost(t *testing.T) {
 	url := "http://example.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -96,7 +94,7 @@ func TestDomainIsNotLocalhost(t *testing.T) {
 // Domain is not an IP address
 func TestDomainIsNotIPAddress(t *testing.T) {
 	url := "http://example.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
 	}
@@ -105,7 +103,7 @@ func TestDomainIsNotIPAddress(t *testing.T) {
 // URL is a file path
 func TestURLIsFilePath(t *testing.T) {
 	url := "/path/to/file"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "URL must start with http:// or https://" {
@@ -116,7 +114,7 @@ func TestURLIsFilePath(t *testing.T) {
 // URL is a relative path
 func TestURLIsRelativePath(t *testing.T) {
 	url := "/path/to/resource"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "URL must start with http:// or https://" {
@@ -127,7 +125,7 @@ func TestURLIsRelativePath(t *testing.T) {
 // URL is a non-existent domain
 func TestNonExistentDomainURL(t *testing.T) {
 	url := "http://jfsalksajlkfsajklfsajklfllfjffffkfsklslsksassflfskjlfjlfsjkalfsaf.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "failed to resolve domain" {
@@ -138,7 +136,7 @@ func TestNonExistentDomainURL(t *testing.T) {
 // URL is a malformed URL
 func TestMalformedURL(t *testing.T) {
 	url := "malformedurl"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "URL must start with http:// or https://" {
@@ -149,7 +147,7 @@ func TestMalformedURL(t *testing.T) {
 // URL is a domain that does not support HTTP/HTTPS
 func TestURLDomainNotSupportHTTP(t *testing.T) {
 	url := "ftp://example.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "URL must start with http:// or https://" {
@@ -160,7 +158,7 @@ func TestURLDomainNotSupportHTTP(t *testing.T) {
 // URL is an unreachable domain
 func TestUnreachableDomain(t *testing.T) {
 	url := "http://fafsffsfsfsfsafsasafassfs.com"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "failed to resolve domain" {
@@ -171,7 +169,7 @@ func TestUnreachableDomain(t *testing.T) {
 // URL is an IP address
 func TestURLIsIPAddress(t *testing.T) {
 	url := "http://84.55.107.42"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "IP address URLs are not allowed" {
@@ -182,7 +180,7 @@ func TestURLIsIPAddress(t *testing.T) {
 // URL ends with .local
 func TestURLEndsWithLocal(t *testing.T) {
 	url := "http://example.local"
-	err := validate.ValidateFeedURL(url)
+	err := ValidateFeedURL(url)
 	if err == nil {
 		t.Error("Expected an error, got nil")
 	} else if err.Error() != "URLs ending with .local are not allowed" {
@@ -238,7 +236,7 @@ func TestLocalURLs(t *testing.T) {
 	}
 
 	for _, localURL := range localURLs {
-		err := validate.ValidateFeedURL(localURL)
+		err := ValidateFeedURL(localURL)
 		if err == nil {
 			t.Errorf("Expected an error for local URL %s, got nil", localURL)
 		} else if err.Error() != "local URLs are not allowed" {
