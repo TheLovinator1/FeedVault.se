@@ -8,7 +8,7 @@ FeedVault is an open-source web application written in Golang that allows users 
 
 _Note: Some features are currently in development._
 
-- **Unified Feed Archiving**: Archive RSS (0.90 to 2.0), Atom (0.3, 1.0), and JSON (1.0, 1.1) feeds seamlessly in one centralized location.
+- **Unified Feed Archiving**: Archive RSS (0.90 to 2.0), Atom (0.3, 1.0), JSON (1.0, 1.1), Dublin Core, and ITunes feeds seamlessly in one centralized location.
 - **Content Search**: Easily search your archive for specific content.
 - **Export Options**: Export your archive to various formats, including JSON, CSV, HTML, ODS, RST, TSV, XLS, XLSX, or YAML.
 - **API**: Access your archive programmatically through a API.

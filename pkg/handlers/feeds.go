@@ -1,10 +1,10 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
+	"github.com/TheLovinator1/FeedVault/pkg/feeds"
 	"github.com/TheLovinator1/FeedVault/pkg/html"
 	"github.com/TheLovinator1/FeedVault/pkg/models"
 	"github.com/TheLovinator1/FeedVault/pkg/validate"
@@ -27,7 +27,12 @@ func AddFeedHandler(w http.ResponseWriter, r *http.Request) {
 	var parseErrors []models.ParseResult
 
 	// Parse the form and get the URLs
-	r.ParseForm()
+	err := r.ParseForm()
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusInternalServerError)
+		return
+	}
+
 	urls := r.Form.Get("urls")
 	if urls == "" {
 		http.Error(w, "No URLs provided", http.StatusBadRequest)
@@ -44,8 +49,13 @@ func AddFeedHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		// "Add" the feed to the database
-		log.Println("Adding feed:", feed_url)
+		err = feeds.AddFeedToDB(feed_url)
+		if err != nil {
+			parseErrors = append(parseErrors, models.ParseResult{FeedURL: feed_url, Msg: err.Error(), IsError: true})
+			continue
+		}
+
+		// Feed was added successfully
 		parseErrors = append(parseErrors, models.ParseResult{FeedURL: feed_url, Msg: "Added", IsError: false})
 
 	}
