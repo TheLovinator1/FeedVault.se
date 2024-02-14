@@ -2,7 +2,6 @@ package stats
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 )
@@ -14,20 +13,16 @@ type Cache struct {
 
 var cache Cache
 
-// Get the size of the database and return as nearest human readable size.
-//
-//	e.g. 1.23 KiB, 4.56 MiB, 7.89 GiB, 0.12 TiB
-//	The size is cached for 10 minutes
-func GetDBSize() string {
+func GetDBSize() (string, error) {
 	// If cache is less than 10 minutes old, return cached data
 	if time.Since(cache.timestamp).Minutes() < 10 {
-		return cache.data
+		return cache.data, nil
 	}
 
+	// TODO: This should be read from the environment
 	fileInfo, err := os.Stat("feedvault.db")
 	if err != nil {
-		log.Println("Error getting file info:", err)
-		return "0 B"
+		return "", err
 	}
 
 	// Get the file size in bytes
@@ -35,16 +30,23 @@ func GetDBSize() string {
 
 	// Convert to human readable size and append the unit (KiB, MiB, GiB, TiB)
 	var size float64
+
 	if fileSize < 1024*1024 {
+		// If the file size is less than 1 KiB, return the size in bytes
 		size = float64(fileSize) / 1024
 		cache.data = fmt.Sprintf("%.2f KiB", size)
+
 	} else if fileSize < 1024*1024*1024 {
+		// If the file size is less than 1 MiB, return the size in KiB
 		size = float64(fileSize) / (1024 * 1024)
 		cache.data = fmt.Sprintf("%.2f MiB", size)
+
 	} else if fileSize < 1024*1024*1024*1024 {
+		// If the file size is less than 1 GiB, return the size in MiB
 		size = float64(fileSize) / (1024 * 1024 * 1024)
 		cache.data = fmt.Sprintf("%.2f GiB", size)
 	} else {
+		// If the file size is 1 GiB or more, return the size in TiB
 		size = float64(fileSize) / (1024 * 1024 * 1024 * 1024)
 		cache.data = fmt.Sprintf("%.2f TiB", size)
 	}
@@ -52,7 +54,6 @@ func GetDBSize() string {
 	// Update cache timestamp
 	cache.timestamp = time.Now()
 
-	log.Println("Returning database size, it is", cache.data)
-
-	return cache.data
+	// Return the human readable size
+	return cache.data, nil
 }

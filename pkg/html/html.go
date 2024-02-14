@@ -2,6 +2,7 @@ package html
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"strings"
 
@@ -79,69 +80,31 @@ textarea {
 }
 `
 
-func FullHTML(h HTMLData) string {
-	var sb strings.Builder
-	var errorBuilder strings.Builder
+const (
+	// errorListItem is shown after adding a feed. It shows if error or success.
+	errorListItem = `<li class="%s"><a href="%s">%s</a> - %s</li>`
 
-	FeedCount := 0
-	DatabaseSize := stats.GetDBSize()
-
-	// This is the error message that will be displayed if there are any errors
-	if len(h.ParseResult) > 0 {
-		errorBuilder.WriteString("<ul>")
-		for _, result := range h.ParseResult {
-			var listItemClass, statusMsg string
-			if result.IsError {
-				listItemClass = "error"
-				statusMsg = result.Msg
-			} else {
-				listItemClass = "success"
-				statusMsg = result.Msg
-			}
-			errorBuilder.WriteString(fmt.Sprintf(`<li class="%s"><a href="%s">%s</a> - %s</li>`, listItemClass, result.FeedURL, result.FeedURL, statusMsg))
-		}
-		errorBuilder.WriteString("</ul>")
-	}
-	StatusMsg := errorBuilder.String()
-
-	sb.WriteString(`
-	<!DOCTYPE html>
-	<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	`)
-
-	if h.Description != "" {
-		sb.WriteString(`<meta name="description" content="` + h.Description + `">`)
-	}
-
-	if h.Keywords != "" {
-		sb.WriteString(`<meta name="keywords" content="` + h.Keywords + `">`)
-	}
-
-	if h.Author != "" {
-		sb.WriteString(`<meta name="author" content="` + h.Author + `">`)
-	}
-
-	if h.CanonicalURL != "" {
-		sb.WriteString(`<link rel="canonical" href="` + h.CanonicalURL + `">`)
-	}
-
-	sb.WriteString(`
-		<title>` + h.Title + `</title>
-		<style>` + style + `</style>
-	</head>
-	<body>
-	` + StatusMsg + `
+	// htmlTemplate is the HTML template for the entire page.
+	htmlTemplate = `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="%s">
+        <meta name="keywords" content="%s">
+        <meta name="author" content="%s">
+        <link rel="canonical" href="%s">
+        <title>%s</title>
+        <style>%s</style>
+    </head>
+    <body>
+    %s
     <span class="title"><h1><a href="/">FeedVault</a></h1></span>
     <div class="leftright">
         <div class="left">
-            <small>Archive of <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>. ` + fmt.Sprintf("%d", FeedCount) + ` feeds. ~` + DatabaseSize + `.</small>
+            <small>Archive of <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>. %d feeds. ~%s.</small>
         </div>
         <div class="right">
-            <!-- Search -->
             <form action="#" method="get">
                 <input type="text" name="q" placeholder="Search">
                 <button type="submit">Search</button>
@@ -152,7 +115,7 @@ func FullHTML(h HTMLData) string {
         <small>
             <div class="leftright">
                 <div class="left">
-					<a href="/">Home</a> | <a href="/feeds">Feeds</a> | <a href="/api">API</a> 
+                    <a href="/">Home</a> | <a href="/feeds">Feeds</a> | <a href="/api">API</a> 
                 </div>
                 <div class="right">
                     <a href="https://github.com/TheLovinator1/FeedVault">GitHub</a> | <a href="https://github.com/sponsors/TheLovinator1">Donate</a>
@@ -161,10 +124,10 @@ func FullHTML(h HTMLData) string {
         </small>
     </nav>
     <hr>
-	<main>
-	` + h.Content + `
-	</main>
-	<hr>
+    <main>
+    %s
+    </main>
+    <hr>
     <footer>
         <small>
             <div class="leftright">
@@ -178,14 +141,41 @@ func FullHTML(h HTMLData) string {
                     <a href="mailto:hello@feedvault.se">hello@feedvault.se</a>
                 </div>
                 <div class="right">
-                    ` + quotes.FunMsg[rand.Intn(len(quotes.FunMsg))] + `
+                    %s
                 </div>
             </div>
         </small>
     </footer>
-	</body>
-	</html>`)
+    </body>
+    </html>`
+)
 
-	return sb.String()
+func buildErrorList(parseResults []models.ParseResult) string {
+	var errorBuilder strings.Builder
+	if len(parseResults) > 0 {
+		errorBuilder.WriteString("<ul>")
+		for _, result := range parseResults {
+			// CSS class for the list item. Green for success, red for error.
+			listItemClass := "success"
+			if result.IsError {
+				listItemClass = "error"
+			}
+			errorBuilder.WriteString(fmt.Sprintf(errorListItem, listItemClass, result.FeedURL, result.FeedURL, result.Msg))
+		}
+		errorBuilder.WriteString("</ul>")
+	}
+	return errorBuilder.String()
+}
 
+func FullHTML(h HTMLData) string {
+	statusMsg := buildErrorList(h.ParseResult)
+	feedCount := 0
+	databaseSize, err := stats.GetDBSize()
+	if err != nil {
+		databaseSize = "0 KiB"
+		log.Println("Error getting database size:", err)
+	}
+
+	funMsg := quotes.FunMsg[rand.Intn(len(quotes.FunMsg))]
+	return fmt.Sprintf(htmlTemplate, h.Description, h.Keywords, h.Author, h.CanonicalURL, h.Title, style, statusMsg, feedCount, databaseSize, h.Content, funMsg)
 }
