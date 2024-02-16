@@ -16,6 +16,7 @@ exclude_dir = [
   "tests",
   ".git",
   ".vscode",
+  "data",
 ]
 exclude_file = []
 exclude_regex = ["_test.go"]

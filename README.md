@@ -22,18 +22,25 @@ _Note: Some features are currently in development._
 - Add your favorite feeds to start archiving content.
 - Explore, manage, and enjoy your centralized feed archive.
 
-## Docker
-
-Please see [Docker.md](Docker.md).
-
 ## Contributing
 
 All contributions are welcome regardless of skill level or experience.
 
-Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information on how to contribute to FeedVault.
+Please create a new issue before submitting a big pull request. I am probably okay with anything, but I don't want you to waste your time on something that I won't accept.
+
+Try to minimize the number of dependencies you add to the project. If you need to add a new dependency, please create an issue first.
 
 ## Contact
 
 For any inquiries or support, please create an issue on GitHub.
+
+## Development
+
+- I use [goose](https://github.com/pressly/goose) and [sqlc](https://github.com/sqlc-dev/sqlc) for database migrations and queries.
+  - To create a new migration, run `goose create <migration_name> sql`. Then, edit the file in `sql/schema/<date>_<migration_name>.sql` and run `goose up` to apply the migration.
+    - You will have to install `goose` first. See the [Goose documentation](https://pressly.github.io/goose/installation/).
+    - You will also have to install `sqlc`. See the [sqlc documentation](https://docs.sqlc.dev/en/latest/overview/install.html).
+    - You have to set some environment variables for this. See [.vscode/settings.json](.vscode/settings.json) for local development.
+  - To generate new queries, run `sqlc generate`.
 
 Thank you for using FeedVault! Happy archiving!

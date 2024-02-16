@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"math/rand"
@@ -165,7 +166,13 @@ func buildErrorList(parseResults []ParseResult) string {
 
 func FullHTML(h HTMLData) string {
 	statusMsg := buildErrorList(h.ParseResult)
-	feedCount := 0
+
+	feedCount, err := DB.CountFeeds(context.Background())
+	if err != nil {
+		log.Fatalf("DB.CountFeeds(): %v", err)
+		feedCount = 0
+	}
+
 	databaseSize, err := GetDBSize()
 	if err != nil {
 		databaseSize = "0 KiB"

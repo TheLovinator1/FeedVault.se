@@ -31,6 +31,7 @@
     "homerouter",
     "hotspot",
     "huaweimobilewifi",
+    "jackc",
     "ldflags",
     "leftright",
     "levelname",
@@ -49,6 +50,7 @@
     "pacman",
     "PGHOST",
     "PGPORT",
+    "pgtype",
     "PGUSER",
     "Prés",
     "psql",
@@ -67,6 +69,7 @@
     "stylesheet",
     "sunt",
     "tdewolff",
+    "Timestamptz",
     "tmpl",
     "tplinkap",
     "tplinkeap",
@@ -79,5 +82,20 @@
     "webmail",
     "XOXO",
     "zerolog"
-  ]
+  ],
+  "terminal.integrated.env.windows": {
+    "GOOSE_DRIVER": "postgres",
+    "GOOSE_DBSTRING": "user=feedvault password=feedvault dbname=feedvault sslmode=disable",
+    "GOOSE_MIGRATION_DIR": "${workspaceFolder}/sql/schema"
+  },
+  "terminal.integrated.env.linux": {
+    "GOOSE_DRIVER": "postgres",
+    "GOOSE_DBSTRING": "user=feedvault password=feedvault dbname=feedvault sslmode=disable",
+    "GOOSE_MIGRATION_DIR": "${workspaceFolder}/sql/schema"
+  },
+  "terminal.integrated.env.osx": {
+    "GOOSE_DRIVER": "postgres",
+    "GOOSE_DBSTRING": "user=feedvault password=feedvault dbname=feedvault sslmode=disable",
+    "GOOSE_MIGRATION_DIR": "${workspaceFolder}/sql/schema"
+  }
 }

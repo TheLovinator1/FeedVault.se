@@ -18,7 +18,10 @@ func ApiHandler(w http.ResponseWriter, _ *http.Request) {
 		Content:      "<p>Here be dragons.</p>",
 	}
 	html := FullHTML(htmlData)
-	w.Write([]byte(html))
+	_, err := w.Write([]byte(html))
+	if err != nil {
+		log.Println("Error writing response:", err)
+	}
 }
 
 func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
@@ -31,7 +34,10 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 		Content:      "<p>Here be </p>",
 	}
 	html := FullHTML(htmlData)
-	w.Write([]byte(html))
+	_, err := w.Write([]byte(html))
+	if err != nil {
+		log.Println("Error writing response:", err)
+	}
 }
 
 func AddFeedHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,7 +87,11 @@ func AddFeedHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	html := FullHTML(htmlData)
-	w.Write([]byte(html))
+	_, err = w.Write([]byte(html))
+	if err != nil {
+		log.Println("Error writing response:", err)
+	}
+
 }
 
 func IndexHandler(w http.ResponseWriter, _ *http.Request) {
@@ -158,7 +168,11 @@ func IndexHandler(w http.ResponseWriter, _ *http.Request) {
 
 func UploadOpmlHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse the form and get the file
-	r.ParseMultipartForm(10 << 20) // 10 MB
+	err := r.ParseMultipartForm(10 << 20) // 10 MB
+	if err != nil {
+		http.Error(w, "Error parsing form", http.StatusInternalServerError)
+		return
+	}
 	file, _, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "No file provided", http.StatusBadRequest)

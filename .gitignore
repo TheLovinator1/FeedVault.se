@@ -22,5 +22,4 @@ tmp/
 .env
 
 # Database
-*.db
-*.sqlite3
+data/
