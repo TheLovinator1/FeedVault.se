@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GOOSE_DRIVER: postgres
-      GOOSE_DBSTRING: "user=feedvault password=feedvault dbname=feedvault sslmode=disable"
+      GOOSE_DBSTRING: "user=feedvault password=feedvault dbname=feedvault sslmode=disable host=localhost port=5432"
 
     services:
       postgres:
