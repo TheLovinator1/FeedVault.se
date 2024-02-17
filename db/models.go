@@ -9,229 +9,229 @@ import (
 )
 
 type Enclosure struct {
-	ID        int32            `json:"id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
-	Url       pgtype.Text      `json:"url"`
-	Length    pgtype.Text      `json:"length"`
-	Type      pgtype.Text      `json:"type"`
-	ItemID    int32            `json:"item_id"`
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Url       pgtype.Text        `json:"url"`
+	Length    pgtype.Text        `json:"length"`
+	Type      pgtype.Text        `json:"type"`
+	ItemID    int64              `json:"item_id"`
 }
 
 type Feed struct {
-	ID              int32            `json:"id"`
-	Url             string           `json:"url"`
-	CreatedAt       pgtype.Timestamp `json:"created_at"`
-	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
-	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
-	Title           pgtype.Text      `json:"title"`
-	Description     pgtype.Text      `json:"description"`
-	Link            pgtype.Text      `json:"link"`
-	FeedLink        pgtype.Text      `json:"feed_link"`
-	Links           []string         `json:"links"`
-	Updated         pgtype.Text      `json:"updated"`
-	UpdatedParsed   pgtype.Timestamp `json:"updated_parsed"`
-	Published       pgtype.Text      `json:"published"`
-	PublishedParsed pgtype.Timestamp `json:"published_parsed"`
-	Language        pgtype.Text      `json:"language"`
-	Copyright       pgtype.Text      `json:"copyright"`
-	Generator       pgtype.Text      `json:"generator"`
-	Categories      []string         `json:"categories"`
-	Custom          []byte           `json:"custom"`
-	FeedType        pgtype.Text      `json:"feed_type"`
-	FeedVersion     pgtype.Text      `json:"feed_version"`
+	ID              int64              `json:"id"`
+	Url             string             `json:"url"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt       pgtype.Timestamptz `json:"deleted_at"`
+	Title           pgtype.Text        `json:"title"`
+	Description     pgtype.Text        `json:"description"`
+	Link            pgtype.Text        `json:"link"`
+	FeedLink        pgtype.Text        `json:"feed_link"`
+	Links           []string           `json:"links"`
+	Updated         pgtype.Text        `json:"updated"`
+	UpdatedParsed   pgtype.Timestamptz `json:"updated_parsed"`
+	Published       pgtype.Text        `json:"published"`
+	PublishedParsed pgtype.Timestamptz `json:"published_parsed"`
+	Language        pgtype.Text        `json:"language"`
+	Copyright       pgtype.Text        `json:"copyright"`
+	Generator       pgtype.Text        `json:"generator"`
+	Categories      []string           `json:"categories"`
+	Custom          []byte             `json:"custom"`
+	FeedType        pgtype.Text        `json:"feed_type"`
+	FeedVersion     pgtype.Text        `json:"feed_version"`
 }
 
 type FeedAuthor struct {
-	ID        int32            `json:"id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
-	Name      pgtype.Text      `json:"name"`
-	Email     pgtype.Text      `json:"email"`
-	Uri       pgtype.Text      `json:"uri"`
-	FeedID    int32            `json:"feed_id"`
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Name      pgtype.Text        `json:"name"`
+	Email     pgtype.Text        `json:"email"`
+	Uri       pgtype.Text        `json:"uri"`
+	FeedID    int64              `json:"feed_id"`
 }
 
 type FeedDublinCore struct {
-	ID          int32            `json:"id"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
-	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
-	Title       []string         `json:"title"`
-	Creator     []string         `json:"creator"`
-	Author      []string         `json:"author"`
-	Subject     []string         `json:"subject"`
-	Description []string         `json:"description"`
-	Publisher   []string         `json:"publisher"`
-	Contributor []string         `json:"contributor"`
-	Date        []string         `json:"date"`
-	Type        []string         `json:"type"`
-	Format      []string         `json:"format"`
-	Identifier  []string         `json:"identifier"`
-	Source      []string         `json:"source"`
-	Language    []string         `json:"language"`
-	Relation    []string         `json:"relation"`
-	Coverage    []string         `json:"coverage"`
-	Rights      []string         `json:"rights"`
-	FeedID      int32            `json:"feed_id"`
+	ID          int64              `json:"id"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+	Title       []string           `json:"title"`
+	Creator     []string           `json:"creator"`
+	Author      []string           `json:"author"`
+	Subject     []string           `json:"subject"`
+	Description []string           `json:"description"`
+	Publisher   []string           `json:"publisher"`
+	Contributor []string           `json:"contributor"`
+	Date        []string           `json:"date"`
+	Type        []string           `json:"type"`
+	Format      []string           `json:"format"`
+	Identifier  []string           `json:"identifier"`
+	Source      []string           `json:"source"`
+	Language    []string           `json:"language"`
+	Relation    []string           `json:"relation"`
+	Coverage    []string           `json:"coverage"`
+	Rights      []string           `json:"rights"`
+	FeedID      int64              `json:"feed_id"`
 }
 
 type FeedExtension struct {
-	ID        int32            `json:"id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
-	Name      pgtype.Text      `json:"name"`
-	Value     pgtype.Text      `json:"value"`
-	Attrs     []byte           `json:"attrs"`
-	Children  []byte           `json:"children"`
-	FeedID    int32            `json:"feed_id"`
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Name      pgtype.Text        `json:"name"`
+	Value     pgtype.Text        `json:"value"`
+	Attrs     []byte             `json:"attrs"`
+	Children  []byte             `json:"children"`
+	FeedID    int64              `json:"feed_id"`
 }
 
 type FeedImage struct {
-	ID        int32            `json:"id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
-	Url       pgtype.Text      `json:"url"`
-	Title     pgtype.Text      `json:"title"`
-	FeedID    int32            `json:"feed_id"`
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Url       pgtype.Text        `json:"url"`
+	Title     pgtype.Text        `json:"title"`
+	FeedID    int64              `json:"feed_id"`
 }
 
 type FeedItune struct {
-	ID         int32            `json:"id"`
-	CreatedAt  pgtype.Timestamp `json:"created_at"`
-	UpdatedAt  pgtype.Timestamp `json:"updated_at"`
-	DeletedAt  pgtype.Timestamp `json:"deleted_at"`
-	Author     pgtype.Text      `json:"author"`
-	Block      pgtype.Text      `json:"block"`
-	Explicit   pgtype.Text      `json:"explicit"`
-	Keywords   pgtype.Text      `json:"keywords"`
-	Subtitle   pgtype.Text      `json:"subtitle"`
-	Summary    pgtype.Text      `json:"summary"`
-	Image      pgtype.Text      `json:"image"`
-	Complete   pgtype.Text      `json:"complete"`
-	NewFeedUrl pgtype.Text      `json:"new_feed_url"`
-	Type       pgtype.Text      `json:"type"`
-	FeedID     int32            `json:"feed_id"`
+	ID         int64              `json:"id"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt  pgtype.Timestamptz `json:"deleted_at"`
+	Author     pgtype.Text        `json:"author"`
+	Block      pgtype.Text        `json:"block"`
+	Explicit   pgtype.Text        `json:"explicit"`
+	Keywords   pgtype.Text        `json:"keywords"`
+	Subtitle   pgtype.Text        `json:"subtitle"`
+	Summary    pgtype.Text        `json:"summary"`
+	Image      pgtype.Text        `json:"image"`
+	Complete   pgtype.Text        `json:"complete"`
+	NewFeedUrl pgtype.Text        `json:"new_feed_url"`
+	Type       pgtype.Text        `json:"type"`
+	FeedID     int64              `json:"feed_id"`
 }
 
 type Item struct {
-	ID              int32            `json:"id"`
-	CreatedAt       pgtype.Timestamp `json:"created_at"`
-	UpdatedAt       pgtype.Timestamp `json:"updated_at"`
-	DeletedAt       pgtype.Timestamp `json:"deleted_at"`
-	Title           pgtype.Text      `json:"title"`
-	Description     pgtype.Text      `json:"description"`
-	Content         pgtype.Text      `json:"content"`
-	Link            pgtype.Text      `json:"link"`
-	Links           []string         `json:"links"`
-	Updated         pgtype.Text      `json:"updated"`
-	UpdatedParsed   pgtype.Timestamp `json:"updated_parsed"`
-	Published       pgtype.Text      `json:"published"`
-	PublishedParsed pgtype.Timestamp `json:"published_parsed"`
-	Guid            pgtype.Text      `json:"guid"`
-	Categories      []string         `json:"categories"`
-	Custom          []byte           `json:"custom"`
-	FeedID          int32            `json:"feed_id"`
+	ID              int64              `json:"id"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt       pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt       pgtype.Timestamptz `json:"deleted_at"`
+	Title           pgtype.Text        `json:"title"`
+	Description     pgtype.Text        `json:"description"`
+	Content         pgtype.Text        `json:"content"`
+	Link            pgtype.Text        `json:"link"`
+	Links           []string           `json:"links"`
+	Updated         pgtype.Text        `json:"updated"`
+	UpdatedParsed   pgtype.Timestamp   `json:"updated_parsed"`
+	Published       pgtype.Text        `json:"published"`
+	PublishedParsed pgtype.Timestamp   `json:"published_parsed"`
+	Guid            pgtype.Text        `json:"guid"`
+	Categories      []string           `json:"categories"`
+	Custom          []byte             `json:"custom"`
+	FeedID          int64              `json:"feed_id"`
 }
 
 type ItemAuthor struct {
-	ID        int32            `json:"id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
-	Name      pgtype.Text      `json:"name"`
-	Email     pgtype.Text      `json:"email"`
-	Uri       pgtype.Text      `json:"uri"`
-	ItemID    int32            `json:"item_id"`
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Name      pgtype.Text        `json:"name"`
+	Email     pgtype.Text        `json:"email"`
+	Uri       pgtype.Text        `json:"uri"`
+	ItemID    int64              `json:"item_id"`
 }
 
 type ItemDublinCore struct {
-	ID          int32            `json:"id"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
-	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
-	Title       []string         `json:"title"`
-	Creator     []string         `json:"creator"`
-	Author      []string         `json:"author"`
-	Subject     []string         `json:"subject"`
-	Description []string         `json:"description"`
-	Publisher   []string         `json:"publisher"`
-	Contributor []string         `json:"contributor"`
-	Date        []string         `json:"date"`
-	Type        []string         `json:"type"`
-	Format      []string         `json:"format"`
-	Identifier  []string         `json:"identifier"`
-	Source      []string         `json:"source"`
-	Language    []string         `json:"language"`
-	Relation    []string         `json:"relation"`
-	Coverage    []string         `json:"coverage"`
-	Rights      []string         `json:"rights"`
-	ItemID      int32            `json:"item_id"`
+	ID          int64              `json:"id"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+	Title       []string           `json:"title"`
+	Creator     []string           `json:"creator"`
+	Author      []string           `json:"author"`
+	Subject     []string           `json:"subject"`
+	Description []string           `json:"description"`
+	Publisher   []string           `json:"publisher"`
+	Contributor []string           `json:"contributor"`
+	Date        []string           `json:"date"`
+	Type        []string           `json:"type"`
+	Format      []string           `json:"format"`
+	Identifier  []string           `json:"identifier"`
+	Source      []string           `json:"source"`
+	Language    []string           `json:"language"`
+	Relation    []string           `json:"relation"`
+	Coverage    []string           `json:"coverage"`
+	Rights      []string           `json:"rights"`
+	ItemID      int64              `json:"item_id"`
 }
 
 type ItemExtension struct {
-	ID        int32            `json:"id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
-	Name      pgtype.Text      `json:"name"`
-	Value     pgtype.Text      `json:"value"`
-	Attrs     []byte           `json:"attrs"`
-	Children  []byte           `json:"children"`
-	ItemID    int32            `json:"item_id"`
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Name      pgtype.Text        `json:"name"`
+	Value     pgtype.Text        `json:"value"`
+	Attrs     []byte             `json:"attrs"`
+	Children  []byte             `json:"children"`
+	ItemID    int64              `json:"item_id"`
 }
 
 type ItemImage struct {
-	ID        int32            `json:"id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
-	Url       pgtype.Text      `json:"url"`
-	Title     pgtype.Text      `json:"title"`
-	ItemID    int32            `json:"item_id"`
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Url       pgtype.Text        `json:"url"`
+	Title     pgtype.Text        `json:"title"`
+	ItemID    int64              `json:"item_id"`
 }
 
 type ItemItune struct {
-	ID                int32            `json:"id"`
-	CreatedAt         pgtype.Timestamp `json:"created_at"`
-	UpdatedAt         pgtype.Timestamp `json:"updated_at"`
-	DeletedAt         pgtype.Timestamp `json:"deleted_at"`
-	Author            pgtype.Text      `json:"author"`
-	Block             pgtype.Text      `json:"block"`
-	Duration          pgtype.Text      `json:"duration"`
-	Explicit          pgtype.Text      `json:"explicit"`
-	Keywords          pgtype.Text      `json:"keywords"`
-	Subtitle          pgtype.Text      `json:"subtitle"`
-	Summary           pgtype.Text      `json:"summary"`
-	Image             pgtype.Text      `json:"image"`
-	IsClosedCaptioned pgtype.Text      `json:"is_closed_captioned"`
-	Episode           pgtype.Text      `json:"episode"`
-	Season            pgtype.Text      `json:"season"`
-	Order             pgtype.Text      `json:"order"`
-	EpisodeType       pgtype.Text      `json:"episode_type"`
-	ItemID            int32            `json:"item_id"`
+	ID                int64              `json:"id"`
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt         pgtype.Timestamptz `json:"deleted_at"`
+	Author            pgtype.Text        `json:"author"`
+	Block             pgtype.Text        `json:"block"`
+	Duration          pgtype.Text        `json:"duration"`
+	Explicit          pgtype.Text        `json:"explicit"`
+	Keywords          pgtype.Text        `json:"keywords"`
+	Subtitle          pgtype.Text        `json:"subtitle"`
+	Summary           pgtype.Text        `json:"summary"`
+	Image             pgtype.Text        `json:"image"`
+	IsClosedCaptioned pgtype.Text        `json:"is_closed_captioned"`
+	Episode           pgtype.Text        `json:"episode"`
+	Season            pgtype.Text        `json:"season"`
+	Order             pgtype.Text        `json:"order"`
+	EpisodeType       pgtype.Text        `json:"episode_type"`
+	ItemID            int64              `json:"item_id"`
 }
 
 type ItunesCategory struct {
-	ID          int32            `json:"id"`
+	ID          int64            `json:"id"`
 	CreatedAt   pgtype.Timestamp `json:"created_at"`
 	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
 	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
 	Text        pgtype.Text      `json:"text"`
 	Subcategory pgtype.Text      `json:"subcategory"`
-	ItunesID    int32            `json:"itunes_id"`
+	ItunesID    int64            `json:"itunes_id"`
 }
 
 type ItunesOwner struct {
-	ID        int32            `json:"id"`
+	ID        int64            `json:"id"`
 	CreatedAt pgtype.Timestamp `json:"created_at"`
 	UpdatedAt pgtype.Timestamp `json:"updated_at"`
 	DeletedAt pgtype.Timestamp `json:"deleted_at"`
 	Email     pgtype.Text      `json:"email"`
 	Name      pgtype.Text      `json:"name"`
-	ItunesID  int32            `json:"itunes_id"`
+	ItunesID  int64            `json:"itunes_id"`
 }

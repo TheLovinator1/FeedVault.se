@@ -1,11 +1,15 @@
 package main
 
 import (
+	"context"
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 
 	"strings"
+
+	"github.com/TheLovinator1/FeedVault/db"
 )
 
 func ApiHandler(w http.ResponseWriter, _ *http.Request) {
@@ -25,16 +29,31 @@ func ApiHandler(w http.ResponseWriter, _ *http.Request) {
 }
 
 func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
+	feeds, err := DB.GetFeeds(context.Background(), db.GetFeedsParams{
+		Limit: 100,
+	})
+	if err != nil {
+		http.Error(w, "Error getting feeds", http.StatusInternalServerError)
+		return
+	}
+
+	fb := strings.Builder{}
+	for _, feed := range feeds {
+		fb.WriteString("<li>")
+		fb.WriteString("<a href=\"/feed/" + strconv.FormatInt(feed.ID, 10) + "\">" + feed.Title.String + "</a> - <a href=\"" + feed.Link.String + "\">" + feed.Link.String + "</a>")
+		fb.WriteString("</li>")
+	}
+
 	htmlData := HTMLData{
 		Title:        "FeedVault Feeds",
 		Description:  "FeedVault Feeds - A feed archive",
 		Keywords:     "RSS, Atom, Feed, Archive",
 		Author:       "TheLovinator",
 		CanonicalURL: "http://localhost:8000/feeds",
-		Content:      "<p>No feeds yet.</p>",
+		Content:      "<ul>" + fb.String() + "</ul>",
 	}
 	html := FullHTML(htmlData)
-	_, err := w.Write([]byte(html))
+	_, err = w.Write([]byte(html))
 	if err != nil {
 		log.Println("Error writing response:", err)
 	}
@@ -219,6 +238,74 @@ func UploadOpmlHandler(w http.ResponseWriter, r *http.Request) {
 		CanonicalURL: "http://localhost:8000/",
 		Content:      "<p>Feeds added.</p>",
 		ParseResult:  parseResult,
+	}
+	html := FullHTML(htmlData)
+	_, err = w.Write([]byte(html))
+	if err != nil {
+		log.Println("Error writing response:", err)
+	}
+}
+
+func FeedHandler(w http.ResponseWriter, r *http.Request) {
+	// Get the feed ID from the URL
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "No feed ID provided", http.StatusBadRequest)
+		return
+	}
+	feedID, err := strconv.ParseInt(parts[2], 10, 64)
+	if err != nil {
+		http.Error(w, "Invalid feed ID", http.StatusBadRequest)
+		return
+	}
+
+	// Get the feed from the database
+	feed, err := DB.GetFeed(context.Background(), feedID)
+	if err != nil {
+		http.Error(w, "Error getting feed", http.StatusInternalServerError)
+		return
+	}
+
+	// Get the items for the feed
+	items, err := DB.GetItems(context.Background(), db.GetItemsParams{
+		FeedID: feedID,
+		Limit:  100,
+	})
+	if err != nil {
+		http.Error(w, "Error getting items", http.StatusInternalServerError)
+		return
+	}
+
+	// Build the HTML
+	fb := strings.Builder{}
+	for _, item := range items {
+		fb.WriteString("<li>")
+		fb.WriteString("<a href=\"" + item.Link.String + "\">" + item.Title.String + "</a>")
+		fb.WriteString("<ul>")
+		if item.Published.Valid {
+			fb.WriteString("<li>Published: " + item.Published.String + "</li>")
+		}
+		if item.Updated.Valid {
+			fb.WriteString("<li>Updated: " + item.Updated.String + "</li>")
+		}
+		if item.Description.Valid {
+			fb.WriteString("<li>" + item.Description.String + "</li>")
+		}
+		if item.Content.Valid {
+			fb.WriteString("<li>" + item.Content.String + "</li>")
+		}
+		fb.WriteString("</ul>")
+		fb.WriteString("<hr>")
+		fb.WriteString("</li>")
+	}
+
+	htmlData := HTMLData{
+		Title:        feed.Title.String,
+		Description:  feed.Description.String,
+		Keywords:     "RSS, Atom, Feed, Archive",
+		Author:       "TheLovinator",
+		CanonicalURL: "http://localhost:8000/feed/" + strconv.FormatInt(feed.ID, 10),
+		Content:      "<ul>" + fb.String() + "</ul>",
 	}
 	html := FullHTML(htmlData)
 	_, err = w.Write([]byte(html))

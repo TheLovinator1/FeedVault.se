@@ -51,3 +51,87 @@ SELECT
     COUNT(*)
 FROM
     feeds;
+
+-- name: CreateItem :one
+INSERT INTO
+    items (
+        created_at,
+        updated_at,
+        deleted_at,
+        title,
+        "description",
+        content,
+        link,
+        links,
+        updated,
+        updated_parsed,
+        published,
+        published_parsed,
+        "guid",
+        categories,
+        custom,
+        feed_id
+    )
+VALUES
+    (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16
+    ) RETURNING *;
+
+-- name: CountItems :one
+SELECT
+    COUNT(*)
+FROM
+    items;
+
+-- name: GetFeed :one
+SELECT
+    *
+FROM
+    feeds
+WHERE
+    id = $1;
+
+-- name: GetFeeds :many
+SELECT
+    *
+FROM
+    feeds
+ORDER BY
+    created_at DESC
+LIMIT $1
+OFFSET $2;
+
+-- name: GetItem :one
+SELECT
+    *
+FROM
+    items
+WHERE
+    id = $1;
+
+-- name: GetItems :many
+SELECT
+    *
+FROM
+    items
+WHERE
+    feed_id = $1
+ORDER BY
+    created_at DESC
+LIMIT $2
+OFFSET $3;

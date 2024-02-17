@@ -10,7 +10,13 @@ import (
 
 type Querier interface {
 	CountFeeds(ctx context.Context) (int64, error)
+	CountItems(ctx context.Context) (int64, error)
 	CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, error)
+	CreateItem(ctx context.Context, arg CreateItemParams) (Item, error)
+	GetFeed(ctx context.Context, id int64) (Feed, error)
+	GetFeeds(ctx context.Context, arg GetFeedsParams) ([]Feed, error)
+	GetItem(ctx context.Context, id int64) (Item, error)
+	GetItems(ctx context.Context, arg GetItemsParams) ([]Item, error)
 }
 
 var _ Querier = (*Queries)(nil)

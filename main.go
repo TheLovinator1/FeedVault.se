@@ -41,6 +41,7 @@ func main() {
 	mux.HandleFunc("/", IndexHandler)
 	mux.HandleFunc("/api", ApiHandler)
 	mux.HandleFunc("/feeds", FeedsHandler)
+	mux.HandleFunc("/feed/", FeedHandler)
 	mux.HandleFunc("/add", AddFeedHandler)
 	mux.HandleFunc("/upload_opml", UploadOpmlHandler)
 
