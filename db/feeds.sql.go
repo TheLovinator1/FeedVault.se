@@ -163,6 +163,53 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 	return i, err
 }
 
+const createFeedAuthor = `-- name: CreateFeedAuthor :one
+INSERT INTO
+    feed_authors (
+        created_at,
+        updated_at,
+        deleted_at,
+        "name",
+        email,
+        feed_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    id, created_at, updated_at, deleted_at, name, email, feed_id
+`
+
+type CreateFeedAuthorParams struct {
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Name      pgtype.Text        `json:"name"`
+	Email     pgtype.Text        `json:"email"`
+	FeedID    int64              `json:"feed_id"`
+}
+
+func (q *Queries) CreateFeedAuthor(ctx context.Context, arg CreateFeedAuthorParams) (FeedAuthor, error) {
+	row := q.db.QueryRow(ctx, createFeedAuthor,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Name,
+		arg.Email,
+		arg.FeedID,
+	)
+	var i FeedAuthor
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Name,
+		&i.Email,
+		&i.FeedID,
+	)
+	return i, err
+}
+
 const createFeedExtension = `-- name: CreateFeedExtension :one
 INSERT INTO
     feed_extensions (
@@ -322,6 +369,53 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 	return i, err
 }
 
+const createItemAuthor = `-- name: CreateItemAuthor :one
+INSERT INTO
+    item_authors (
+        created_at,
+        updated_at,
+        deleted_at,
+        "name",
+        email,
+        item_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    id, created_at, updated_at, deleted_at, name, email, item_id
+`
+
+type CreateItemAuthorParams struct {
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Name      pgtype.Text        `json:"name"`
+	Email     pgtype.Text        `json:"email"`
+	ItemID    int64              `json:"item_id"`
+}
+
+func (q *Queries) CreateItemAuthor(ctx context.Context, arg CreateItemAuthorParams) (ItemAuthor, error) {
+	row := q.db.QueryRow(ctx, createItemAuthor,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Name,
+		arg.Email,
+		arg.ItemID,
+	)
+	var i ItemAuthor
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Name,
+		&i.Email,
+		&i.ItemID,
+	)
+	return i, err
+}
+
 const createItemExtension = `-- name: CreateItemExtension :one
 INSERT INTO
     item_extensions (
@@ -413,6 +507,55 @@ func (q *Queries) GetFeed(ctx context.Context, id int64) (Feed, error) {
 		&i.FeedVersion,
 	)
 	return i, err
+}
+
+const getFeedAuthors = `-- name: GetFeedAuthors :many
+SELECT
+    id, created_at, updated_at, deleted_at, name, email, feed_id
+FROM
+    feed_authors
+WHERE
+    feed_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetFeedAuthorsParams struct {
+	FeedID int64 `json:"feed_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetFeedAuthors(ctx context.Context, arg GetFeedAuthorsParams) ([]FeedAuthor, error) {
+	rows, err := q.db.Query(ctx, getFeedAuthors, arg.FeedID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []FeedAuthor{}
+	for rows.Next() {
+		var i FeedAuthor
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Name,
+			&i.Email,
+			&i.FeedID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getFeedExtensions = `-- name: GetFeedExtensions :many
@@ -558,6 +701,55 @@ func (q *Queries) GetItem(ctx context.Context, id int64) (Item, error) {
 		&i.FeedID,
 	)
 	return i, err
+}
+
+const getItemAuthors = `-- name: GetItemAuthors :many
+SELECT
+    id, created_at, updated_at, deleted_at, name, email, item_id
+FROM
+    item_authors
+WHERE
+    item_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetItemAuthorsParams struct {
+	ItemID int64 `json:"item_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetItemAuthors(ctx context.Context, arg GetItemAuthorsParams) ([]ItemAuthor, error) {
+	rows, err := q.db.Query(ctx, getItemAuthors, arg.ItemID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ItemAuthor{}
+	for rows.Next() {
+		var i ItemAuthor
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Name,
+			&i.Email,
+			&i.ItemID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const getItemExtensions = `-- name: GetItemExtensions :many

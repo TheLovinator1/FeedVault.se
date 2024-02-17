@@ -205,3 +205,61 @@ LIMIT
     $2
 OFFSET
     $3;
+
+-- name: CreateFeedAuthor :one
+INSERT INTO
+    feed_authors (
+        created_at,
+        updated_at,
+        deleted_at,
+        "name",
+        email,
+        feed_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    *;
+
+-- name: CreateItemAuthor :one
+INSERT INTO
+    item_authors (
+        created_at,
+        updated_at,
+        deleted_at,
+        "name",
+        email,
+        item_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    *;
+
+-- name: GetFeedAuthors :many
+SELECT
+    *
+FROM
+    feed_authors
+WHERE
+    feed_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;
+
+-- name: GetItemAuthors :many
+SELECT
+    *
+FROM
+    item_authors
+WHERE
+    item_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;

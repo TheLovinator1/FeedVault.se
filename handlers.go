@@ -39,8 +39,52 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 
 	fb := strings.Builder{}
 	for _, feed := range feeds {
+		authors, err := DB.GetFeedAuthors(context.Background(), db.GetFeedAuthorsParams{
+			FeedID: feed.ID,
+			Limit:  100,
+		})
+		if err != nil {
+			http.Error(w, "Error getting authors", http.StatusInternalServerError)
+			return
+		}
+
+		extensions, err := DB.GetFeedExtensions(context.Background(), db.GetFeedExtensionsParams{
+			FeedID: feed.ID,
+			Limit:  100,
+		})
+		if err != nil {
+			http.Error(w, "Error getting extensions", http.StatusInternalServerError)
+			return
+		}
+
 		fb.WriteString("<li>")
-		fb.WriteString("<a href=\"/feed/" + strconv.FormatInt(feed.ID, 10) + "\">" + feed.Title.String + "</a> - <a href=\"" + feed.Link.String + "\">" + feed.Link.String + "</a>")
+		fb.WriteString(feed.Title.String)
+		fb.WriteString("<ul>")
+		for _, author := range authors {
+			if author.Name.Valid {
+				fb.WriteString("<li>Author: " + author.Name.String + "</li>")
+			}
+			if author.Email.Valid {
+				fb.WriteString("<li>Email: " + author.Email.String + "</li>")
+			}
+		}
+
+		for _, ext := range extensions {
+			if ext.Attrs != nil {
+				fb.WriteString("<li>Attrs: " + string(ext.Attrs) + "</li>")
+			}
+			if ext.Children != nil {
+				fb.WriteString("<li>Children: " + string(ext.Children) + "</li>")
+			}
+			if ext.Name.Valid {
+				fb.WriteString("<li>Name: " + ext.Name.String + "</li>")
+			}
+			if ext.Value.Valid {
+				fb.WriteString("<li>Value: " + ext.Value.String + "</li>")
+			}
+		}
+		fb.WriteString("</ul>")
+		fb.WriteString("<a href=\"/feed/" + strconv.FormatInt(feed.ID, 10) + "\">" + feed.Url + "</a>")
 		fb.WriteString("</li>")
 	}
 
@@ -279,8 +323,49 @@ func FeedHandler(w http.ResponseWriter, r *http.Request) {
 	// Build the HTML
 	fb := strings.Builder{}
 	for _, item := range items {
+		// Get authors for the item
+		authors, err := DB.GetItemAuthors(context.Background(), db.GetItemAuthorsParams{
+			ItemID: item.ID,
+			Limit:  100,
+		})
+		if err != nil {
+			http.Error(w, "Error getting authors", http.StatusInternalServerError)
+			return
+		}
+
+		// Get extensions for the item
+		extensions, err := DB.GetItemExtensions(context.Background(), db.GetItemExtensionsParams{
+			ItemID: item.ID,
+			Limit:  100,
+		})
+		if err != nil {
+			http.Error(w, "Error getting extensions", http.StatusInternalServerError)
+			return
+		}
+
 		fb.WriteString("<li>")
 		fb.WriteString("<a href=\"" + item.Link.String + "\">" + item.Title.String + "</a>")
+		fb.WriteString("<ul>")
+		for _, author := range authors {
+			fb.WriteString("<li>Author: " + author.Name.String + "</li>")
+		}
+
+		for _, ext := range extensions {
+			fb.WriteString("<ul>")
+			fb.WriteString("<li>Extension: " + ext.Name.String + "</li>")
+			if ext.Value.Valid {
+				fb.WriteString("<li>Name: " + ext.Value.String + "</li>")
+			}
+			if ext.Attrs != nil {
+				fb.WriteString("<li>Attrs: " + string(ext.Attrs) + "</li>")
+			}
+			if ext.Children != nil {
+				fb.WriteString("<li>Children: " + string(ext.Children) + "</li>")
+			}
+			fb.WriteString("</ul>")
+
+		}
+		fb.WriteString("</ul>")
 		fb.WriteString("<ul>")
 		if item.Published.Valid {
 			fb.WriteString("<li>Published: " + item.Published.String + "</li>")

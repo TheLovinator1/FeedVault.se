@@ -50,7 +50,6 @@ type FeedAuthor struct {
 	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 	Name      pgtype.Text        `json:"name"`
 	Email     pgtype.Text        `json:"email"`
-	Uri       pgtype.Text        `json:"uri"`
 	FeedID    int64              `json:"feed_id"`
 }
 
@@ -145,7 +144,6 @@ type ItemAuthor struct {
 	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 	Name      pgtype.Text        `json:"name"`
 	Email     pgtype.Text        `json:"email"`
-	Uri       pgtype.Text        `json:"uri"`
 	ItemID    int64              `json:"item_id"`
 }
 

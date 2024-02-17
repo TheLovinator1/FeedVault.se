@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS feed_authors (
     -- From gofeed:
     "name" TEXT,
     email TEXT,
-    uri TEXT,
     -- Link to feed
     feed_id BIGINT NOT NULL,
     CONSTRAINT fk_feed_id FOREIGN KEY (feed_id) REFERENCES feeds (id) ON DELETE CASCADE
@@ -26,7 +25,6 @@ CREATE TABLE IF NOT EXISTS item_authors (
     -- From gofeed:
     "name" TEXT,
     email TEXT,
-    uri TEXT,
     -- Link to feed item (Also called feed entry)
     item_id BIGINT NOT NULL,
     CONSTRAINT fk_item_id FOREIGN KEY (item_id) REFERENCES items (id) ON DELETE CASCADE
