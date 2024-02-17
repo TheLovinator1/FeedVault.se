@@ -129,9 +129,9 @@ type Item struct {
 	Link            pgtype.Text        `json:"link"`
 	Links           []string           `json:"links"`
 	Updated         pgtype.Text        `json:"updated"`
-	UpdatedParsed   pgtype.Timestamp   `json:"updated_parsed"`
+	UpdatedParsed   pgtype.Timestamptz `json:"updated_parsed"`
 	Published       pgtype.Text        `json:"published"`
-	PublishedParsed pgtype.Timestamp   `json:"published_parsed"`
+	PublishedParsed pgtype.Timestamptz `json:"published_parsed"`
 	Guid            pgtype.Text        `json:"guid"`
 	Categories      []string           `json:"categories"`
 	Custom          []byte             `json:"custom"`
@@ -217,21 +217,21 @@ type ItemItune struct {
 }
 
 type ItunesCategory struct {
-	ID          int64            `json:"id"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
-	DeletedAt   pgtype.Timestamp `json:"deleted_at"`
-	Text        pgtype.Text      `json:"text"`
-	Subcategory pgtype.Text      `json:"subcategory"`
-	ItunesID    int64            `json:"itunes_id"`
+	ID          int64              `json:"id"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+	Text        pgtype.Text        `json:"text"`
+	Subcategory pgtype.Text        `json:"subcategory"`
+	ItunesID    int64              `json:"itunes_id"`
 }
 
 type ItunesOwner struct {
-	ID        int64            `json:"id"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
-	UpdatedAt pgtype.Timestamp `json:"updated_at"`
-	DeletedAt pgtype.Timestamp `json:"deleted_at"`
-	Email     pgtype.Text      `json:"email"`
-	Name      pgtype.Text      `json:"name"`
-	ItunesID  int64            `json:"itunes_id"`
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Email     pgtype.Text        `json:"email"`
+	Name      pgtype.Text        `json:"name"`
+	ItunesID  int64              `json:"itunes_id"`
 }

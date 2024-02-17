@@ -85,7 +85,9 @@ VALUES
         $18,
         $19,
         $20
-    ) RETURNING id, url, created_at, updated_at, deleted_at, title, description, link, feed_link, links, updated, updated_parsed, published, published_parsed, language, copyright, generator, categories, custom, feed_type, feed_version
+    )
+RETURNING
+    id, url, created_at, updated_at, deleted_at, title, description, link, feed_link, links, updated, updated_parsed, published, published_parsed, language, copyright, generator, categories, custom, feed_type, feed_version
 `
 
 type CreateFeedParams struct {
@@ -161,6 +163,61 @@ func (q *Queries) CreateFeed(ctx context.Context, arg CreateFeedParams) (Feed, e
 	return i, err
 }
 
+const createFeedExtension = `-- name: CreateFeedExtension :one
+INSERT INTO
+    feed_extensions (
+        created_at,
+        updated_at,
+        deleted_at,
+        "name",
+        "value",
+        attrs,
+        children,
+        feed_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING
+    id, created_at, updated_at, deleted_at, name, value, attrs, children, feed_id
+`
+
+type CreateFeedExtensionParams struct {
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Name      pgtype.Text        `json:"name"`
+	Value     pgtype.Text        `json:"value"`
+	Attrs     []byte             `json:"attrs"`
+	Children  []byte             `json:"children"`
+	FeedID    int64              `json:"feed_id"`
+}
+
+func (q *Queries) CreateFeedExtension(ctx context.Context, arg CreateFeedExtensionParams) (FeedExtension, error) {
+	row := q.db.QueryRow(ctx, createFeedExtension,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Name,
+		arg.Value,
+		arg.Attrs,
+		arg.Children,
+		arg.FeedID,
+	)
+	var i FeedExtension
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Name,
+		&i.Value,
+		&i.Attrs,
+		&i.Children,
+		&i.FeedID,
+	)
+	return i, err
+}
+
 const createItem = `-- name: CreateItem :one
 INSERT INTO
     items (
@@ -199,7 +256,9 @@ VALUES
         $14,
         $15,
         $16
-    ) RETURNING id, created_at, updated_at, deleted_at, title, description, content, link, links, updated, updated_parsed, published, published_parsed, guid, categories, custom, feed_id
+    )
+RETURNING
+    id, created_at, updated_at, deleted_at, title, description, content, link, links, updated, updated_parsed, published, published_parsed, guid, categories, custom, feed_id
 `
 
 type CreateItemParams struct {
@@ -212,9 +271,9 @@ type CreateItemParams struct {
 	Link            pgtype.Text        `json:"link"`
 	Links           []string           `json:"links"`
 	Updated         pgtype.Text        `json:"updated"`
-	UpdatedParsed   pgtype.Timestamp   `json:"updated_parsed"`
+	UpdatedParsed   pgtype.Timestamptz `json:"updated_parsed"`
 	Published       pgtype.Text        `json:"published"`
-	PublishedParsed pgtype.Timestamp   `json:"published_parsed"`
+	PublishedParsed pgtype.Timestamptz `json:"published_parsed"`
 	Guid            pgtype.Text        `json:"guid"`
 	Categories      []string           `json:"categories"`
 	Custom          []byte             `json:"custom"`
@@ -263,6 +322,61 @@ func (q *Queries) CreateItem(ctx context.Context, arg CreateItemParams) (Item, e
 	return i, err
 }
 
+const createItemExtension = `-- name: CreateItemExtension :one
+INSERT INTO
+    item_extensions (
+        created_at,
+        updated_at,
+        deleted_at,
+        "name",
+        "value",
+        attrs,
+        children,
+        item_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING
+    id, created_at, updated_at, deleted_at, name, value, attrs, children, item_id
+`
+
+type CreateItemExtensionParams struct {
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Name      pgtype.Text        `json:"name"`
+	Value     pgtype.Text        `json:"value"`
+	Attrs     []byte             `json:"attrs"`
+	Children  []byte             `json:"children"`
+	ItemID    int64              `json:"item_id"`
+}
+
+func (q *Queries) CreateItemExtension(ctx context.Context, arg CreateItemExtensionParams) (ItemExtension, error) {
+	row := q.db.QueryRow(ctx, createItemExtension,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Name,
+		arg.Value,
+		arg.Attrs,
+		arg.Children,
+		arg.ItemID,
+	)
+	var i ItemExtension
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Name,
+		&i.Value,
+		&i.Attrs,
+		&i.Children,
+		&i.ItemID,
+	)
+	return i, err
+}
+
 const getFeed = `-- name: GetFeed :one
 SELECT
     id, url, created_at, updated_at, deleted_at, title, description, link, feed_link, links, updated, updated_parsed, published, published_parsed, language, copyright, generator, categories, custom, feed_type, feed_version
@@ -301,6 +415,57 @@ func (q *Queries) GetFeed(ctx context.Context, id int64) (Feed, error) {
 	return i, err
 }
 
+const getFeedExtensions = `-- name: GetFeedExtensions :many
+SELECT
+    id, created_at, updated_at, deleted_at, name, value, attrs, children, feed_id
+FROM
+    feed_extensions
+WHERE
+    feed_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetFeedExtensionsParams struct {
+	FeedID int64 `json:"feed_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetFeedExtensions(ctx context.Context, arg GetFeedExtensionsParams) ([]FeedExtension, error) {
+	rows, err := q.db.Query(ctx, getFeedExtensions, arg.FeedID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []FeedExtension{}
+	for rows.Next() {
+		var i FeedExtension
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Name,
+			&i.Value,
+			&i.Attrs,
+			&i.Children,
+			&i.FeedID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getFeeds = `-- name: GetFeeds :many
 SELECT
     id, url, created_at, updated_at, deleted_at, title, description, link, feed_link, links, updated, updated_parsed, published, published_parsed, language, copyright, generator, categories, custom, feed_type, feed_version
@@ -308,8 +473,10 @@ FROM
     feeds
 ORDER BY
     created_at DESC
-LIMIT $1
-OFFSET $2
+LIMIT
+    $1
+OFFSET
+    $2
 `
 
 type GetFeedsParams struct {
@@ -393,6 +560,57 @@ func (q *Queries) GetItem(ctx context.Context, id int64) (Item, error) {
 	return i, err
 }
 
+const getItemExtensions = `-- name: GetItemExtensions :many
+SELECT
+    id, created_at, updated_at, deleted_at, name, value, attrs, children, item_id
+FROM
+    item_extensions
+WHERE
+    item_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetItemExtensionsParams struct {
+	ItemID int64 `json:"item_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetItemExtensions(ctx context.Context, arg GetItemExtensionsParams) ([]ItemExtension, error) {
+	rows, err := q.db.Query(ctx, getItemExtensions, arg.ItemID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ItemExtension{}
+	for rows.Next() {
+		var i ItemExtension
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Name,
+			&i.Value,
+			&i.Attrs,
+			&i.Children,
+			&i.ItemID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getItems = `-- name: GetItems :many
 SELECT
     id, created_at, updated_at, deleted_at, title, description, content, link, links, updated, updated_parsed, published, published_parsed, guid, categories, custom, feed_id
@@ -402,8 +620,10 @@ WHERE
     feed_id = $1
 ORDER BY
     created_at DESC
-LIMIT $2
-OFFSET $3
+LIMIT
+    $2
+OFFSET
+    $3
 `
 
 type GetItemsParams struct {

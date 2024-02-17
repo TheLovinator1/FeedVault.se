@@ -54,9 +54,9 @@ CREATE TABLE IF NOT EXISTS item_itunes (
 -- https://github.com/mmcdole/gofeed/blob/master/extensions/itunes.go#L39
 CREATE TABLE IF NOT EXISTS itunes_categories (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL,
     -- From gofeed:
     "text" TEXT,
     subcategory TEXT,
@@ -69,9 +69,9 @@ CREATE TABLE IF NOT EXISTS itunes_categories (
 -- https://github.com/mmcdole/gofeed/blob/master/extensions/itunes.go#L45
 CREATE TABLE IF NOT EXISTS itunes_owners (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP DEFAULT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMPTZ DEFAULT NULL,
     -- From gofeed:
     email TEXT,
     "name" TEXT,

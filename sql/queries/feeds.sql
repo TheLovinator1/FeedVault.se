@@ -44,7 +44,9 @@ VALUES
         $18,
         $19,
         $20
-    ) RETURNING *;
+    )
+RETURNING
+    *;
 
 -- name: CountFeeds :one
 SELECT
@@ -90,7 +92,9 @@ VALUES
         $14,
         $15,
         $16
-    ) RETURNING *;
+    )
+RETURNING
+    *;
 
 -- name: CountItems :one
 SELECT
@@ -113,8 +117,10 @@ FROM
     feeds
 ORDER BY
     created_at DESC
-LIMIT $1
-OFFSET $2;
+LIMIT
+    $1
+OFFSET
+    $2;
 
 -- name: GetItem :one
 SELECT
@@ -133,5 +139,69 @@ WHERE
     feed_id = $1
 ORDER BY
     created_at DESC
-LIMIT $2
-OFFSET $3;
+LIMIT
+    $2
+OFFSET
+    $3;
+
+-- name: CreateFeedExtension :one
+INSERT INTO
+    feed_extensions (
+        created_at,
+        updated_at,
+        deleted_at,
+        "name",
+        "value",
+        attrs,
+        children,
+        feed_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING
+    *;
+
+-- name: CreateItemExtension :one
+INSERT INTO
+    item_extensions (
+        created_at,
+        updated_at,
+        deleted_at,
+        "name",
+        "value",
+        attrs,
+        children,
+        item_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING
+    *;
+
+-- name: GetFeedExtensions :many
+SELECT
+    *
+FROM
+    feed_extensions
+WHERE
+    feed_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;
+
+-- name: GetItemExtensions :many
+SELECT
+    *
+FROM
+    item_extensions
+WHERE
+    item_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;

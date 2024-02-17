@@ -46,9 +46,9 @@ CREATE TABLE IF NOT EXISTS items (
     link TEXT,
     links TEXT [],
     updated TEXT,
-    updated_parsed TIMESTAMP,
+    updated_parsed TIMESTAMPTZ,
     published TEXT,
-    published_parsed TIMESTAMP,
+    published_parsed TIMESTAMPTZ,
     -- Authors - See item_authors
     "guid" TEXT,
     -- Image - See item_images

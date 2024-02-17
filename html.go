@@ -8,6 +8,14 @@ import (
 	"strings"
 )
 
+// Used for success/error message at the top of the page after adding a feed.
+type ParseResult struct {
+	FeedURL string
+	Msg     string
+	IsError bool
+}
+
+// HTMLData is the data passed to the HTML template.
 type HTMLData struct {
 	Title        string
 	Description  string
@@ -18,6 +26,7 @@ type HTMLData struct {
 	ParseResult  []ParseResult
 }
 
+// Our CSS that is included in the HTML.
 var style = `
 html {
 	max-width: 70ch;
