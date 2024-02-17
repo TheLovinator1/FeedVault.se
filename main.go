@@ -7,12 +7,12 @@ import (
 	"net/http"
 
 	"github.com/TheLovinator1/FeedVault/db"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 var (
-	conn *pgx.Conn
-	DB   *db.Queries
+	dbpool *pgxpool.Pool
+	DB     *db.Queries
 )
 
 func init() { log.SetFlags(log.LstdFlags | log.Lshortfile) }
@@ -21,16 +21,21 @@ func init() {
 	ctx := context.Background()
 
 	// Open a database connection
-	conn, err := pgx.Connect(ctx, "postgresql://localhost/feedvault?user=feedvault&password=feedvault")
+	dbpool, err := pgxpool.New(ctx, "postgresql://localhost/feedvault?user=feedvault&password=feedvault")
 	if err != nil {
 		log.Fatalf("pgx.Connect(): %v", err)
 	}
 
-	DB = db.New(conn)
+	DB = db.New(dbpool)
+
+	// Test the connection
+	if err := dbpool.Ping(ctx); err != nil {
+		log.Fatalf("dbpool.Ping(): %v", err)
+	}
 }
 
 func main() {
-	defer conn.Close(context.Background())
+	defer dbpool.Close()
 
 	log.Print("Starting server")
 
