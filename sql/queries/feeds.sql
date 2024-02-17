@@ -263,3 +263,61 @@ LIMIT
     $2
 OFFSET
     $3;
+
+-- name: CreateFeedImage :one
+INSERT INTO
+    feed_images (
+        created_at,
+        updated_at,
+        deleted_at,
+        "url",
+        title,
+        feed_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    *;
+
+-- name: CreateItemImage :one
+INSERT INTO
+    item_images (
+        created_at,
+        updated_at,
+        deleted_at,
+        "url",
+        title,
+        item_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    *;
+
+-- name: GetFeedImages :many
+SELECT
+    *
+FROM
+    feed_images
+WHERE
+    feed_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;
+
+-- name: GetItemImages :many
+SELECT
+    *
+FROM
+    item_images
+WHERE
+    item_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;

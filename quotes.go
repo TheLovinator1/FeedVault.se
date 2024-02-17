@@ -46,7 +46,6 @@ var FunMsg = []string{
 	"In the vacuum of space, let equality fill the void.",
 	"From Big Bang to the heat death of the universe, solidarity is eternal.",
 	"In dark times, should the stars also go out?",
-	"One day I will return to your side.",
 	"Un Jour Je Serai de Retour Prés de Toi",
 	"You should build Space Communism — precisely *because* it's impossible.",
 	"She thinks you are an idiot, sire.",

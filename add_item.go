@@ -24,6 +24,11 @@ func addItemToDB(item *gofeed.Item, ctx context.Context, newFeed db.Feed) {
 	// Add authors to the database
 	addItemAuthors(ctx, item, newItem)
 
+	// Add images to the database
+	if item.Image != nil {
+		addItemImages(ctx, item, newItem)
+	}
+
 	log.Printf("Item added to database")
 }
 
@@ -84,7 +89,6 @@ func addItemExtensionToDB(ctx context.Context, item *gofeed.Item, newItem db.Ite
 						fmt.Println("Error marshalling extension attributes:", err)
 						attrsCustom = []byte("{}")
 					}
-					log.Printf("Extension attributes: %s", attrsCustom)
 				}
 
 				childrenCustom := []byte("{}")
@@ -95,7 +99,6 @@ func addItemExtensionToDB(ctx context.Context, item *gofeed.Item, newItem db.Ite
 						fmt.Println("Error marshalling extension children:", err)
 						childrenCustom = []byte("{}")
 					}
-					log.Printf("Extension children: %s", childrenCustom)
 				}
 
 				_, err := DB.CreateItemExtension(ctx, db.CreateItemExtensionParams{
@@ -111,6 +114,7 @@ func addItemExtensionToDB(ctx context.Context, item *gofeed.Item, newItem db.Ite
 
 				if err != nil {
 					log.Printf("Error adding extension to database: %s", err)
+					continue
 				}
 
 				log.Printf("Extension added to database")
@@ -132,7 +136,24 @@ func addItemAuthors(ctx context.Context, item *gofeed.Item, newItem db.Item) {
 
 		if err != nil {
 			log.Printf("Error adding author %s (%s) to database: %s", author.Name, author.Email, err)
+			continue
 		}
 		log.Printf("Author %s (%s) added to database", author.Name, author.Email)
 	}
+}
+
+func addItemImages(ctx context.Context, item *gofeed.Item, newItem db.Item) {
+	_, err := DB.CreateItemImage(ctx, db.CreateItemImageParams{
+		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		UpdatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		DeletedAt: pgtype.Timestamptz{Valid: false},
+		Url:       pgtype.Text{String: item.Image.URL, Valid: item.Image.URL != ""},
+		Title:     pgtype.Text{String: item.Image.Title, Valid: item.Image.Title != ""},
+		ItemID:    newItem.ID,
+	})
+	if err != nil {
+		log.Printf("Error adding image to database: %s", err)
+		return
+	}
+	log.Printf("Image added to database: %s", item.Image.URL)
 }

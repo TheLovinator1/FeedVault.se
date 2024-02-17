@@ -36,11 +36,19 @@ func AddFeedToDB(feedURL string) error {
 	}
 
 	// Add extensions to the database
+	log.Printf("Adding extensions to the database")
 	addFeedExtensionToDB(ctx, feed, newFeed)
 
 	// Add authors to the database
+	log.Printf("Adding authors to the database")
 	addFeedAuthors(ctx, feed, newFeed)
 
-	fmt.Println(feed.Title)
+	// TODO: Add categories to the database
+
+	// Add images to the database
+	log.Printf("Adding images to the database")
+	addFeedImages(ctx, feed, newFeed)
+
+	log.Printf("Feed added to database")
 	return nil
 }

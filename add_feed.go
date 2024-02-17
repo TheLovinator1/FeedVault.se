@@ -102,6 +102,11 @@ func addFeedExtensionToDB(ctx context.Context, feed *gofeed.Feed, newFeed db.Fee
 }
 
 func addFeedAuthors(ctx context.Context, feed *gofeed.Feed, newFeed db.Feed) {
+	if feed.Authors == nil {
+		log.Printf("No authors to add to database")
+		return
+	}
+
 	// Add authors to the database
 	for _, author := range feed.Authors {
 		_, err := DB.CreateFeedAuthor(ctx, db.CreateFeedAuthorParams{
@@ -113,7 +118,30 @@ func addFeedAuthors(ctx context.Context, feed *gofeed.Feed, newFeed db.Feed) {
 		})
 		if err != nil {
 			log.Printf("Error adding author %s (%s) to database: %s", author.Name, author.Email, err)
+			continue
 		}
 		log.Printf("Author %s (%s) added to database", author.Name, author.Email)
 	}
+}
+
+func addFeedImages(ctx context.Context, feed *gofeed.Feed, newFeed db.Feed) {
+	if feed.Image == nil {
+		log.Printf("No image to add to database")
+		return
+	}
+
+	// TODO: Download the image and store it on the server
+	_, err := DB.CreateFeedImage(ctx, db.CreateFeedImageParams{
+		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		UpdatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		DeletedAt: pgtype.Timestamptz{Valid: false},
+		Url:       pgtype.Text{String: feed.Image.URL, Valid: feed.Image.URL != ""},
+		Title:     pgtype.Text{String: feed.Image.Title, Valid: feed.Image.Title != ""},
+		FeedID:    newFeed.ID,
+	})
+	if err != nil {
+		log.Printf("Error adding image to database: %s", err)
+		return
+	}
+	log.Printf("Image added to database: %s", feed.Image.URL)
 }

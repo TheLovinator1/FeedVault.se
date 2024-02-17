@@ -265,6 +265,53 @@ func (q *Queries) CreateFeedExtension(ctx context.Context, arg CreateFeedExtensi
 	return i, err
 }
 
+const createFeedImage = `-- name: CreateFeedImage :one
+INSERT INTO
+    feed_images (
+        created_at,
+        updated_at,
+        deleted_at,
+        "url",
+        title,
+        feed_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    id, created_at, updated_at, deleted_at, url, title, feed_id
+`
+
+type CreateFeedImageParams struct {
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Url       pgtype.Text        `json:"url"`
+	Title     pgtype.Text        `json:"title"`
+	FeedID    int64              `json:"feed_id"`
+}
+
+func (q *Queries) CreateFeedImage(ctx context.Context, arg CreateFeedImageParams) (FeedImage, error) {
+	row := q.db.QueryRow(ctx, createFeedImage,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Url,
+		arg.Title,
+		arg.FeedID,
+	)
+	var i FeedImage
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Url,
+		&i.Title,
+		&i.FeedID,
+	)
+	return i, err
+}
+
 const createItem = `-- name: CreateItem :one
 INSERT INTO
     items (
@@ -471,6 +518,53 @@ func (q *Queries) CreateItemExtension(ctx context.Context, arg CreateItemExtensi
 	return i, err
 }
 
+const createItemImage = `-- name: CreateItemImage :one
+INSERT INTO
+    item_images (
+        created_at,
+        updated_at,
+        deleted_at,
+        "url",
+        title,
+        item_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    id, created_at, updated_at, deleted_at, url, title, item_id
+`
+
+type CreateItemImageParams struct {
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Url       pgtype.Text        `json:"url"`
+	Title     pgtype.Text        `json:"title"`
+	ItemID    int64              `json:"item_id"`
+}
+
+func (q *Queries) CreateItemImage(ctx context.Context, arg CreateItemImageParams) (ItemImage, error) {
+	row := q.db.QueryRow(ctx, createItemImage,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Url,
+		arg.Title,
+		arg.ItemID,
+	)
+	var i ItemImage
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Url,
+		&i.Title,
+		&i.ItemID,
+	)
+	return i, err
+}
+
 const getFeed = `-- name: GetFeed :one
 SELECT
     id, url, created_at, updated_at, deleted_at, title, description, link, feed_link, links, updated, updated_parsed, published, published_parsed, language, copyright, generator, categories, custom, feed_type, feed_version
@@ -597,6 +691,55 @@ func (q *Queries) GetFeedExtensions(ctx context.Context, arg GetFeedExtensionsPa
 			&i.Value,
 			&i.Attrs,
 			&i.Children,
+			&i.FeedID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFeedImages = `-- name: GetFeedImages :many
+SELECT
+    id, created_at, updated_at, deleted_at, url, title, feed_id
+FROM
+    feed_images
+WHERE
+    feed_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetFeedImagesParams struct {
+	FeedID int64 `json:"feed_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetFeedImages(ctx context.Context, arg GetFeedImagesParams) ([]FeedImage, error) {
+	rows, err := q.db.Query(ctx, getFeedImages, arg.FeedID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []FeedImage{}
+	for rows.Next() {
+		var i FeedImage
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Url,
+			&i.Title,
 			&i.FeedID,
 		); err != nil {
 			return nil, err
@@ -791,6 +934,55 @@ func (q *Queries) GetItemExtensions(ctx context.Context, arg GetItemExtensionsPa
 			&i.Value,
 			&i.Attrs,
 			&i.Children,
+			&i.ItemID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getItemImages = `-- name: GetItemImages :many
+SELECT
+    id, created_at, updated_at, deleted_at, url, title, item_id
+FROM
+    item_images
+WHERE
+    item_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetItemImagesParams struct {
+	ItemID int64 `json:"item_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetItemImages(ctx context.Context, arg GetItemImagesParams) ([]ItemImage, error) {
+	rows, err := q.db.Query(ctx, getItemImages, arg.ItemID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ItemImage{}
+	for rows.Next() {
+		var i ItemImage
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Url,
+			&i.Title,
 			&i.ItemID,
 		); err != nil {
 			return nil, err

@@ -83,6 +83,19 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 				fb.WriteString("<li>Value: " + ext.Value.String + "</li>")
 			}
 		}
+
+		images, err := DB.GetFeedImages(context.Background(), db.GetFeedImagesParams{
+			FeedID: feed.ID,
+			Limit:  100,
+		})
+		if err != nil {
+			http.Error(w, "Error getting images", http.StatusInternalServerError)
+			return
+		}
+		for _, image := range images {
+			fb.WriteString("<li><img src=\"" + image.Url.String + "\" alt=\"Feed Image\" width=\"256\"></li>")
+		}
+
 		fb.WriteString("</ul>")
 		fb.WriteString("<a href=\"/feed/" + strconv.FormatInt(feed.ID, 10) + "\">" + feed.Url + "</a>")
 		fb.WriteString("</li>")
@@ -363,8 +376,21 @@ func FeedHandler(w http.ResponseWriter, r *http.Request) {
 				fb.WriteString("<li>Children: " + string(ext.Children) + "</li>")
 			}
 			fb.WriteString("</ul>")
-
 		}
+
+		// Get images for the item
+		images, err := DB.GetItemImages(context.Background(), db.GetItemImagesParams{
+			ItemID: item.ID,
+			Limit:  100,
+		})
+		if err != nil {
+			http.Error(w, "Error getting images", http.StatusInternalServerError)
+			return
+		}
+		for _, image := range images {
+			fb.WriteString("<li><img src=\"" + image.Url.String + "\" alt=\"Feed Image\" width=\"256\"></li>")
+		}
+
 		fb.WriteString("</ul>")
 		fb.WriteString("<ul>")
 		if item.Published.Valid {
