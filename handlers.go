@@ -31,7 +31,7 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 		Keywords:     "RSS, Atom, Feed, Archive",
 		Author:       "TheLovinator",
 		CanonicalURL: "http://localhost:8000/feeds",
-		Content:      "<p>Here be </p>",
+		Content:      "<p>No feeds yet.</p>",
 	}
 	html := FullHTML(htmlData)
 	_, err := w.Write([]byte(html))
@@ -163,7 +163,10 @@ func IndexHandler(w http.ResponseWriter, _ *http.Request) {
 		Content:      content,
 	}
 	html := FullHTML(htmlData)
-	w.Write([]byte(html))
+	_, err := w.Write([]byte(html))
+	if err != nil {
+		log.Println("Error writing response:", err)
+	}
 }
 
 func UploadOpmlHandler(w http.ResponseWriter, r *http.Request) {
@@ -218,5 +221,8 @@ func UploadOpmlHandler(w http.ResponseWriter, r *http.Request) {
 		ParseResult:  parseResult,
 	}
 	html := FullHTML(htmlData)
-	w.Write([]byte(html))
+	_, err = w.Write([]byte(html))
+	if err != nil {
+		log.Println("Error writing response:", err)
+	}
 }

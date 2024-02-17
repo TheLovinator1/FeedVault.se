@@ -1,8 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"context"
 	"time"
 )
 
@@ -14,46 +13,22 @@ type Cache struct {
 var cache Cache
 
 func GetDBSize() (string, error) {
-	// If cache is less than 10 minutes old, return cached data
-	if time.Since(cache.timestamp).Minutes() < 10 {
-		return cache.data, nil
+	// If the cache is older than 5 minutes, get the database size from the database
+	if time.Since(cache.timestamp) > 5*time.Minute {
+		dbSize, err := getDBSizeFromDB()
+		if err != nil {
+			return "", err
+		}
+		cache = Cache{timestamp: time.Now(), data: dbSize}
 	}
+	return cache.data, nil
+}
 
-	// TODO: This should be read from the environment
-	fileInfo, err := os.Stat("feedvault.db")
+func getDBSizeFromDB() (string, error) {
+	// Get database size from the PostgreSQL database
+	dbSize, err := DB.DBSize(context.Background())
 	if err != nil {
 		return "", err
 	}
-
-	// Get the file size in bytes
-	fileSize := fileInfo.Size()
-
-	// Convert to human readable size and append the unit (KiB, MiB, GiB, TiB)
-	var size float64
-
-	if fileSize < 1024*1024 {
-		// If the file size is less than 1 KiB, return the size in bytes
-		size = float64(fileSize) / 1024
-		cache.data = fmt.Sprintf("%.2f KiB", size)
-
-	} else if fileSize < 1024*1024*1024 {
-		// If the file size is less than 1 MiB, return the size in KiB
-		size = float64(fileSize) / (1024 * 1024)
-		cache.data = fmt.Sprintf("%.2f MiB", size)
-
-	} else if fileSize < 1024*1024*1024*1024 {
-		// If the file size is less than 1 GiB, return the size in MiB
-		size = float64(fileSize) / (1024 * 1024 * 1024)
-		cache.data = fmt.Sprintf("%.2f GiB", size)
-	} else {
-		// If the file size is 1 GiB or more, return the size in TiB
-		size = float64(fileSize) / (1024 * 1024 * 1024 * 1024)
-		cache.data = fmt.Sprintf("%.2f TiB", size)
-	}
-
-	// Update cache timestamp
-	cache.timestamp = time.Now()
-
-	// Return the human readable size
-	return cache.data, nil
+	return dbSize, nil
 }
