@@ -1,14 +1,70 @@
 services:
-  db:
-    image: postgres:16
-    container_name: feedvault-db
-    restart: unless-stopped
+  # Django - Web framework
+  feedvault: &feedvault
+    container_name: feedvault
+    image: ghcr.io/thelovinator1/feedvault:latest
+    user: "1000:1000"
+    restart: always
+    networks:
+      - redis
+      - db
+      - web
     environment:
-      POSTGRES_USER: feedvault
-      POSTGRES_PASSWORD: feedvault # Change this to something more secure in production.
-      # .vscode/settings.json uses feedvault as the password for goose. https://github.com/pressly/goose
-      POSTGRES_DB: feedvault
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=${DEBUG}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
+      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
+      - REDIS_HOST=redis
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - POSTGRES_HOST=feedvault_postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=feedvault
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - ADMIN_PAGE_PATH=${ADMIN_PAGE_PATH}
+      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - /mnt/Fourteen/Docker/FeedVault/staticfiles:/app/staticfiles
+
+  # Nginx - Reverse proxy
+  web:
+    container_name: feedvault_web
+    image: lscr.io/linuxserver/nginx:latest
+    restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Stockholm
+    expose:
+      - 80
+      - 443
+    volumes:
+      - /mnt/Fourteen/Docker/FeedVault/Nginx:/config
+    networks:
+      - web
+      - tunnel
+
+  # Postgres - Database
+  postgres:
+    container_name: feedvault_postgres
+    image: postgres:16
+    user: "1000:1000"
     ports:
-      - "5432:5432"
+      - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_USER=feedvault
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=feedvault
+    volumes:
+      - /mnt/Fourteen/Docker/FeedVault/Postgres:/var/lib/postgresql/data
+    networks:
+      - db
+
+networks:
+  tunnel:
+    driver: bridge
+  db:
+    driver: bridge
+  web:
+    driver: bridge

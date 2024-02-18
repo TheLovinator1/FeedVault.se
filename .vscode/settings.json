@@ -20,6 +20,7 @@
     "DBSTRING",
     "easybox",
     "Eo's",
+    "errorreportsto",
     "etxr",
     "feedburner",
     "feedi",
@@ -46,6 +47,7 @@
     "lmao",
     "localbattle",
     "localdomain",
+    "lscr",
     "malformedurl",
     "meowning",
     "mmcdole",
@@ -56,6 +58,7 @@
     "Omnis",
     "pacman",
     "PGHOST",
+    "PGID",
     "PGPORT",
     "pgtype",
     "PGUSER",
@@ -63,6 +66,7 @@
     "Prés",
     "pressly",
     "psql",
+    "PUID",
     "Rawr",
     "regexes",
     "Retour",
@@ -73,6 +77,7 @@
     "speedport",
     "sqlc",
     "sslmode",
+    "staticfiles",
     "steamloopback",
     "stretchr",
     "stylesheet",
@@ -91,20 +96,5 @@
     "webmail",
     "XOXO",
     "zerolog"
-  ],
-  "terminal.integrated.env.windows": {
-    "GOOSE_DRIVER": "postgres",
-    "GOOSE_DBSTRING": "user=feedvault password=feedvault dbname=feedvault sslmode=disable",
-    "GOOSE_MIGRATION_DIR": "${workspaceFolder}/sql/schema"
-  },
-  "terminal.integrated.env.linux": {
-    "GOOSE_DRIVER": "postgres",
-    "GOOSE_DBSTRING": "user=feedvault password=feedvault dbname=feedvault sslmode=disable",
-    "GOOSE_MIGRATION_DIR": "${workspaceFolder}/sql/schema"
-  },
-  "terminal.integrated.env.osx": {
-    "GOOSE_DRIVER": "postgres",
-    "GOOSE_DBSTRING": "user=feedvault password=feedvault dbname=feedvault sslmode=disable",
-    "GOOSE_MIGRATION_DIR": "${workspaceFolder}/sql/schema"
-  }
+  ]
 }

@@ -5,11 +5,12 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Package",
-      "type": "go",
+      "name": "Python Debugger: Django",
+      "type": "debugpy",
       "request": "launch",
-      "mode": "auto",
-      "program": "${workspaceFolder}"
+      "program": "${workspaceFolder}\\manage.py",
+      "args": ["runserver"],
+      "django": true
     }
   ]
 }
