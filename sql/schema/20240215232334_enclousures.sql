@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
--- Enclosures 
+-- Enclosures - Only for items
 -- https://github.com/mmcdole/gofeed/blob/master/feed.go#L86
 CREATE TABLE IF NOT EXISTS enclosures (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -19,6 +19,6 @@ CREATE TABLE IF NOT EXISTS enclosures (
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS enclosures;
+DROP TABLE IF EXISTS enclosures CASCADE;
 
 -- +goose StatementEnd

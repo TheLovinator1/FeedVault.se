@@ -32,6 +32,12 @@ func addItemToDB(item *gofeed.Item, ctx context.Context, newFeed db.Feed) {
 	// Add Dublin Core to the database
 	createItemDublinCore(ctx, item, newItem)
 
+	// Add iTunes extensions to the database
+	_, err = createItemItunes(ctx, item, newItem)
+	if err != nil {
+		log.Printf("Error adding iTunes extensions to database: %s", err)
+	}
+
 	log.Printf("Item added to database")
 }
 

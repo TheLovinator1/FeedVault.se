@@ -61,8 +61,8 @@ CREATE TABLE IF NOT EXISTS item_dublin_cores (
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS feed_dublin_cores;
+DROP TABLE IF EXISTS feed_dublin_cores CASCADE;
 
-DROP TABLE IF EXISTS item_dublin_cores;
+DROP TABLE IF EXISTS item_dublin_cores CASCADE;
 
 -- +goose StatementEnd

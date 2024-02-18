@@ -10,9 +10,10 @@ CREATE TABLE IF NOT EXISTS feed_itunes (
     -- From gofeed:
     author TEXT,
     "block" TEXT,
+    -- Categories - See feed_itunes_categories
     "explicit" TEXT,
     keywords TEXT,
-    -- Owner
+    -- Owner - See feed_itunes_owners
     subtitle TEXT,
     summary TEXT,
     "image" TEXT,
@@ -50,24 +51,25 @@ CREATE TABLE IF NOT EXISTS item_itunes (
     CONSTRAINT fk_item_id FOREIGN KEY (item_id) REFERENCES items (id) ON DELETE CASCADE
 );
 
--- Itunes categories
+-- Itunes categories for feeds
 -- https://github.com/mmcdole/gofeed/blob/master/extensions/itunes.go#L39
-CREATE TABLE IF NOT EXISTS itunes_categories (
+CREATE TABLE IF NOT EXISTS feed_itunes_categories (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMPTZ DEFAULT NULL,
     -- From gofeed:
     "text" TEXT,
-    subcategory TEXT,
+    subcategory BIGINT,
     -- Link to itunes
     itunes_id BIGINT NOT NULL,
-    CONSTRAINT fk_itunes_id FOREIGN KEY (itunes_id) REFERENCES feed_itunes (id) ON DELETE CASCADE
+    CONSTRAINT fk_itunes_id FOREIGN KEY (itunes_id) REFERENCES feed_itunes (id) ON DELETE CASCADE,
+    CONSTRAINT fk_subcategory_id FOREIGN KEY (subcategory) REFERENCES feed_itunes_categories (id) ON DELETE SET NULL
 );
 
 -- Itunes owners
 -- https://github.com/mmcdole/gofeed/blob/master/extensions/itunes.go#L45
-CREATE TABLE IF NOT EXISTS itunes_owners (
+CREATE TABLE IF NOT EXISTS feed_itunes_owners (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -83,12 +85,12 @@ CREATE TABLE IF NOT EXISTS itunes_owners (
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS feed_itunes;
+DROP TABLE IF EXISTS feed_itunes CASCADE;
 
-DROP TABLE IF EXISTS item_itunes;
+DROP TABLE IF EXISTS item_itunes CASCADE;
 
-DROP TABLE IF EXISTS itunes_categories;
+DROP TABLE IF EXISTS feed_itunes_categories CASCADE;
 
-DROP TABLE IF EXISTS itunes_owners;
+DROP TABLE IF EXISTS feed_itunes_owners CASCADE;
 
 -- +goose StatementEnd

@@ -66,8 +66,8 @@ CREATE TABLE IF NOT EXISTS items (
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS feeds;
+DROP TABLE IF EXISTS feeds CASCADE;
 
-DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS items CASCADE;
 
 -- +goose StatementEnd

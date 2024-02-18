@@ -37,8 +37,8 @@ CREATE TABLE IF NOT EXISTS item_extensions (
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS feed_extensions;
+DROP TABLE IF EXISTS feed_extensions CASCADE;
 
-DROP TABLE IF EXISTS item_extensions;
+DROP TABLE IF EXISTS item_extensions CASCADE;
 
 -- +goose StatementEnd

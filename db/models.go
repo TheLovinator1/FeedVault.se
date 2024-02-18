@@ -117,6 +117,26 @@ type FeedItune struct {
 	FeedID     int64              `json:"feed_id"`
 }
 
+type FeedItunesCategory struct {
+	ID          int64              `json:"id"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+	Text        pgtype.Text        `json:"text"`
+	Subcategory pgtype.Int8        `json:"subcategory"`
+	ItunesID    int64              `json:"itunes_id"`
+}
+
+type FeedItunesOwner struct {
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Email     pgtype.Text        `json:"email"`
+	Name      pgtype.Text        `json:"name"`
+	ItunesID  int64              `json:"itunes_id"`
+}
+
 type Item struct {
 	ID              int64              `json:"id"`
 	CreatedAt       pgtype.Timestamptz `json:"created_at"`
@@ -212,24 +232,4 @@ type ItemItune struct {
 	Order             pgtype.Text        `json:"order"`
 	EpisodeType       pgtype.Text        `json:"episode_type"`
 	ItemID            int64              `json:"item_id"`
-}
-
-type ItunesCategory struct {
-	ID          int64              `json:"id"`
-	CreatedAt   pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
-	Text        pgtype.Text        `json:"text"`
-	Subcategory pgtype.Text        `json:"subcategory"`
-	ItunesID    int64              `json:"itunes_id"`
-}
-
-type ItunesOwner struct {
-	ID        int64              `json:"id"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
-	Email     pgtype.Text        `json:"email"`
-	Name      pgtype.Text        `json:"name"`
-	ItunesID  int64              `json:"itunes_id"`
 }

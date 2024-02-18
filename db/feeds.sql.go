@@ -436,6 +436,194 @@ func (q *Queries) CreateFeedImage(ctx context.Context, arg CreateFeedImageParams
 	return i, err
 }
 
+const createFeedItunes = `-- name: CreateFeedItunes :one
+INSERT INTO
+    feed_itunes (
+        created_at,
+        updated_at,
+        deleted_at,
+        author,
+        "block",
+        "explicit",
+        keywords,
+        subtitle,
+        summary,
+        "image",
+        complete,
+        new_feed_url,
+        "type",
+        feed_id
+    )
+VALUES
+    (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14
+    )
+RETURNING
+    id, created_at, updated_at, deleted_at, author, block, explicit, keywords, subtitle, summary, image, complete, new_feed_url, type, feed_id
+`
+
+type CreateFeedItunesParams struct {
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt  pgtype.Timestamptz `json:"deleted_at"`
+	Author     pgtype.Text        `json:"author"`
+	Block      pgtype.Text        `json:"block"`
+	Explicit   pgtype.Text        `json:"explicit"`
+	Keywords   pgtype.Text        `json:"keywords"`
+	Subtitle   pgtype.Text        `json:"subtitle"`
+	Summary    pgtype.Text        `json:"summary"`
+	Image      pgtype.Text        `json:"image"`
+	Complete   pgtype.Text        `json:"complete"`
+	NewFeedUrl pgtype.Text        `json:"new_feed_url"`
+	Type       pgtype.Text        `json:"type"`
+	FeedID     int64              `json:"feed_id"`
+}
+
+func (q *Queries) CreateFeedItunes(ctx context.Context, arg CreateFeedItunesParams) (FeedItune, error) {
+	row := q.db.QueryRow(ctx, createFeedItunes,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Author,
+		arg.Block,
+		arg.Explicit,
+		arg.Keywords,
+		arg.Subtitle,
+		arg.Summary,
+		arg.Image,
+		arg.Complete,
+		arg.NewFeedUrl,
+		arg.Type,
+		arg.FeedID,
+	)
+	var i FeedItune
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Author,
+		&i.Block,
+		&i.Explicit,
+		&i.Keywords,
+		&i.Subtitle,
+		&i.Summary,
+		&i.Image,
+		&i.Complete,
+		&i.NewFeedUrl,
+		&i.Type,
+		&i.FeedID,
+	)
+	return i, err
+}
+
+const createFeedItunesCategory = `-- name: CreateFeedItunesCategory :one
+INSERT INTO
+    feed_itunes_categories (
+        created_at,
+        updated_at,
+        deleted_at,
+        "text",
+        subcategory,
+        itunes_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    id, created_at, updated_at, deleted_at, text, subcategory, itunes_id
+`
+
+type CreateFeedItunesCategoryParams struct {
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+	Text        pgtype.Text        `json:"text"`
+	Subcategory pgtype.Int8        `json:"subcategory"`
+	ItunesID    int64              `json:"itunes_id"`
+}
+
+func (q *Queries) CreateFeedItunesCategory(ctx context.Context, arg CreateFeedItunesCategoryParams) (FeedItunesCategory, error) {
+	row := q.db.QueryRow(ctx, createFeedItunesCategory,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Text,
+		arg.Subcategory,
+		arg.ItunesID,
+	)
+	var i FeedItunesCategory
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Text,
+		&i.Subcategory,
+		&i.ItunesID,
+	)
+	return i, err
+}
+
+const createFeedItunesOwner = `-- name: CreateFeedItunesOwner :one
+INSERT INTO
+    feed_itunes_owners (
+        created_at,
+        updated_at,
+        deleted_at,
+        email,
+        "name",
+        itunes_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    id, created_at, updated_at, deleted_at, email, name, itunes_id
+`
+
+type CreateFeedItunesOwnerParams struct {
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
+	Email     pgtype.Text        `json:"email"`
+	Name      pgtype.Text        `json:"name"`
+	ItunesID  int64              `json:"itunes_id"`
+}
+
+func (q *Queries) CreateFeedItunesOwner(ctx context.Context, arg CreateFeedItunesOwnerParams) (FeedItunesOwner, error) {
+	row := q.db.QueryRow(ctx, createFeedItunesOwner,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Email,
+		arg.Name,
+		arg.ItunesID,
+	)
+	var i FeedItunesOwner
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Email,
+		&i.Name,
+		&i.ItunesID,
+	)
+	return i, err
+}
+
 const createItem = `-- name: CreateItem :one
 INSERT INTO
     items (
@@ -813,6 +1001,111 @@ func (q *Queries) CreateItemImage(ctx context.Context, arg CreateItemImageParams
 	return i, err
 }
 
+const createItemItunes = `-- name: CreateItemItunes :one
+INSERT INTO
+    item_itunes (
+        created_at,
+        updated_at,
+        deleted_at,
+        author,
+        "block",
+        "explicit",
+        keywords,
+        subtitle,
+        summary,
+        "image",
+        is_closed_captioned,
+        episode,
+        season,
+        "order",
+        episode_type,
+        item_id
+    )
+VALUES
+    (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16
+    )
+RETURNING
+    id, created_at, updated_at, deleted_at, author, block, duration, explicit, keywords, subtitle, summary, image, is_closed_captioned, episode, season, "order", episode_type, item_id
+`
+
+type CreateItemItunesParams struct {
+	CreatedAt         pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt         pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt         pgtype.Timestamptz `json:"deleted_at"`
+	Author            pgtype.Text        `json:"author"`
+	Block             pgtype.Text        `json:"block"`
+	Explicit          pgtype.Text        `json:"explicit"`
+	Keywords          pgtype.Text        `json:"keywords"`
+	Subtitle          pgtype.Text        `json:"subtitle"`
+	Summary           pgtype.Text        `json:"summary"`
+	Image             pgtype.Text        `json:"image"`
+	IsClosedCaptioned pgtype.Text        `json:"is_closed_captioned"`
+	Episode           pgtype.Text        `json:"episode"`
+	Season            pgtype.Text        `json:"season"`
+	Order             pgtype.Text        `json:"order"`
+	EpisodeType       pgtype.Text        `json:"episode_type"`
+	ItemID            int64              `json:"item_id"`
+}
+
+func (q *Queries) CreateItemItunes(ctx context.Context, arg CreateItemItunesParams) (ItemItune, error) {
+	row := q.db.QueryRow(ctx, createItemItunes,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Author,
+		arg.Block,
+		arg.Explicit,
+		arg.Keywords,
+		arg.Subtitle,
+		arg.Summary,
+		arg.Image,
+		arg.IsClosedCaptioned,
+		arg.Episode,
+		arg.Season,
+		arg.Order,
+		arg.EpisodeType,
+		arg.ItemID,
+	)
+	var i ItemItune
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Author,
+		&i.Block,
+		&i.Duration,
+		&i.Explicit,
+		&i.Keywords,
+		&i.Subtitle,
+		&i.Summary,
+		&i.Image,
+		&i.IsClosedCaptioned,
+		&i.Episode,
+		&i.Season,
+		&i.Order,
+		&i.EpisodeType,
+		&i.ItemID,
+	)
+	return i, err
+}
+
 const getFeed = `-- name: GetFeed :one
 SELECT
     id, url, created_at, updated_at, deleted_at, title, description, link, feed_link, links, updated, updated_parsed, published, published_parsed, language, copyright, generator, categories, custom, feed_type, feed_version
@@ -1052,6 +1345,136 @@ func (q *Queries) GetFeedImages(ctx context.Context, arg GetFeedImagesParams) ([
 			&i.Url,
 			&i.Title,
 			&i.FeedID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFeedItunes = `-- name: GetFeedItunes :one
+SELECT
+    id, created_at, updated_at, deleted_at, author, block, explicit, keywords, subtitle, summary, image, complete, new_feed_url, type, feed_id
+FROM
+    feed_itunes
+WHERE
+    feed_id = $1
+`
+
+func (q *Queries) GetFeedItunes(ctx context.Context, feedID int64) (FeedItune, error) {
+	row := q.db.QueryRow(ctx, getFeedItunes, feedID)
+	var i FeedItune
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Author,
+		&i.Block,
+		&i.Explicit,
+		&i.Keywords,
+		&i.Subtitle,
+		&i.Summary,
+		&i.Image,
+		&i.Complete,
+		&i.NewFeedUrl,
+		&i.Type,
+		&i.FeedID,
+	)
+	return i, err
+}
+
+const getFeedItunesCategories = `-- name: GetFeedItunesCategories :many
+SELECT
+    id, created_at, updated_at, deleted_at, text, subcategory, itunes_id
+FROM
+    feed_itunes_categories
+WHERE
+    itunes_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetFeedItunesCategoriesParams struct {
+	ItunesID int64 `json:"itunes_id"`
+	Limit    int32 `json:"limit"`
+	Offset   int32 `json:"offset"`
+}
+
+func (q *Queries) GetFeedItunesCategories(ctx context.Context, arg GetFeedItunesCategoriesParams) ([]FeedItunesCategory, error) {
+	rows, err := q.db.Query(ctx, getFeedItunesCategories, arg.ItunesID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []FeedItunesCategory{}
+	for rows.Next() {
+		var i FeedItunesCategory
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Text,
+			&i.Subcategory,
+			&i.ItunesID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFeedItunesOwners = `-- name: GetFeedItunesOwners :many
+SELECT
+    id, created_at, updated_at, deleted_at, email, name, itunes_id
+FROM
+    feed_itunes_owners
+WHERE
+    itunes_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetFeedItunesOwnersParams struct {
+	ItunesID int64 `json:"itunes_id"`
+	Limit    int32 `json:"limit"`
+	Offset   int32 `json:"offset"`
+}
+
+func (q *Queries) GetFeedItunesOwners(ctx context.Context, arg GetFeedItunesOwnersParams) ([]FeedItunesOwner, error) {
+	rows, err := q.db.Query(ctx, getFeedItunesOwners, arg.ItunesID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []FeedItunesOwner{}
+	for rows.Next() {
+		var i FeedItunesOwner
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Email,
+			&i.Name,
+			&i.ItunesID,
 		); err != nil {
 			return nil, err
 		}
@@ -1367,6 +1790,41 @@ func (q *Queries) GetItemImages(ctx context.Context, arg GetItemImagesParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const getItemItunes = `-- name: GetItemItunes :one
+SELECT
+    id, created_at, updated_at, deleted_at, author, block, duration, explicit, keywords, subtitle, summary, image, is_closed_captioned, episode, season, "order", episode_type, item_id
+FROM
+    item_itunes
+WHERE
+    item_id = $1
+`
+
+func (q *Queries) GetItemItunes(ctx context.Context, itemID int64) (ItemItune, error) {
+	row := q.db.QueryRow(ctx, getItemItunes, itemID)
+	var i ItemItune
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Author,
+		&i.Block,
+		&i.Duration,
+		&i.Explicit,
+		&i.Keywords,
+		&i.Subtitle,
+		&i.Summary,
+		&i.Image,
+		&i.IsClosedCaptioned,
+		&i.Episode,
+		&i.Season,
+		&i.Order,
+		&i.EpisodeType,
+		&i.ItemID,
+	)
+	return i, err
 }
 
 const getItems = `-- name: GetItems :many

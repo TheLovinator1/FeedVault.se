@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS item_images (
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS feed_images;
+DROP TABLE IF EXISTS feed_images CASCADE;
 
-DROP TABLE IF EXISTS item_images;
+DROP TABLE IF EXISTS item_images CASCADE;
 
 -- +goose StatementEnd

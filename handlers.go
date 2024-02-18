@@ -33,8 +33,7 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 		Limit: 100,
 	})
 	if err != nil {
-		http.Error(w, "Error getting feeds", http.StatusInternalServerError)
-		return
+		log.Println("Error getting feeds:", err)
 	}
 
 	fb := strings.Builder{}
@@ -45,7 +44,6 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 		})
 		if err != nil {
 			http.Error(w, "Error getting authors", http.StatusInternalServerError)
-			return
 		}
 
 		extensions, err := DB.GetFeedExtensions(context.Background(), db.GetFeedExtensionsParams{
@@ -53,8 +51,13 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 			Limit:  100,
 		})
 		if err != nil {
-			http.Error(w, "Error getting extensions", http.StatusInternalServerError)
-			return
+			log.Println("Error getting extensions:", err)
+		}
+
+		// Get the itunes extensions
+		itunes, err := DB.GetFeedItunes(context.Background(), feed.ID)
+		if err != nil {
+			log.Println("Error getting itunes extensions:", err)
 		}
 
 		fb.WriteString("<li>")
@@ -84,13 +87,42 @@ func FeedsHandler(w http.ResponseWriter, _ *http.Request) {
 			}
 		}
 
+		// Itunes extensions
+
+		fb.WriteString("<ul>")
+		if itunes.Author.Valid {
+			fb.WriteString("<li>Itunes Author: " + itunes.Author.String + "</li>")
+		}
+		if itunes.Block.Valid {
+			fb.WriteString("<li>Itunes Block: " + itunes.Block.String + "</li>")
+		}
+		if itunes.Explicit.Valid {
+			fb.WriteString("<li>Itunes Explicit: " + itunes.Explicit.String + "</li>")
+		}
+		if itunes.Image.Valid {
+			fb.WriteString("<li>Itunes Image: " + itunes.Image.String + "</li>")
+		}
+		if itunes.Keywords.Valid {
+			fb.WriteString("<li>Itunes Keywords: " + itunes.Keywords.String + "</li>")
+		}
+		if itunes.Subtitle.Valid {
+			fb.WriteString("<li>Itunes Subtitle: " + itunes.Subtitle.String + "</li>")
+		}
+		if itunes.Summary.Valid {
+			fb.WriteString("<li>Itunes Summary: " + itunes.Summary.String + "</li>")
+		}
+		if itunes.Type.Valid {
+			fb.WriteString("<li>Itunes Type: " + itunes.Type.String + "</li>")
+		}
+		fb.WriteString("</ul>")
+
 		images, err := DB.GetFeedImages(context.Background(), db.GetFeedImagesParams{
 			FeedID: feed.ID,
 			Limit:  100,
 		})
 		if err != nil {
-			http.Error(w, "Error getting images", http.StatusInternalServerError)
-			return
+			log.Println("Error getting images:", err)
+			continue
 		}
 		for _, image := range images {
 			fb.WriteString("<li><img src=\"" + image.Url.String + "\" alt=\"Feed Image\" width=\"256\"></li>")
@@ -329,8 +361,7 @@ func FeedHandler(w http.ResponseWriter, r *http.Request) {
 		Limit:  100,
 	})
 	if err != nil {
-		http.Error(w, "Error getting items", http.StatusInternalServerError)
-		return
+		log.Println("Error getting items:", err)
 	}
 
 	// Build the HTML
@@ -408,6 +439,39 @@ func FeedHandler(w http.ResponseWriter, r *http.Request) {
 		fb.WriteString("</ul>")
 		fb.WriteString("<hr>")
 		fb.WriteString("</li>")
+
+		// Itunes extensions
+		itunes, err := DB.GetItemItunes(context.Background(), item.ID)
+		if err != nil {
+			log.Println("Error getting itunes extensions:", err)
+		}
+		fb.WriteString("<ul>")
+		if itunes.Author.Valid {
+			fb.WriteString("<li>Itunes Author: " + itunes.Author.String + "</li>")
+		}
+		if itunes.Block.Valid {
+			fb.WriteString("<li>Itunes Block: " + itunes.Block.String + "</li>")
+		}
+		if itunes.Duration.Valid {
+			fb.WriteString("<li>Itunes Duration: " + itunes.Duration.String + "</li>")
+		}
+		if itunes.Explicit.Valid {
+			fb.WriteString("<li>Itunes Explicit: " + itunes.Explicit.String + "</li>")
+		}
+		if itunes.Image.Valid {
+			fb.WriteString("<li>Itunes Image: " + itunes.Image.String + "</li>")
+		}
+		if itunes.Keywords.Valid {
+			fb.WriteString("<li>Itunes Keywords: " + itunes.Keywords.String + "</li>")
+		}
+		if itunes.Subtitle.Valid {
+			fb.WriteString("<li>Itunes Subtitle: " + itunes.Subtitle.String + "</li>")
+		}
+		if itunes.Summary.Valid {
+			fb.WriteString("<li>Itunes Summary: " + itunes.Summary.String + "</li>")
+		}
+		fb.WriteString("</ul>")
+
 	}
 
 	htmlData := HTMLData{

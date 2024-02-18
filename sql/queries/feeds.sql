@@ -449,3 +449,157 @@ LIMIT
     $2
 OFFSET
     $3;
+
+-- name: CreateFeedItunes :one
+INSERT INTO
+    feed_itunes (
+        created_at,
+        updated_at,
+        deleted_at,
+        author,
+        "block",
+        "explicit",
+        keywords,
+        subtitle,
+        summary,
+        "image",
+        complete,
+        new_feed_url,
+        "type",
+        feed_id
+    )
+VALUES
+    (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14
+    )
+RETURNING
+    *;
+
+-- name: CreateItemItunes :one
+INSERT INTO
+    item_itunes (
+        created_at,
+        updated_at,
+        deleted_at,
+        author,
+        "block",
+        "explicit",
+        keywords,
+        subtitle,
+        summary,
+        "image",
+        is_closed_captioned,
+        episode,
+        season,
+        "order",
+        episode_type,
+        item_id
+    )
+VALUES
+    (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16
+    )
+RETURNING
+    *;
+
+-- name: GetFeedItunes :one
+SELECT
+    *
+FROM
+    feed_itunes
+WHERE
+    feed_id = $1;
+
+-- name: GetItemItunes :one
+SELECT
+    *
+FROM
+    item_itunes
+WHERE
+    item_id = $1;
+
+-- name: CreateFeedItunesCategory :one
+INSERT INTO
+    feed_itunes_categories (
+        created_at,
+        updated_at,
+        deleted_at,
+        "text",
+        subcategory,
+        itunes_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    *;
+
+-- name: CreateFeedItunesOwner :one
+INSERT INTO
+    feed_itunes_owners (
+        created_at,
+        updated_at,
+        deleted_at,
+        email,
+        "name",
+        itunes_id
+    )
+VALUES
+    ($1, $2, $3, $4, $5, $6)
+RETURNING
+    *;
+
+-- name: GetFeedItunesCategories :many
+SELECT
+    *
+FROM
+    feed_itunes_categories
+WHERE
+    itunes_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;
+
+-- name: GetFeedItunesOwners :many
+SELECT
+    *
+FROM
+    feed_itunes_owners
+WHERE
+    itunes_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;

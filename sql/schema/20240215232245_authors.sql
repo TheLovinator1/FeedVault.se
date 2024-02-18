@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS item_authors (
 -- +goose StatementEnd
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE IF EXISTS feed_authors;
+DROP TABLE IF EXISTS feed_authors CASCADE;
 
-DROP TABLE IF EXISTS item_authors;
+DROP TABLE IF EXISTS item_authors CASCADE;
 
 -- +goose StatementEnd

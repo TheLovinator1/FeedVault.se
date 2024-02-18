@@ -53,6 +53,15 @@ func AddFeedToDB(feedURL string) error {
 	log.Printf("Adding Dublin Core to the database")
 	createFeedDublinCore(ctx, feed, newFeed)
 
+	// Add iTunes extensions to the database
+	log.Printf("Adding iTunes extensions to the database")
+	itunes, err := createFeedItunes(ctx, feed, newFeed)
+	if err != nil {
+		log.Printf("Error adding iTunes extensions to database: %s", err)
+	}
+	createFeedItunesCategories(ctx, feed, itunes)
+	createFeedItunesOwners(ctx, feed, itunes)
+
 	log.Printf("Feed added to database")
 	return nil
 }
