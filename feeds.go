@@ -49,6 +49,10 @@ func AddFeedToDB(feedURL string) error {
 	log.Printf("Adding images to the database")
 	addFeedImages(ctx, feed, newFeed)
 
+	// Add Dublin Core to the database
+	log.Printf("Adding Dublin Core to the database")
+	createFeedDublinCore(ctx, feed, newFeed)
+
 	log.Printf("Feed added to database")
 	return nil
 }

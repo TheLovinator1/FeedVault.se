@@ -210,6 +210,130 @@ func (q *Queries) CreateFeedAuthor(ctx context.Context, arg CreateFeedAuthorPara
 	return i, err
 }
 
+const createFeedDublinCore = `-- name: CreateFeedDublinCore :one
+INSERT INTO
+    feed_dublin_cores (
+        created_at,
+        updated_at,
+        deleted_at,
+        title,
+        creator,
+        author,
+        "subject",
+        "description",
+        publisher,
+        contributor,
+        "date",
+        "type",
+        format,
+        identifier,
+        source,
+        "language",
+        relation,
+        coverage,
+        rights,
+        feed_id
+    )
+VALUES
+    (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20
+    )
+RETURNING
+    id, created_at, updated_at, deleted_at, title, creator, author, subject, description, publisher, contributor, date, type, format, identifier, source, language, relation, coverage, rights, feed_id
+`
+
+type CreateFeedDublinCoreParams struct {
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+	Title       []string           `json:"title"`
+	Creator     []string           `json:"creator"`
+	Author      []string           `json:"author"`
+	Subject     []string           `json:"subject"`
+	Description []string           `json:"description"`
+	Publisher   []string           `json:"publisher"`
+	Contributor []string           `json:"contributor"`
+	Date        []string           `json:"date"`
+	Type        []string           `json:"type"`
+	Format      []string           `json:"format"`
+	Identifier  []string           `json:"identifier"`
+	Source      []string           `json:"source"`
+	Language    []string           `json:"language"`
+	Relation    []string           `json:"relation"`
+	Coverage    []string           `json:"coverage"`
+	Rights      []string           `json:"rights"`
+	FeedID      int64              `json:"feed_id"`
+}
+
+func (q *Queries) CreateFeedDublinCore(ctx context.Context, arg CreateFeedDublinCoreParams) (FeedDublinCore, error) {
+	row := q.db.QueryRow(ctx, createFeedDublinCore,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Title,
+		arg.Creator,
+		arg.Author,
+		arg.Subject,
+		arg.Description,
+		arg.Publisher,
+		arg.Contributor,
+		arg.Date,
+		arg.Type,
+		arg.Format,
+		arg.Identifier,
+		arg.Source,
+		arg.Language,
+		arg.Relation,
+		arg.Coverage,
+		arg.Rights,
+		arg.FeedID,
+	)
+	var i FeedDublinCore
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Title,
+		&i.Creator,
+		&i.Author,
+		&i.Subject,
+		&i.Description,
+		&i.Publisher,
+		&i.Contributor,
+		&i.Date,
+		&i.Type,
+		&i.Format,
+		&i.Identifier,
+		&i.Source,
+		&i.Language,
+		&i.Relation,
+		&i.Coverage,
+		&i.Rights,
+		&i.FeedID,
+	)
+	return i, err
+}
+
 const createFeedExtension = `-- name: CreateFeedExtension :one
 INSERT INTO
     feed_extensions (
@@ -463,6 +587,130 @@ func (q *Queries) CreateItemAuthor(ctx context.Context, arg CreateItemAuthorPara
 	return i, err
 }
 
+const createItemDublinCore = `-- name: CreateItemDublinCore :one
+INSERT INTO
+    item_dublin_cores (
+        created_at,
+        updated_at,
+        deleted_at,
+        title,
+        creator,
+        author,
+        "subject",
+        "description",
+        publisher,
+        contributor,
+        "date",
+        "type",
+        format,
+        identifier,
+        source,
+        "language",
+        relation,
+        coverage,
+        rights,
+        item_id
+    )
+VALUES
+    (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20
+    )
+RETURNING
+    id, created_at, updated_at, deleted_at, title, creator, author, subject, description, publisher, contributor, date, type, format, identifier, source, language, relation, coverage, rights, item_id
+`
+
+type CreateItemDublinCoreParams struct {
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+	Title       []string           `json:"title"`
+	Creator     []string           `json:"creator"`
+	Author      []string           `json:"author"`
+	Subject     []string           `json:"subject"`
+	Description []string           `json:"description"`
+	Publisher   []string           `json:"publisher"`
+	Contributor []string           `json:"contributor"`
+	Date        []string           `json:"date"`
+	Type        []string           `json:"type"`
+	Format      []string           `json:"format"`
+	Identifier  []string           `json:"identifier"`
+	Source      []string           `json:"source"`
+	Language    []string           `json:"language"`
+	Relation    []string           `json:"relation"`
+	Coverage    []string           `json:"coverage"`
+	Rights      []string           `json:"rights"`
+	ItemID      int64              `json:"item_id"`
+}
+
+func (q *Queries) CreateItemDublinCore(ctx context.Context, arg CreateItemDublinCoreParams) (ItemDublinCore, error) {
+	row := q.db.QueryRow(ctx, createItemDublinCore,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+		arg.DeletedAt,
+		arg.Title,
+		arg.Creator,
+		arg.Author,
+		arg.Subject,
+		arg.Description,
+		arg.Publisher,
+		arg.Contributor,
+		arg.Date,
+		arg.Type,
+		arg.Format,
+		arg.Identifier,
+		arg.Source,
+		arg.Language,
+		arg.Relation,
+		arg.Coverage,
+		arg.Rights,
+		arg.ItemID,
+	)
+	var i ItemDublinCore
+	err := row.Scan(
+		&i.ID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+		&i.Title,
+		&i.Creator,
+		&i.Author,
+		&i.Subject,
+		&i.Description,
+		&i.Publisher,
+		&i.Contributor,
+		&i.Date,
+		&i.Type,
+		&i.Format,
+		&i.Identifier,
+		&i.Source,
+		&i.Language,
+		&i.Relation,
+		&i.Coverage,
+		&i.Rights,
+		&i.ItemID,
+	)
+	return i, err
+}
+
 const createItemExtension = `-- name: CreateItemExtension :one
 INSERT INTO
     item_extensions (
@@ -640,6 +888,69 @@ func (q *Queries) GetFeedAuthors(ctx context.Context, arg GetFeedAuthorsParams) 
 			&i.DeletedAt,
 			&i.Name,
 			&i.Email,
+			&i.FeedID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getFeedDublinCores = `-- name: GetFeedDublinCores :many
+SELECT
+    id, created_at, updated_at, deleted_at, title, creator, author, subject, description, publisher, contributor, date, type, format, identifier, source, language, relation, coverage, rights, feed_id
+FROM
+    feed_dublin_cores
+WHERE
+    feed_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetFeedDublinCoresParams struct {
+	FeedID int64 `json:"feed_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetFeedDublinCores(ctx context.Context, arg GetFeedDublinCoresParams) ([]FeedDublinCore, error) {
+	rows, err := q.db.Query(ctx, getFeedDublinCores, arg.FeedID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []FeedDublinCore{}
+	for rows.Next() {
+		var i FeedDublinCore
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Title,
+			&i.Creator,
+			&i.Author,
+			&i.Subject,
+			&i.Description,
+			&i.Publisher,
+			&i.Contributor,
+			&i.Date,
+			&i.Type,
+			&i.Format,
+			&i.Identifier,
+			&i.Source,
+			&i.Language,
+			&i.Relation,
+			&i.Coverage,
+			&i.Rights,
 			&i.FeedID,
 		); err != nil {
 			return nil, err
@@ -883,6 +1194,69 @@ func (q *Queries) GetItemAuthors(ctx context.Context, arg GetItemAuthorsParams) 
 			&i.DeletedAt,
 			&i.Name,
 			&i.Email,
+			&i.ItemID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getItemDublinCores = `-- name: GetItemDublinCores :many
+SELECT
+    id, created_at, updated_at, deleted_at, title, creator, author, subject, description, publisher, contributor, date, type, format, identifier, source, language, relation, coverage, rights, item_id
+FROM
+    item_dublin_cores
+WHERE
+    item_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3
+`
+
+type GetItemDublinCoresParams struct {
+	ItemID int64 `json:"item_id"`
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+func (q *Queries) GetItemDublinCores(ctx context.Context, arg GetItemDublinCoresParams) ([]ItemDublinCore, error) {
+	rows, err := q.db.Query(ctx, getItemDublinCores, arg.ItemID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ItemDublinCore{}
+	for rows.Next() {
+		var i ItemDublinCore
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+			&i.Title,
+			&i.Creator,
+			&i.Author,
+			&i.Subject,
+			&i.Description,
+			&i.Publisher,
+			&i.Contributor,
+			&i.Date,
+			&i.Type,
+			&i.Format,
+			&i.Identifier,
+			&i.Source,
+			&i.Language,
+			&i.Relation,
+			&i.Coverage,
+			&i.Rights,
 			&i.ItemID,
 		); err != nil {
 			return nil, err

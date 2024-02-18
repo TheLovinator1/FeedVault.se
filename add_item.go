@@ -29,6 +29,9 @@ func addItemToDB(item *gofeed.Item, ctx context.Context, newFeed db.Feed) {
 		addItemImages(ctx, item, newItem)
 	}
 
+	// Add Dublin Core to the database
+	createItemDublinCore(ctx, item, newItem)
+
 	log.Printf("Item added to database")
 }
 
@@ -74,86 +77,4 @@ func makeCreateItemParams(item *gofeed.Item, feedID int64) db.CreateItemParams {
 	log.Printf("Created item params: %+v", params)
 
 	return params
-}
-
-func addItemExtensionToDB(ctx context.Context, item *gofeed.Item, newItem db.Item) {
-	// Add extensions to the database
-	for _, ext := range item.Extensions {
-		for _, exts := range ext {
-			for _, e := range exts {
-				attrsCustom := []byte("{}")
-				if e.Attrs != nil {
-					var err error
-					attrsCustom, err = json.Marshal(e.Attrs)
-					if err != nil {
-						fmt.Println("Error marshalling extension attributes:", err)
-						attrsCustom = []byte("{}")
-					}
-				}
-
-				childrenCustom := []byte("{}")
-				if e.Children != nil {
-					var err error
-					childrenCustom, err = json.Marshal(e.Children)
-					if err != nil {
-						fmt.Println("Error marshalling extension children:", err)
-						childrenCustom = []byte("{}")
-					}
-				}
-
-				_, err := DB.CreateItemExtension(ctx, db.CreateItemExtensionParams{
-					CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-					UpdatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-					DeletedAt: pgtype.Timestamptz{Valid: false},
-					Name:      pgtype.Text{String: e.Name, Valid: e.Name != ""},
-					Value:     pgtype.Text{String: e.Value, Valid: e.Value != ""},
-					Attrs:     attrsCustom,
-					Children:  childrenCustom,
-					ItemID:    newItem.ID,
-				})
-
-				if err != nil {
-					log.Printf("Error adding extension to database: %s", err)
-					continue
-				}
-
-				log.Printf("Extension added to database")
-			}
-		}
-	}
-}
-
-func addItemAuthors(ctx context.Context, item *gofeed.Item, newItem db.Item) {
-	for _, author := range item.Authors {
-		_, err := DB.CreateItemAuthor(ctx, db.CreateItemAuthorParams{
-			CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-			UpdatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-			DeletedAt: pgtype.Timestamptz{Valid: false},
-			Name:      pgtype.Text{String: author.Name, Valid: author.Name != ""},
-			Email:     pgtype.Text{String: author.Email, Valid: author.Email != ""},
-			ItemID:    newItem.ID,
-		})
-
-		if err != nil {
-			log.Printf("Error adding author %s (%s) to database: %s", author.Name, author.Email, err)
-			continue
-		}
-		log.Printf("Author %s (%s) added to database", author.Name, author.Email)
-	}
-}
-
-func addItemImages(ctx context.Context, item *gofeed.Item, newItem db.Item) {
-	_, err := DB.CreateItemImage(ctx, db.CreateItemImageParams{
-		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-		UpdatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
-		DeletedAt: pgtype.Timestamptz{Valid: false},
-		Url:       pgtype.Text{String: item.Image.URL, Valid: item.Image.URL != ""},
-		Title:     pgtype.Text{String: item.Image.Title, Valid: item.Image.Title != ""},
-		ItemID:    newItem.ID,
-	})
-	if err != nil {
-		log.Printf("Error adding image to database: %s", err)
-		return
-	}
-	log.Printf("Image added to database: %s", item.Image.URL)
 }

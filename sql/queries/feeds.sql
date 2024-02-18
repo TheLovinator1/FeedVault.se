@@ -321,3 +321,131 @@ LIMIT
     $2
 OFFSET
     $3;
+
+-- name: CreateFeedDublinCore :one
+INSERT INTO
+    feed_dublin_cores (
+        created_at,
+        updated_at,
+        deleted_at,
+        title,
+        creator,
+        author,
+        "subject",
+        "description",
+        publisher,
+        contributor,
+        "date",
+        "type",
+        format,
+        identifier,
+        source,
+        "language",
+        relation,
+        coverage,
+        rights,
+        feed_id
+    )
+VALUES
+    (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20
+    )
+RETURNING
+    *;
+
+-- name: CreateItemDublinCore :one
+INSERT INTO
+    item_dublin_cores (
+        created_at,
+        updated_at,
+        deleted_at,
+        title,
+        creator,
+        author,
+        "subject",
+        "description",
+        publisher,
+        contributor,
+        "date",
+        "type",
+        format,
+        identifier,
+        source,
+        "language",
+        relation,
+        coverage,
+        rights,
+        item_id
+    )
+VALUES
+    (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10,
+        $11,
+        $12,
+        $13,
+        $14,
+        $15,
+        $16,
+        $17,
+        $18,
+        $19,
+        $20
+    )
+RETURNING
+    *;
+
+-- name: GetFeedDublinCores :many
+SELECT
+    *
+FROM
+    feed_dublin_cores
+WHERE
+    feed_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;
+
+-- name: GetItemDublinCores :many
+SELECT
+    *
+FROM
+    item_dublin_cores
+WHERE
+    item_id = $1
+ORDER BY
+    created_at DESC
+LIMIT
+    $2
+OFFSET
+    $3;
