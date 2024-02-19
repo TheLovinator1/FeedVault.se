@@ -19,6 +19,8 @@ services:
       - POSTGRES_USER=feedvault
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+    volumes:
+      - /mnt/Fourteen/Docker/FeedVault/staticfiles:/app/staticfiles
 
   # Nginx - Reverse proxy
   web:
@@ -47,7 +49,7 @@ services:
     networks:
       - feedvault_tunnel
     environment:
-      - TUNNEL_URL=http://web:80
+      - TUNNEL_URL=http://feedvault_web:80
 
   # Postgres - Database
   postgres:
