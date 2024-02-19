@@ -16,9 +16,6 @@ BASE_DIR: Path = Path(__file__).resolve().parent.parent
 # The secret key is used for cryptographic signing, and should be set to a unique, unpredictable value.
 SECRET_KEY: str = os.getenv("SECRET_KEY", default="")
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
 ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
