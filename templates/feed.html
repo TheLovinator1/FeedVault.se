@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>{{ feed.feed_url }}</h2>
+    <dl>
+        {% for field_name, field_value in feed.get_fields %}
+            {% if field_value %}
+                <dt>{{ field_name }}</dt>
+                <dd>
+                    {{ field_value }}
+                </dd>
+            {% endif %}
+        {% endfor %}
+    </dl>
+    <h3>Entries</h3>
+    <dl>
+        {% for entry in entries %}
+            {% for field_name, field_value in entry.get_fields %}
+                {% if field_value %}
+                    <dt>{{ field_name }}</dt>
+                    <dd>
+                        {{ field_value }}
+                    </dd>
+                {% endif %}
+            {% endfor %}
+        {% endfor %}
+    </dl>
+{% endblock %}

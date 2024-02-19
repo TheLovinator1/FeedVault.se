@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Feeds</h2>
+    <ul>
+        {% for feed in feeds %}
+            <li>{{ feed.feed_url }} - {{ feed.created_at|date }}</li>
+            <li>
+                <a href="/feed/{{ feed.id }}">View</a>
+            </li>
+        {% empty %}
+            <li>No feeds yet.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

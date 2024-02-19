@@ -6,7 +6,6 @@ services:
     user: "1000:1000"
     restart: always
     networks:
-      - redis
       - db
       - web
     environment:
@@ -15,8 +14,6 @@ services:
       - ADMIN_EMAIL=${ADMIN_EMAIL}
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-      - REDIS_HOST=redis
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
       - POSTGRES_HOST=feedvault_postgres
       - POSTGRES_PORT=5432
       - POSTGRES_USER=feedvault

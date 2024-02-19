@@ -13,6 +13,7 @@ feedparser = "^6.0.11"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.2.2"
+djlint = "^1.34.1"
 
 [build-system]
 requires = ["poetry-core"]
@@ -47,3 +48,7 @@ convention = "google"
     "D102",    # Allow missing docstrings in tests
     "PLR6301", # Checks for the presence of unused self parameter in methods definitions.
 ]
+
+
+[tool.djlint]
+format_attribute_template_tags = true

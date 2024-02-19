@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="%s" />
+    <meta name="keywords" content="%s" />
+    <meta name="author" content="%s" />
+    <link rel="canonical" href="%s" />
+    {% if title %}
+      <title>{{ title }}</title>
+    {% else %}
+      <title>FeedVault</title>
+    {% endif %}
+    <style>
+      html {
+        max-width: 70ch;
+        padding: calc(1vmin + 0.5rem);
+        margin-inline: auto;
+        font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        color-scheme: light dark;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .title {
+        text-align: center;
+      }
+
+      .search {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+        margin-inline: auto;
+      }
+
+      .leftright {
+        display: flex;
+        justify-content: center;
+      }
+
+      .left {
+        margin-right: auto;
+      }
+
+      .right {
+        margin-left: auto;
+      }
+
+      textarea {
+        width: 100%;
+        height: 10rem;
+        resize: vertical;
+      }
+
+      .messages {
+        list-style-type: none;
+      }
+
+      .error {
+        color: red;
+      }
+
+      .success {
+        color: green;
+      }
+    </style>
+  </head>
+  <body>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    <span class="title">
+      <h1>
+        <a href="/">FeedVault</a>
+      </h1>
+    </span>
+    <div class="leftright">
+      <div class="left">
+        <small>Archive of
+          <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>.
+          {% if amount_of_feeds %}
+            {{ amount_of_feeds }} feeds.
+          {% else %}
+            0 feeds.
+          {% endif %}
+          ~{{ db_size }}.
+        </small>
+      </div>
+      <div class="right">
+        <form action="#" method="get">
+          <input type="text" name="q" placeholder="Search" />
+          <button type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+    <nav>
+      <small>
+        <div class="leftright">
+          <div class="left">
+            <a href="/">Home</a> | <a href="/feeds">Feeds</a> |
+            <a href="/api">API</a>
+          </div>
+          <div class="right">
+            <a href="https://github.com/TheLovinator1/FeedVault">GitHub</a> |
+            <a href="https://github.com/sponsors/TheLovinator1">Donate</a>
+          </div>
+        </div>
+      </small>
+    </nav>
+    <hr />
+    <main>
+      {% block content %}<!-- default content -->{% endblock %}
+    </main>
+    <hr />
+    <footer>
+      <small>
+        <div class="leftright">
+          <div class="left">
+            Made by <a href="">Joakim Hellsén</a>.
+          </div>
+          <div class="right">No rights reserved.</div>
+        </div>
+        <div class="leftright">
+          <div class="left">
+            <a href="mailto:hello@feedvault.se">hello@feedvault.se</a>
+          </div>
+          <div class="right">A birthday present for Plipp ❤️</div>
+        </div>
+      </small>
+    </footer>
+  </body>
+</html>

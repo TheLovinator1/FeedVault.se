@@ -95,6 +95,31 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# A list containing the settings for all template engines to be used with Django.
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+            "loaders": [
+                (
+                    "django.template.loaders.cached.Loader",
+                    [
+                        "django.template.loaders.filesystem.Loader",
+                        "django.template.loaders.app_directories.Loader",
+                    ],
+                ),
+            ],
+        },
+    },
+]
+
 # A list of all the people who get code error notifications. When DEBUG=False and a view raises an exception, Django
 ADMINS: list[tuple[str, str]] = [("Joakim Hellsén", "django@feedvault.se")]
 

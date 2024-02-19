@@ -2,7 +2,7 @@
 
 _A seed vault for your feeds._
 
-FeedVault is an open-source web application written in Golang that allows users to archive and search their favorite RSS, Atom, and JSON feeds. With FeedVault, users can effortlessly add their favorite feeds, ensuring they have a centralized location for accessing and preserving valuable content.
+FeedVault is an open-source web application that allows users to archive and search their favorite RSS, Atom, and JSON feeds. With FeedVault, users can effortlessly add their favorite feeds, ensuring they have a centralized location for accessing and preserving valuable content.
 
 ## Features
 
@@ -33,14 +33,5 @@ Try to minimize the number of dependencies you add to the project. If you need t
 ## Contact
 
 For any inquiries or support, please create an issue on GitHub.
-
-## Development
-
-- I use [goose](https://github.com/pressly/goose) and [sqlc](https://github.com/sqlc-dev/sqlc) for database migrations and queries.
-  - To create a new migration, run `goose create <migration_name> sql`. Then, edit the file in `sql/schema/<date>_<migration_name>.sql` and run `goose up` to apply the migration.
-    - You will have to install `goose` first. See the [Goose documentation](https://pressly.github.io/goose/installation/).
-    - You will also have to install `sqlc`. See the [sqlc documentation](https://docs.sqlc.dev/en/latest/overview/install.html).
-    - You have to set some environment variables for this. See [.vscode/settings.json](.vscode/settings.json) for local development.
-  - To generate new queries, run `sqlc generate`.
 
 Thank you for using FeedVault! Happy archiving!
