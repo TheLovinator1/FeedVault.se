@@ -171,3 +171,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Our site ID
 SITE_ID = 1
+
+PASSWORD_HASHERS: list[str] = ["django.contrib.auth.hashers.Argon2PasswordHasher"]

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>{{ user.username }}</h2>
+    <h3>Feeds</h3>
+    <ul>
+        {% for feed in feeds %}
+            <li>
+                <a href='{% url "feeds:feed" feed.id %}'>{{ feed.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <h3>Subscriptions</h3>
+    <ul>
+        {% for subscription in subscriptions %}
+            <li>
+                <a href='{% url "feeds:feed" subscription.id %}'>{{ subscription.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+    <h3>Subscribers</h3>
+    <p>
+        <form action="{% url 'feeds:logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    </p>
+{% endblock %}
