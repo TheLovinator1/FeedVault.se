@@ -22,6 +22,13 @@ class Domain(models.Model):
     hidden_at = models.DateTimeField(null=True, blank=True)
     hidden_reason = models.TextField(blank=True)
 
+    class Meta:
+        """Meta information for the domain model."""
+
+        ordering: typing.ClassVar[list[str]] = ["name"]  # Example: Orders by name alphabetically
+        verbose_name: str = "Domain"
+        verbose_name_plural: str = "Domains"
+
     def __str__(self) -> str:
         """Return string representation of the domain."""
         if_hidden: Literal[" (hidden)", ""] = " (hidden)" if self.hidden else ""
@@ -37,13 +44,21 @@ class Author(models.Model):
     href = models.TextField(blank=True)
     email = models.TextField(blank=True)
 
+    class Meta:
+        """Meta information for the author model."""
+
+        unique_together: typing.ClassVar[list[str]] = ["name", "email", "href"]
+        ordering: typing.ClassVar[list[str]] = ["name"]  # Example: Orders by name alphabetically
+        verbose_name: str = "Author"
+        verbose_name_plural: str = "Authors"
+
     def __str__(self) -> str:
         """Return string representation of the author."""
         return f"{self.name} - {self.email} - {self.href}"
 
 
 class Generator(models.Model):
-    """A generator of a feed."""
+    """What program or service generated the feed."""
 
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
@@ -55,6 +70,9 @@ class Generator(models.Model):
         """Meta information for the generator model."""
 
         unique_together: typing.ClassVar[list[str]] = ["name", "version", "href"]
+        ordering: typing.ClassVar[list[str]] = ["name"]  # Example: Orders by name alphabetically
+        verbose_name: str = "Feed generator"
+        verbose_name_plural: str = "Feed generators"
 
     def __str__(self) -> str:
         """Return string representation of the generator."""
@@ -71,6 +89,14 @@ class Links(models.Model):
     href = models.TextField(blank=True)
     title = models.TextField(blank=True)
 
+    class Meta:
+        """Meta information for the links model."""
+
+        unique_together: typing.ClassVar[list[str]] = ["href", "rel"]
+        ordering: typing.ClassVar[list[str]] = ["href"]
+        verbose_name: str = "Link"
+        verbose_name_plural: str = "Links"
+
     def __str__(self) -> str:
         """Return string representation of the links."""
         return self.href
@@ -84,6 +110,14 @@ class Publisher(models.Model):
     name = models.TextField(blank=True)
     href = models.TextField(blank=True)
     email = models.TextField(blank=True)
+
+    class Meta:
+        """Meta information for the publisher model."""
+
+        unique_together: typing.ClassVar[list[str]] = ["name", "email", "href"]
+        ordering: typing.ClassVar[list[str]] = ["name"]
+        verbose_name: str = "Publisher"
+        verbose_name_plural: str = "Publishers"
 
     def __str__(self) -> str:
         """Return string representation of the publisher."""
@@ -169,13 +203,16 @@ class Feed(models.Model):
     updated = models.TextField(blank=True)
     updated_parsed = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        """Meta information for the feed model."""
+
+        ordering: typing.ClassVar[list[str]] = ["-created_at"]
+        verbose_name: str = "Feed"
+        verbose_name_plural: str = "Feeds"
+
     def __str__(self) -> str:
         """Return string representation of the feed."""
         return f"{self.domain} - {self.title}"
-
-    def get_fields(self) -> list:
-        """Return the fields of the feed."""
-        return [(field.name, field.value_from_object(self)) for field in Feed._meta.fields]
 
 
 class Entry(models.Model):
@@ -225,10 +262,13 @@ class Entry(models.Model):
     updated = models.TextField(blank=True)
     updated_parsed = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        """Meta information for the entry model."""
+
+        ordering: typing.ClassVar[list[str]] = ["-created_parsed"]
+        verbose_name: str = "Entry"
+        verbose_name_plural: str = "Entries"
+
     def __str__(self) -> str:
         """Return string representation of the entry."""
         return f"{self.feed} - {self.title}"
-
-    def get_fields(self) -> list:
-        """Return the fields of the entry."""
-        return [(field.name, field.value_from_object(self)) for field in Entry._meta.fields]
