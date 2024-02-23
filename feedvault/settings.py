@@ -109,6 +109,7 @@ ADMINS: list[tuple[str, str]] = [("Joakim Hellsén", "django@feedvault.se")]
 # A list of strings representing the host/domain names that this Django site can serve.
 # .feedvault.se will match *.feedvault.se and feedvault.se
 ALLOWED_HOSTS: list[str] = [".feedvault.se", ".localhost", "127.0.0.1"]
+CSRF_COOKIE_DOMAIN = ".feedvault.se"
 
 # The time zone that Django will use to display datetimes in templates and to interpret datetimes entered in forms
 TIME_ZONE = "Europe/Stockholm"
