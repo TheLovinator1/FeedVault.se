@@ -16,8 +16,6 @@ BASE_DIR: Path = Path(__file__).resolve().parent.parent
 # The secret key is used for cryptographic signing, and should be set to a unique, unpredictable value.
 SECRET_KEY: str = os.getenv("SECRET_KEY", default="")
 
-ALLOWED_HOSTS = []
-
 INSTALLED_APPS: list[str] = [
     "feeds.apps.FeedsConfig",
     "django.contrib.auth",
@@ -142,10 +140,10 @@ DEFAULT_FROM_EMAIL: str = os.getenv(key="EMAIL_HOST_USER", default="webmaster@lo
 SERVER_EMAIL: str = os.getenv(key="EMAIL_HOST_USER", default="webmaster@localhost")
 
 # Use the X-Forwarded-Host header
-USE_X_FORWARDED_HOST = True
+# USE_X_FORWARDED_HOST = True
 
 # Set the Referrer Policy HTTP header on all responses that do not already have one.
-SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+# SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Internal IPs that are allowed to see debug views
 INTERNAL_IPS: list[str] = ["127.0.0.1", "localhost"]
