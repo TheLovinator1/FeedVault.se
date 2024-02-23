@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from django.urls import URLPattern, path
+from django.views.decorators.cache import cache_page
 
 from feeds import views
 
@@ -15,6 +16,7 @@ urlpatterns: list[URLPattern] = [
     path(route="add", view=views.AddView.as_view(), name="add"),
     path(route="upload", view=views.UploadView.as_view(), name="upload"),
     path(route="api/", view=APIView.as_view(), name="api"),
+    path(route="robots.txt", view=cache_page(timeout=60 * 60 * 365)(views.RobotsView.as_view()), name="robots"),
 ]
 
 # Account urls
