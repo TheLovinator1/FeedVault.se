@@ -18,9 +18,8 @@ SECRET_KEY: str = os.getenv("SECRET_KEY", default="")
 
 ALLOWED_HOSTS = []
 
-INSTALLED_APPS = [
+INSTALLED_APPS: list[str] = [
     "feeds.apps.FeedsConfig",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -28,7 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE: list[str] = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -61,7 +60,7 @@ DATABASES: dict[str, dict[str, str]] = {
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
+AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
