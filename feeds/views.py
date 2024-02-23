@@ -18,7 +18,7 @@ from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 
 from feeds.add_feeds import add_feed
-from feeds.models import Entry, Feed
+from feeds.models import Domain, Entry, Feed
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
@@ -447,3 +447,41 @@ class APIFeedEntriesView(View):
 
         return response
 
+
+class DomainsView(View):
+    """All domains."""
+
+    def get(self, request: HttpRequest) -> HttpResponse:
+        """Load the domains page."""
+        domains = Domain.objects.all()
+        template = loader.get_template(template_name="domains.html")
+        context = {
+            "domains": domains,
+            "description": "Domains",
+            "keywords": "feed, rss, atom, archive, rss list",
+            "author": "TheLovinator",
+            "canonical": "https://feedvault.se/domains/",
+            "title": "Domains",
+        }
+        return HttpResponse(content=template.render(context=context, request=request))
+
+
+class DomainView(View):
+    """A single domain."""
+
+    def get(self, request: HttpRequest, domain_id: int) -> HttpResponse:
+        """Load the domain page."""
+        domain = get_object_or_404(Domain, id=domain_id)
+        feeds = Feed.objects.filter(domain=domain).order_by("-created_at")[:100]
+
+        context = {
+            "domain": domain,
+            "feeds": feeds,
+            "description": f"Archive of {domain.name}",
+            "keywords": "feed, rss, atom, archive, rss list",
+            "author": "TheLovinator",
+            "canonical": f"https://feedvault.se/domain/{domain_id}/",
+            "title": f"{domain.name} - FeedVault",
+        }
+
+        return render(request, "domain.html", context)

@@ -17,6 +17,8 @@ urlpatterns: list[URLPattern] = [
     path(route="add", view=views.AddView.as_view(), name="add"),
     path(route="upload", view=views.UploadView.as_view(), name="upload"),
     path(route="robots.txt", view=cache_page(timeout=60 * 60 * 365)(views.RobotsView.as_view()), name="robots"),
+    path(route="domains/", view=views.DomainsView.as_view(), name="domains"),
+    path(route="domain/<int:domain_id>/", view=views.DomainView.as_view(), name="domain"),
 ]
 
 # API urls

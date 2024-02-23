@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>{{ domain.url }}</h2>
+    <p>This domain was added to the database on {{ domain.created_at|date }}.</p>
+    <p>Feeds for this domain:</p>
+    <ul>
+        {% for feed in feeds %}
+            <li>
+                <a href="/feed/{{ feed.id }}">{{ feed.feed_url }}</a>
+            </li>
+        {% empty %}
+            <li>Found no feeds for this domain.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

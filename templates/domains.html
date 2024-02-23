@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Domains</h2>
+    <p>
+        These are the domains that have been added to the database.
+        {% if domains|length > 0 %}There are {{ domains|length }} domains in the database.{% endif %}
+    </p>
+    <ul>
+        {% for domain in domains %}
+            {% if not domain.hidden %}
+                <li>
+                    <a href="/domain/{{ domain.id }}">{{ domain.url }}</a> - {{ domain.created_at|date }}
+                </li>
+            {% endif %}
+        {% empty %}
+            <li>Found no domains in the database.</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
