@@ -14,5 +14,6 @@ class StaticViewSitemap(Sitemap):
         """Return all the items in the sitemap."""
         return ["feeds:index", "feeds:feeds", "feeds:domains"]
 
-    def location(self, item) -> str:
+    def location(self, item: str) -> str:
+        """Return the location of the item."""
         return reverse(item)
