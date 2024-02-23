@@ -7,7 +7,7 @@ from typing import Literal
 from django.db import models
 from django.db.models import JSONField
 
-logger = logging.getLogger(__name__)
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class Domain(models.Model):
@@ -129,6 +129,8 @@ class Feed(models.Model):
 
     feed_url = models.URLField(unique=True)
 
+    # The user that added the feed
+    user = models.ForeignKey("auth.User", on_delete=models.SET_NULL, null=True, blank=True)
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)

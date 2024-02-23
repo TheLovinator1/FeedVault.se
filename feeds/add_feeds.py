@@ -3,6 +3,7 @@ from __future__ import annotations
 import datetime
 import logging
 from time import mktime, struct_time
+from typing import TYPE_CHECKING
 from urllib.parse import ParseResult, urlparse
 
 import feedparser
@@ -10,6 +11,9 @@ from django.utils import timezone
 from feedparser import FeedParserDict
 
 from feeds.models import Author, Domain, Entry, Feed, Generator, Publisher
+
+if TYPE_CHECKING:
+    from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -205,8 +209,16 @@ def add_entry(feed: Feed, entry: FeedParserDict) -> Entry | None:
     return _entry
 
 
-def add_feed(url: str | None) -> None | Feed:
-    """Add a feed to the database."""
+def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | None:
+    """Add a feed to the database.
+
+    Args:
+        url: The URL of the feed.
+        user: The user adding the feed.
+
+    Returns:
+        The feed that was added.
+    """
     # Parse the feed.
     parsed_feed: dict | None = parse_feed(url=url)
     if not parsed_feed:
@@ -233,6 +245,7 @@ def add_feed(url: str | None) -> None | Feed:
     # Create the feed
     feed = Feed(
         feed_url=url,
+        user=user,
         domain=domain,
         last_checked=timezone.now(),
         bozo=parsed_feed.get("bozo", 0),

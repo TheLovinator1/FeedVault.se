@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from django.contrib import messages
 from django.contrib.auth import login
@@ -33,6 +33,7 @@ class IndexView(View):
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
             "canonical": "https://feedvault.se/",
+            "title": "FeedVault",
         }
         return HttpResponse(content=template.render(context=context, request=request))
 
@@ -56,6 +57,7 @@ class FeedView(View):
             "keywords": "feed, rss, atom, archive, rss list",
             "author": f"{feed.author_detail.name if feed.author_detail else "FeedVault"}",
             "canonical": f"https://feedvault.se/feed/{feed_id}/",
+            "title": f"{feed.title} - FeedVault",
         }
 
         return render(request, "feed.html", context)
@@ -72,10 +74,12 @@ class FeedsView(ListView):
     def get_context_data(self, **kwargs) -> dict:  # noqa: ANN003
         """Get the context data."""
         context = super().get_context_data(**kwargs)
-        context["description"] = "Archive of all feeds"
+        feed_amount: int = Feed.objects.count() or 0
+        context["description"] = f"Archiving {feed_amount} feeds"
         context["keywords"] = "feed, rss, atom, archive, rss list"
         context["author"] = "TheLovinator"
         context["canonical"] = "https://feedvault.se/feeds/"
+        context["title"] = "Feeds"
         return context
 
 
@@ -95,13 +99,19 @@ class AddView(View):
 
     def post(self, request: HttpRequest) -> HttpResponse:
         """Add a feed."""
+        if not request.user.is_authenticated:
+            return HttpResponse(content="Not logged in", status=401)
+
+        if not request.user.is_active:
+            return HttpResponse(content="User is not active", status=403)
+
         urls: str | None = request.POST.get("urls", None)
         if not urls:
             return HttpResponse(content="No urls", status=400)
 
         # Split the urls by newline.
         for url in urls.split("\n"):
-            feed: None | Feed = add_feed(url)
+            feed: None | Feed = add_feed(url, request.user)
             if not feed:
                 messages.error(request, f"{url} - Failed to add")
                 continue
@@ -132,13 +142,19 @@ class UploadView(View):
 
     def post(self, request: HttpRequest) -> HttpResponse:
         """Upload a file."""
+        if not request.user.is_authenticated:
+            return HttpResponse(content="Not logged in", status=401)
+
+        if not request.user.is_active:
+            return HttpResponse(content="User is not active", status=403)
+
         file = request.FILES.get("file", None)
         if not file:
             return HttpResponse(content="No file", status=400)
 
         # Split the urls by newline.
         for url in file.read().decode("utf-8").split("\n"):
-            feed: None | Feed = add_feed(url)
+            feed: None | Feed = add_feed(url, request.user)
             if not feed:
                 messages.error(request, f"{url} - Failed to add")
                 continue
@@ -172,6 +188,17 @@ class RegisterView(CreateView):
     form_class = UserCreationForm
     success_url = reverse_lazy("feeds:login")
 
+    # Add context data to the view
+    def get_context_data(self, **kwargs) -> dict:  # noqa: ANN003
+        """Get the context data."""
+        context = super().get_context_data(**kwargs)
+        context["description"] = "Register a new account"
+        context["keywords"] = "register, account, feed, rss, atom, archive, rss list"
+        context["author"] = "TheLovinator"
+        context["canonical"] = "https://feedvault.se/accounts/register/"
+        context["title"] = "Register"
+        return context
+
 
 class CustomLogoutView(LogoutView):
     """Logout view."""
@@ -186,6 +213,17 @@ class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
     success_url = reverse_lazy("feeds:index")
     success_message = "Your password was successfully updated!"
 
+    # Add context data to the view
+    def get_context_data(self, **kwargs) -> dict:  # noqa: ANN003
+        """Get the context data."""
+        context = super().get_context_data(**kwargs)
+        context["description"] = "Change your password"
+        context["keywords"] = "change, password, account, feed, rss, atom, archive, rss list"
+        context["author"] = "TheLovinator"
+        context["canonical"] = "https://feedvault.se/accounts/change-password/"
+        context["title"] = "Change password"
+        return context
+
 
 class ProfileView(View):
     """Profile page."""
@@ -193,11 +231,16 @@ class ProfileView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
         """Load the profile page."""
         template = loader.get_template(template_name="accounts/profile.html")
-        context = {
-            "description": "FeedVault allows users to archive and search their favorite web feeds.",
-            "keywords": "feed, rss, atom, archive, rss list",
-            "author": "TheLovinator",
-            "canonical": "https://feedvault.se/",
+
+        user_feeds = Feed.objects.filter(user=request.user).order_by("-created_at")[:100]
+
+        context: dict[str, str | Any] = {
+            "description": f"Profile page for {request.user.get_username()}",
+            "keywords": f"profile, account, {request.user.get_username()}",
+            "author": f"{request.user.get_username()}",
+            "canonical": "https://feedvault.se/accounts/profile/",
+            "title": f"{request.user.get_username()}",
+            "user_feeds": user_feeds,
         }
         return HttpResponse(content=template.render(context=context, request=request))
 
@@ -213,5 +256,6 @@ class APIView(View):
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
             "canonical": "https://feedvault.se/api/",
+            "title": "API Documentation",
         }
         return HttpResponse(content=template.render(context=context, request=request))
