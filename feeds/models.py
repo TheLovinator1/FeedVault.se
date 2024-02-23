@@ -25,7 +25,7 @@ class Domain(models.Model):
     class Meta:
         """Meta information for the domain model."""
 
-        ordering: typing.ClassVar[list[str]] = ["name"]  # Example: Orders by name alphabetically
+        ordering: typing.ClassVar[list[str]] = ["name"]
         verbose_name: str = "Domain"
         verbose_name_plural: str = "Domains"
 
@@ -33,6 +33,10 @@ class Domain(models.Model):
         """Return string representation of the domain."""
         if_hidden: Literal[" (hidden)", ""] = " (hidden)" if self.hidden else ""
         return self.name + if_hidden
+
+    def get_absolute_url(self) -> str:
+        """Return the absolute URL of the domain."""
+        return f"/domain/{self.pk}/"
 
 
 class Author(models.Model):
@@ -48,7 +52,7 @@ class Author(models.Model):
         """Meta information for the author model."""
 
         unique_together: typing.ClassVar[list[str]] = ["name", "email", "href"]
-        ordering: typing.ClassVar[list[str]] = ["name"]  # Example: Orders by name alphabetically
+        ordering: typing.ClassVar[list[str]] = ["name"]
         verbose_name: str = "Author"
         verbose_name_plural: str = "Authors"
 
@@ -70,7 +74,7 @@ class Generator(models.Model):
         """Meta information for the generator model."""
 
         unique_together: typing.ClassVar[list[str]] = ["name", "version", "href"]
-        ordering: typing.ClassVar[list[str]] = ["name"]  # Example: Orders by name alphabetically
+        ordering: typing.ClassVar[list[str]] = ["name"]
         verbose_name: str = "Feed generator"
         verbose_name_plural: str = "Feed generators"
 
@@ -215,6 +219,10 @@ class Feed(models.Model):
     def __str__(self) -> str:
         """Return string representation of the feed."""
         return f"{self.domain} - {self.title}"
+
+    def get_absolute_url(self) -> str:
+        """Return the absolute URL of the feed."""
+        return f"/feed/{self.pk}/"
 
 
 class Entry(models.Model):
