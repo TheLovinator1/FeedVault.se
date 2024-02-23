@@ -9,14 +9,24 @@ from .views import APIView, CustomLoginView, CustomLogoutView, ProfileView, Regi
 
 app_name: str = "feeds"
 
+# Normal pages
 urlpatterns: list[URLPattern] = [
     path(route="", view=views.IndexView.as_view(), name="index"),
     path(route="feed/<int:feed_id>/", view=views.FeedView.as_view(), name="feed"),
     path(route="feeds/", view=views.FeedsView.as_view(), name="feeds"),
     path(route="add", view=views.AddView.as_view(), name="add"),
     path(route="upload", view=views.UploadView.as_view(), name="upload"),
-    path(route="api/", view=APIView.as_view(), name="api"),
     path(route="robots.txt", view=cache_page(timeout=60 * 60 * 365)(views.RobotsView.as_view()), name="robots"),
+]
+
+# API urls
+urlpatterns += [
+    path(route="api/", view=APIView.as_view(), name="api"),
+    path(route="api/feeds/", view=views.APIFeedsView.as_view(), name="api_feeds"),
+    path(route="api/feeds/<int:feed_id>/", view=views.APIFeedView.as_view(), name="api_feeds_id"),
+    path(route="api/feeds/<int:feed_id>/entries/", view=views.APIFeedEntriesView.as_view(), name="api_feed_entries"),
+    path(route="api/entries/", view=views.APIEntriesView.as_view(), name="api_entries"),
+    path(route="api/entries/<int:entry_id>/", view=views.APIEntryView.as_view(), name="api_entries_id"),
 ]
 
 # Account urls
