@@ -17,7 +17,6 @@ from django.views.generic.list import ListView
 
 from feeds.add_feeds import add_feed
 from feeds.models import Entry, Feed
-from feeds.stats import get_db_size
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
@@ -30,8 +29,6 @@ class IndexView(View):
         """Load the index page."""
         template = loader.get_template(template_name="index.html")
         context = {
-            "db_size": get_db_size(),
-            "amount_of_feeds": Feed.objects.count(),
             "description": "FeedVault allows users to archive and search their favorite web feeds.",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
@@ -55,8 +52,6 @@ class FeedView(View):
         context = {
             "feed": feed,
             "entries": entries,
-            "db_size": get_db_size(),
-            "amount_of_feeds": Feed.objects.count(),
             "description": f"Archive of {feed.href}",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": f"{feed.author_detail.name if feed.author_detail else "FeedVault"}",
@@ -77,8 +72,6 @@ class FeedsView(ListView):
     def get_context_data(self, **kwargs) -> dict:  # noqa: ANN003
         """Get the context data."""
         context = super().get_context_data(**kwargs)
-        context["db_size"] = get_db_size()
-        context["amount_of_feeds"] = Feed.objects.count()
         context["description"] = "Archive of all feeds"
         context["keywords"] = "feed, rss, atom, archive, rss list"
         context["author"] = "TheLovinator"
@@ -93,8 +86,6 @@ class AddView(View):
         """Load the index page."""
         template = loader.get_template(template_name="index.html")
         context = {
-            "db_size": get_db_size(),
-            "amount_of_feeds": Feed.objects.count(),
             "description": "FeedVault allows users to archive and search their favorite web feeds.",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
@@ -132,8 +123,6 @@ class UploadView(View):
         """Load the index page."""
         template = loader.get_template(template_name="index.html")
         context = {
-            "db_size": get_db_size(),
-            "amount_of_feeds": Feed.objects.count(),
             "description": "FeedVault allows users to archive and search their favorite web feeds.",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
@@ -205,8 +194,6 @@ class ProfileView(View):
         """Load the profile page."""
         template = loader.get_template(template_name="accounts/profile.html")
         context = {
-            "db_size": get_db_size(),
-            "amount_of_feeds": Feed.objects.count(),
             "description": "FeedVault allows users to archive and search their favorite web feeds.",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
@@ -222,8 +209,6 @@ class APIView(View):
         """Load the API page."""
         template = loader.get_template(template_name="api.html")
         context = {
-            "db_size": get_db_size(),
-            "amount_of_feeds": Feed.objects.count(),
             "description": "FeedVault allows users to archive and search their favorite web feeds.",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
