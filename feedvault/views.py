@@ -338,7 +338,7 @@ class APIFeedView(View):
 class APIEntriesView(View):
     """API Entries view."""
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def get(self: APIEntriesView, request: HttpRequest) -> HttpResponse:
         """Get all entries with pagination."""
         # Retrieve all entries
         entries_list = Entry.objects.all()
@@ -390,7 +390,7 @@ class APIEntriesView(View):
 class APIEntryView(View):
     """API Entry view."""
 
-    def get(self, request: HttpRequest, entry_id: int) -> HttpResponse:  # noqa: ARG002
+    def get(self: APIEntryView, request: HttpRequest, entry_id: int) -> HttpResponse:  # noqa: ARG002
         """Get a single entry."""
         entry = get_object_or_404(Entry, id=entry_id)
         return JsonResponse(model_to_dict(entry), safe=False)
@@ -399,7 +399,7 @@ class APIEntryView(View):
 class APIFeedEntriesView(View):
     """API Feed Entries view."""
 
-    def get(self, request: HttpRequest, feed_id: int) -> HttpResponse:
+    def get(self: APIFeedEntriesView, request: HttpRequest, feed_id: int) -> HttpResponse:
         """Get all entries for a single feed with pagination."""
         # Retrieve all entries for a single feed
         entries_list = Entry.objects.filter(feed_id=feed_id)
@@ -451,7 +451,7 @@ class APIFeedEntriesView(View):
 class DomainsView(View):
     """All domains."""
 
-    def get(self, request: HttpRequest) -> HttpResponse:
+    def get(self: DomainsView, request: HttpRequest) -> HttpResponse:
         """Load the domains page."""
         domains = Domain.objects.all()
         template = loader.get_template(template_name="domains.html")
@@ -469,7 +469,7 @@ class DomainsView(View):
 class DomainView(View):
     """A single domain."""
 
-    def get(self, request: HttpRequest, domain_id: int) -> HttpResponse:
+    def get(self: DomainView, request: HttpRequest, domain_id: int) -> HttpResponse:
         """Load the domain page."""
         domain = get_object_or_404(Domain, id=domain_id)
         feeds = Feed.objects.filter(domain=domain).order_by("-created_at")[:100]

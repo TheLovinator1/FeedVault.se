@@ -149,7 +149,7 @@ def struct_time_to_datetime(struct_time: struct_time | None) -> datetime.datetim
     if struct_time == "Mon, 01 Jan 0001 00:00:00 +0000":
         return None
 
-    dt: datetime.datetime = datetime.datetime.fromtimestamp(mktime(struct_time), tz=datetime.timezone.utc)
+    dt: datetime.datetime = datetime.datetime.fromtimestamp(mktime(struct_time), tz=datetime.UTC)
     if not dt:
         logger.error("Error converting struct_time to datetime: %s", struct_time)
         return None

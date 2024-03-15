@@ -17,8 +17,10 @@ ruff = "^0.3.0"
 djlint = "^1.34.1"
 
 [build-system]
-requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+requires = [
+  "poetry-core",
+]
 
 [tool.ruff]
 exclude = ["migrations"]
@@ -28,17 +30,18 @@ preview = true
 line-length = 120
 lint.select = ["ALL"]
 lint.ignore = [
-    "CPY001", # Missing copyright notice at top of file
-    "ERA001", # Found commented-out code
-    "FIX002", # Line contains TODO
-    "D100",   # Checks for undocumented public module definitions.
-    "D101",   # Checks for undocumented public class definitions.
-    "D102",   # Checks for undocumented public method definitions.
-    "D104",   # Missing docstring in public package.
-    "D105",   # Missing docstring in magic method.
-    "D106",   # Checks for undocumented public class definitions, for nested classes.
-    "COM812", # Checks for the absence of trailing commas.
-    "ISC001", # Checks for implicitly concatenated strings on a single line.
+    "CPY001",  # Missing copyright notice at top of file
+    "ERA001",  # Found commented-out code
+    "FIX002",  # Line contains TODO
+    "D100",    # Checks for undocumented public module definitions.
+    "D101",    # Checks for undocumented public class definitions.
+    "D102",    # Checks for undocumented public method definitions.
+    "D104",    # Missing docstring in public package.
+    "D105",    # Missing docstring in magic method.
+    "D106",    # Checks for undocumented public class definitions, for nested classes.
+    "COM812",  # Checks for the absence of trailing commas.
+    "ISC001",  # Checks for implicitly concatenated strings on a single line.
+    "PLR6301", # Checks for the presence of unused self parameter in methods definitions.
 ]
 
 [tool.ruff.lint.pydocstyle]
