@@ -150,7 +150,7 @@ class Feed(models.Model):
     href = models.TextField(blank=True)
     modified = models.DateTimeField(null=True, blank=True)
     namespaces = JSONField(null=True, blank=True)
-    status = models.IntegerField()
+    status = models.IntegerField(null=True)
     version = models.CharField(max_length=255, blank=True)
 
     # Feed data

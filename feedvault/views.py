@@ -269,7 +269,7 @@ class RobotsView(View):
     def get(self, request: HttpRequest) -> HttpResponse:  # noqa: ARG002
         """Load the robots.txt file."""
         return HttpResponse(
-            content="""User-agent: *\nDisallow: /add\nDisallow: /upload\nDisallow: /accounts/""",
+            content="User-agent: *\nDisallow: /add\nDisallow: /upload\nDisallow: /accounts/",
             content_type="text/plain",
         )
 
