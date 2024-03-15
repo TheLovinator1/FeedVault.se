@@ -1,14 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-    <h2>Feeds</h2>
-    <ul>
+    <h2>Latest Feeds</h2>
+    {% if feeds %}
         {% for feed in feeds %}
-            <li>{{ feed.feed_url }} - {{ feed.created_at|date }}</li>
-            <li>
-                <a href="{% url 'feed' feed.id %}">View</a>
-            </li>
-        {% empty %}
-            <li>No feeds yet.</li>
+            <a href="{% url 'feed' feed.id %}">{{ feed.feed_url|default:"Unknown Feed" }} →</a>
         {% endfor %}
-    </ul>
+    {% else %}
+        <p>No feeds yet. Time to add some!</p>
+    {% endif %}
 {% endblock %}

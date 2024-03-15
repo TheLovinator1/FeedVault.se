@@ -3,10 +3,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.http.response import HttpResponse
+from django.test import Client, TestCase
 from django.urls import reverse
 
-from feedvault.models import Domain, Feed
+from feedvault.models import Domain, Entry, Feed
 
 if TYPE_CHECKING:
     from django.http import HttpResponse
@@ -98,47 +99,62 @@ class TestDomains(TestCase):
 class TestAPI(TestCase):
     def test_api_page(self) -> None:
         """Test if the API page is accessible."""
-        response: HttpResponse = self.client.get(reverse("api"))
+        response: HttpResponse = self.client.get(reverse("api_v1:openapi-view"))
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
 
 
 class TestAPIFeeds(TestCase):
     def test_api_feeds_page(self) -> None:
         """Test if the API feeds page is accessible."""
-        response: HttpResponse = self.client.get(reverse("api_feeds"))
+        response: HttpResponse = self.client.get(reverse("api_v1:list_feeds"))
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
 
 
-class TestAPIFeed(TestCase):
+class FeedVaultAPITests(TestCase):
     def setUp(self) -> None:
-        """Create a test feed."""
-        self.domain: Domain = Domain.objects.create(
-            name="feedvault",
-            url="feedvault.se",
-        )
+        # Set up data for the whole TestCase
+        self.client = Client()
 
-        self.user: User = User.objects.create_user(
-            username="testuser",
-            email="hello@feedvault.se",
-            password="testpassword",  # noqa: S106
-        )
+        # Creating a domain instance
+        self.domain: Domain = Domain.objects.create(name="Example Domain")
 
-        self.feed: Feed = Feed.objects.create(
-            user=self.user,
-            bozo=False,
-            feed_url="https://feedvault.se/feed.xml",
-            domain=self.domain,
-        )
+        # Creating a feed instance
+        self.feed: Feed = Feed.objects.create(title="Example Feed", domain=self.domain, bozo=False)
 
-    def test_api_feed_page(self) -> None:
-        """Test if the API feed page is accessible."""
-        response: HttpResponse = self.client.get(reverse("api_feeds_id", kwargs={"feed_id": 1}))
+        # Creating entry instances
+        self.entry1: Entry = Entry.objects.create(title="Example Entry 1", feed=self.feed)
+        self.entry2: Entry = Entry.objects.create(title="Example Entry 2", feed=self.feed)
+
+    def test_list_feeds(self) -> None:
+        response: HttpResponse = self.client.get("/api/v1/feeds/")
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert "Example Feed" in response.content.decode()
 
-    def test_api_feed_page_not_found(self) -> None:
-        """Test if the API feed page is accessible."""
-        response: HttpResponse = self.client.get(reverse("api_feeds_id", kwargs={"feed_id": 2}))
-        assert response.status_code == 404, f"Expected 404, got {response.status_code}"
+    def test_get_feed(self) -> None:
+        response: HttpResponse = self.client.get(f"/api/v1/feeds/{self.feed.pk}/")
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert "Example Feed" in response.content.decode()
+
+    def test_list_entries(self) -> None:
+        response: HttpResponse = self.client.get(f"/api/v1/feeds/{self.feed.pk}/entries/")
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert "Example Entry 1" in response.content.decode()
+        assert "Example Entry 2" in response.content.decode()
+
+    def test_get_entry(self) -> None:
+        response: HttpResponse = self.client.get(f"/api/v1/entries/{self.entry1.pk}/")
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert "Example Entry 1" in response.content.decode()
+
+    def test_list_domains(self) -> None:
+        response: HttpResponse = self.client.get("/api/v1/domains/")
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert "Example Domain" in response.content.decode()
+
+    def test_get_domain(self) -> None:
+        response: HttpResponse = self.client.get(f"/api/v1/domains/{self.domain.pk}/")
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert "Example Domain" in response.content.decode()
 
 
 class TestAccount(TestCase):

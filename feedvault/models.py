@@ -177,7 +177,7 @@ class Feed(models.Model):
     )
 
     icon = models.TextField(blank=True)
-    _id = models.TextField(blank=True)
+    feed_id = models.TextField(blank=True)
     image = JSONField(null=True, blank=True)
     info = models.TextField(blank=True)
     info_detail = JSONField(null=True, blank=True)
@@ -249,7 +249,7 @@ class Entry(models.Model):
     enclosures = JSONField(null=True, blank=True)
     expired = models.TextField(blank=True)
     expired_parsed = models.DateTimeField(null=True, blank=True)
-    _id = models.TextField(blank=True)
+    entry_id = models.TextField(blank=True)
     license = models.TextField(blank=True)
     link = models.TextField(blank=True)
     links = JSONField(null=True, blank=True)

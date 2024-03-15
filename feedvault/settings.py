@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from pathlib import Path
 
 from dotenv import find_dotenv, load_dotenv
@@ -37,6 +38,10 @@ SITE_ID = 1
 PASSWORD_HASHERS: list[str] = ["django.contrib.auth.hashers.Argon2PasswordHasher"]
 ROOT_URLCONF = "feedvault.urls"
 WSGI_APPLICATION = "feedvault.wsgi.application"
+NINJA_PAGINATION_PER_PAGE = 1000
+
+# Is True when running tests, used for not spamming Discord when new users are created
+TESTING: bool = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 INSTALLED_APPS: list[str] = [
     "feedvault.apps.FeedVaultConfig",

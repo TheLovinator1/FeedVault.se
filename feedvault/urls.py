@@ -6,11 +6,13 @@ from django.urls import URLPattern, path
 from django.views.decorators.cache import cache_page
 
 from feedvault import views
+from feedvault.api import api_v1
 from feedvault.models import Domain, Feed
 from feedvault.sitemaps import StaticViewSitemap
-from feedvault.views import APIView, CustomLoginView, CustomLogoutView, ProfileView, RegisterView
+from feedvault.views import CustomLoginView, CustomLogoutView, ProfileView, RegisterView
 
 app_name: str = "feedvault"
+
 
 sitemaps = {
     "static": StaticViewSitemap,
@@ -34,12 +36,7 @@ urlpatterns: list[URLPattern] = [
     ),
     path(route="domains/", view=views.DomainsView.as_view(), name="domains"),
     path(route="domain/<int:domain_id>/", view=views.DomainView.as_view(), name="domain"),
-    path(route="api/", view=APIView.as_view(), name="api"),
-    path(route="api/feeds/", view=views.APIFeedsView.as_view(), name="api_feeds"),
-    path(route="api/feeds/<int:feed_id>/", view=views.APIFeedView.as_view(), name="api_feeds_id"),
-    path(route="api/feeds/<int:feed_id>/entries/", view=views.APIFeedEntriesView.as_view(), name="api_feed_entries"),
-    path(route="api/entries/", view=views.APIEntriesView.as_view(), name="api_entries"),
-    path(route="api/entries/<int:entry_id>/", view=views.APIEntryView.as_view(), name="api_entries_id"),
+    path("api/v1/", api_v1.urls),  # type: ignore  # noqa: PGH003
     path(route="accounts/login/", view=CustomLoginView.as_view(), name="login"),
     path(route="accounts/register/", view=RegisterView.as_view(), name="register"),
     path(route="accounts/logout/", view=CustomLogoutView.as_view(), name="logout"),

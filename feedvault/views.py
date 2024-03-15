@@ -7,9 +7,8 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
-from django.core.paginator import EmptyPage, Page, PageNotAnInteger, Paginator
-from django.forms.models import model_to_dict
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.db.models.manager import BaseManager
+from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
 from django.urls import reverse_lazy
@@ -22,6 +21,8 @@ from feedvault.models import Domain, Entry, Feed
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
+    from django.core.files.uploadedfile import UploadedFile
+    from django.db.models.manager import BaseManager
 
 
 class IndexView(View):
@@ -49,8 +50,8 @@ class FeedView(View):
         if not feed_id:
             return HttpResponse(content="No id", status=400)
 
-        feed = get_object_or_404(Feed, id=feed_id)
-        entries = Entry.objects.filter(feed=feed).order_by("-created_parsed")[:100]
+        feed: Feed = get_object_or_404(Feed, id=feed_id)
+        entries: BaseManager[Entry] = Entry.objects.filter(feed=feed).order_by("-created_parsed")[:100]
 
         context = {
             "feed": feed,
@@ -91,7 +92,7 @@ class AddView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
         """Load the index page."""
         template = loader.get_template(template_name="index.html")
-        context = {
+        context: dict[str, str] = {
             "description": "FeedVault allows users to archive and search their favorite web feeds.",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
@@ -134,7 +135,7 @@ class UploadView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
         """Load the index page."""
         template = loader.get_template(template_name="index.html")
-        context = {
+        context: dict[str, str] = {
             "description": "FeedVault allows users to archive and search their favorite web feeds.",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
@@ -150,7 +151,7 @@ class UploadView(View):
         if not request.user.is_active:
             return HttpResponse(content="User is not active", status=403)
 
-        file = request.FILES.get("file", None)
+        file: UploadedFile | None = request.FILES.get("file", None)
         if not file:
             return HttpResponse(content="No file", status=400)
 
@@ -193,7 +194,7 @@ class RegisterView(CreateView):
     # Add context data to the view
     def get_context_data(self, **kwargs) -> dict:  # noqa: ANN003
         """Get the context data."""
-        context = super().get_context_data(**kwargs)
+        context: dict[str, Any] = super().get_context_data(**kwargs)
         context["description"] = "Register a new account"
         context["keywords"] = "register, account, feed, rss, atom, archive, rss list"
         context["author"] = "TheLovinator"
@@ -234,7 +235,7 @@ class ProfileView(View):
         """Load the profile page."""
         template = loader.get_template(template_name="accounts/profile.html")
 
-        user_feeds = Feed.objects.filter(user=request.user).order_by("-created_at")[:100]
+        user_feeds: BaseManager[Feed] = Feed.objects.filter(user=request.user).order_by("-created_at")[:100]
 
         context: dict[str, str | Any] = {
             "description": f"Profile page for {request.user.get_username()}",
@@ -243,22 +244,6 @@ class ProfileView(View):
             "canonical": "https://feedvault.se/accounts/profile/",
             "title": f"{request.user.get_username()}",
             "user_feeds": user_feeds,
-        }
-        return HttpResponse(content=template.render(context=context, request=request))
-
-
-class APIView(View):
-    """API documentation page."""
-
-    def get(self, request: HttpRequest) -> HttpResponse:
-        """Load the API page."""
-        template = loader.get_template(template_name="api.html")
-        context = {
-            "description": "FeedVault allows users to archive and search their favorite web feeds.",
-            "keywords": "feed, rss, atom, archive, rss list",
-            "author": "TheLovinator",
-            "canonical": "https://feedvault.se/api/",
-            "title": "API Documentation",
         }
         return HttpResponse(content=template.render(context=context, request=request))
 
@@ -274,186 +259,12 @@ class RobotsView(View):
         )
 
 
-class APIFeedsView(View):
-    """API Feeds view."""
-
-    def get(self, request: HttpRequest) -> HttpResponse:
-        """Get all feeds with pagination."""
-        # Retrieve all feeds
-        feeds_list = Feed.objects.all()
-
-        # Pagination settings
-        page: int = int(request.GET.get("page", 1))  # Get the page number from the query parameters, default to 1
-        per_page: int = int(request.GET.get("per_page", 1000))  # Number of feeds per page, default to 1000 (max 1000)
-
-        # Add a ceiling to the per_page value
-        max_per_page = 1000
-        if per_page > max_per_page:
-            per_page = max_per_page
-
-        # Create Paginator instance
-        paginator = Paginator(feeds_list, per_page)
-
-        try:
-            feeds: Page = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            feeds = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g., 9999), deliver last page of results.
-            feeds = paginator.page(paginator.num_pages)
-
-        # Convert feeds to dictionary
-        feeds_dict = [model_to_dict(feed) for feed in feeds]
-
-        # Return the paginated entries as JsonResponse
-        response = JsonResponse(feeds_dict, safe=False)
-
-        # Add pagination headers
-        response["X-Page"] = feeds.number
-        response["X-Page-Count"] = paginator.num_pages
-        response["X-Per-Page"] = per_page
-        response["X-Total-Count"] = paginator.count
-        response["X-First-Page"] = 1
-        response["X-Last-Page"] = paginator.num_pages
-
-        # Next and previous page links
-        if feeds.has_next():
-            response["X-Next-Page"] = feeds.next_page_number()
-        if feeds.has_previous():
-            response["X-Prev-Page"] = feeds.previous_page_number()
-
-        return response
-
-
-class APIFeedView(View):
-    """API Feed view."""
-
-    def get(self, request: HttpRequest, feed_id: int) -> HttpResponse:  # noqa: ARG002
-        """Get a single feed."""
-        feed = get_object_or_404(Feed, id=feed_id)
-        return JsonResponse(model_to_dict(feed), safe=False)
-
-
-class APIEntriesView(View):
-    """API Entries view."""
-
-    def get(self: APIEntriesView, request: HttpRequest) -> HttpResponse:
-        """Get all entries with pagination."""
-        # Retrieve all entries
-        entries_list = Entry.objects.all()
-
-        # Pagination settings
-        page: int = int(request.GET.get("page", 1))  # Get the page number from the query parameters, default to 1
-        per_page: int = int(request.GET.get("per_page", 1000))
-
-        # Add a ceiling to the per_page value
-        max_per_page = 1000
-        if per_page > max_per_page:
-            per_page = max_per_page
-
-        # Create Paginator instance
-        paginator = Paginator(entries_list, per_page)
-
-        try:
-            entries: Page = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            entries = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            entries = paginator.page(paginator.num_pages)
-
-        # Convert entries to dictionary
-        entries_dict = [model_to_dict(entry) for entry in entries]
-
-        # Return the paginated entries as JsonResponse
-        response = JsonResponse(entries_dict, safe=False)
-
-        # Add pagination headers
-        response["X-Page"] = entries.number
-        response["X-Page-Count"] = paginator.num_pages
-        response["X-Per-Page"] = per_page
-        response["X-Total-Count"] = paginator.count
-        response["X-First-Page"] = 1
-        response["X-Last-Page"] = paginator.num_pages
-
-        # Next and previous page links
-        if entries.has_next():
-            response["X-Next-Page"] = entries.next_page_number()
-        if entries.has_previous():
-            response["X-Prev-Page"] = entries.previous_page_number()
-
-        return response
-
-
-class APIEntryView(View):
-    """API Entry view."""
-
-    def get(self: APIEntryView, request: HttpRequest, entry_id: int) -> HttpResponse:  # noqa: ARG002
-        """Get a single entry."""
-        entry = get_object_or_404(Entry, id=entry_id)
-        return JsonResponse(model_to_dict(entry), safe=False)
-
-
-class APIFeedEntriesView(View):
-    """API Feed Entries view."""
-
-    def get(self: APIFeedEntriesView, request: HttpRequest, feed_id: int) -> HttpResponse:
-        """Get all entries for a single feed with pagination."""
-        # Retrieve all entries for a single feed
-        entries_list = Entry.objects.filter(feed_id=feed_id)
-
-        # Pagination settings
-        page: int = int(request.GET.get("page", 1))  # Get the page number from the query parameters, default to 1
-        per_page: int = int(request.GET.get("per_page", 1000))
-
-        # Add a ceiling to the per_page value
-        max_per_page = 1000
-        if per_page > max_per_page:
-            per_page = max_per_page
-
-        # Create Paginator instance
-        paginator = Paginator(entries_list, per_page)
-
-        try:
-            entries: Page = paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            entries = paginator.page(1)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            entries = paginator.page(paginator.num_pages)
-
-        # Convert entries to dictionary
-        entries_dict = [model_to_dict(entry) for entry in entries]
-
-        # Return the paginated entries as JsonResponse
-        response = JsonResponse(entries_dict, safe=False)
-
-        # Add pagination headers
-        response["X-Page"] = entries.number
-        response["X-Page-Count"] = paginator.num_pages
-        response["X-Per-Page"] = per_page
-        response["X-Total-Count"] = paginator.count
-        response["X-First-Page"] = 1
-        response["X-Last-Page"] = paginator.num_pages
-
-        # Next and previous page links
-        if entries.has_next():
-            response["X-Next-Page"] = entries.next_page_number()
-        if entries.has_previous():
-            response["X-Prev-Page"] = entries.previous_page_number()
-
-        return response
-
-
 class DomainsView(View):
     """All domains."""
 
     def get(self: DomainsView, request: HttpRequest) -> HttpResponse:
         """Load the domains page."""
-        domains = Domain.objects.all()
+        domains: BaseManager[Domain] = Domain.objects.all()
         template = loader.get_template(template_name="domains.html")
         context = {
             "domains": domains,
@@ -471,8 +282,8 @@ class DomainView(View):
 
     def get(self: DomainView, request: HttpRequest, domain_id: int) -> HttpResponse:
         """Load the domain page."""
-        domain = get_object_or_404(Domain, id=domain_id)
-        feeds = Feed.objects.filter(domain=domain).order_by("-created_at")[:100]
+        domain: Domain = get_object_or_404(Domain, id=domain_id)
+        feeds: BaseManager[Feed] = Feed.objects.filter(domain=domain).order_by("-created_at")[:100]
 
         context = {
             "domain": domain,
