@@ -15,6 +15,10 @@ class FeedVaultConfig(AppConfig):
     default_auto_field: str = "django.db.models.BigAutoField"
     name: str = "feedvault"
 
+    def ready(self) -> None:
+        # Make sure the signals are imported so they get used.
+        import feedvault.signals  # noqa: F401, PLC0415
+
 
 @receiver(signal=connection_created)
 def activate_wal(sender: DatabaseWrapper, connection: DatabaseWrapper, **kwargs: dict) -> None:  # noqa: ARG001

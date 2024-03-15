@@ -1,11 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
     <h2>{{ user.username }}</h2>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
     <h3>Feeds</h3>
     <ul>
         {% for feed in user_feeds %}
             <li>
-                <a href='{% url "feeds:feed" feed.id %}'>{{ feed.feed_url }}</a>
+                <a href='{% url "feed" feed.id %}'>{{ feed.feed_url }}</a>
             </li>
         {% endfor %}
     </ul>
