@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import datetime
 import logging
-from time import mktime, struct_time
 from typing import TYPE_CHECKING
 from urllib.parse import ParseResult, urlparse
 
+import dateparser
 import feedparser
 from django.utils import timezone
 from feedparser import FeedParserDict
@@ -13,6 +12,8 @@ from feedparser import FeedParserDict
 from feedvault.models import Author, Domain, Entry, Feed, Generator, Publisher
 
 if TYPE_CHECKING:
+    import datetime
+
     from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -141,21 +142,6 @@ def parse_feed(url: str | None) -> dict | None:
     return parsed_feed
 
 
-def struct_time_to_datetime(struct_time: struct_time | None) -> datetime.datetime | None:
-    """Convert a struct_time to a datetime."""
-    if not struct_time:
-        return None
-
-    if struct_time == "Mon, 01 Jan 0001 00:00:00 +0000":
-        return None
-
-    dt: datetime.datetime = datetime.datetime.fromtimestamp(mktime(struct_time), tz=datetime.UTC)
-    if not dt:
-        logger.error("Error converting struct_time to datetime: %s", struct_time)
-        return None
-    return dt
-
-
 def add_entry(feed: Feed, entry: FeedParserDict) -> Entry | None:
     """Add an entry to the database.
 
@@ -165,10 +151,25 @@ def add_entry(feed: Feed, entry: FeedParserDict) -> Entry | None:
     """
     author: Author = get_author(parsed_feed=entry)
     publisher: Publisher = get_publisher(parsed_feed=entry)
-    updated_parsed: datetime | None = struct_time_to_datetime(struct_time=entry.get("updated_parsed"))  # type: ignore  # noqa: PGH003
-    published_parsed: datetime | None = struct_time_to_datetime(struct_time=entry.get("published_parsed"))  # type: ignore  # noqa: PGH003
-    expired_parsed: datetime | None = struct_time_to_datetime(struct_time=entry.get("expired_parsed"))  # type: ignore  # noqa: PGH003
-    created_parsed: datetime | None = struct_time_to_datetime(struct_time=entry.get("created_parsed"))  # type: ignore  # noqa: PGH003
+    pre_updated_parsed: str = str(entry.get("updated_parsed", ""))
+    updated_parsed: datetime.datetime | None = (
+        dateparser.parse(date_string=str(pre_updated_parsed)) if pre_updated_parsed else None
+    )
+
+    pre_published_parsed: str = str(entry.get("published_parsed", ""))
+    published_parsed: datetime.datetime | None = (
+        dateparser.parse(date_string=str(pre_published_parsed)) if pre_published_parsed else None
+    )
+
+    pre_expired_parsed: str = str(entry.get("expired_parsed", ""))
+    expired_parsed: datetime.datetime | None = (
+        dateparser.parse(date_string=str(pre_expired_parsed)) if pre_expired_parsed else None
+    )
+
+    pre_created_parsed = str(entry.get("created_parsed", ""))
+    created_parsed: datetime.datetime | None = (
+        dateparser.parse(date_string=str(pre_created_parsed)) if pre_created_parsed else None
+    )
 
     _entry = Entry(
         feed=feed,
@@ -201,18 +202,14 @@ def add_entry(feed: Feed, entry: FeedParserDict) -> Entry | None:
     )
 
     # Save the entry.
-    try:
-        _entry.save()
-    except Exception:
-        logger.exception("Error saving entry for feed: %s", feed)
-        return None
+    _entry.save()
 
     logger.info("Created entry: %s", _entry)
 
     return _entry
 
 
-def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | None:
+def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | None:  # noqa: PLR0914
     """Add a feed to the database.
 
     Args:
@@ -242,8 +239,18 @@ def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | 
     generator: Generator = def_generator(parsed_feed=parsed_feed)
     publisher: Publisher = get_publisher(parsed_feed=parsed_feed)
 
-    published_parsed: datetime | None = struct_time_to_datetime(struct_time=parsed_feed.get("published_parsed"))  # type: ignore  # noqa: PGH003
-    updated_parsed: datetime | None = struct_time_to_datetime(struct_time=parsed_feed.get("updated_parsed"))  # type: ignore  # noqa: PGH003
+    pre_published_parsed: str = str(parsed_feed.get("published_parsed", ""))
+    published_parsed: datetime.datetime | None = (
+        dateparser.parse(date_string=str(pre_published_parsed)) if pre_published_parsed else None
+    )
+
+    pre_updated_parsed: str = str(parsed_feed.get("updated_parsed", ""))
+    updated_parsed: datetime.datetime | None = (
+        dateparser.parse(date_string=str(pre_updated_parsed)) if pre_updated_parsed else None
+    )
+
+    pre_modified: str = str(parsed_feed.get("modified", ""))
+    modified: timezone.datetime | None = dateparser.parse(date_string=pre_modified) if pre_modified else None
 
     # Create the feed
     feed = Feed(
@@ -257,7 +264,7 @@ def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | 
         etag=parsed_feed.get("etag", ""),
         headers=parsed_feed.get("headers", {}),
         href=parsed_feed.get("href", ""),
-        modified=parsed_feed.get("modified"),
+        modified=modified,
         namespaces=parsed_feed.get("namespaces", {}),
         status=parsed_feed.get("status", 0),
         version=parsed_feed.get("version", ""),
@@ -296,11 +303,7 @@ def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | 
     )
 
     # Save the feed.
-    try:
-        feed.save()
-    except Exception:
-        logger.exception("Got exception while saving feed: %s", url)
-        return None
+    feed.save()
 
     entries = parsed_feed.get("entries", [])
     for entry in entries:
