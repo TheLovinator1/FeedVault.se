@@ -6,17 +6,15 @@ set -e
 # Debug
 set -x
 
-# Wait for database
-echo "Waiting for database"
-while ! nc -z "$POSTGRES_HOST" "$POSTGRES_PORT"; do
-  sleep 0.1
-done
-echo "Database started"
-
 # 2. Apply database migrations
 echo "Apply database migrations"
 python manage.py migrate
 echo "Apply database migrations done"
+
+# 3. Create cache table
+echo "Create cache table"
+python manage.py createcachetable
+echo "Create cache table done"
 
 # https://docs.gunicorn.org/en/stable/design.html#how-many-workers
 num_cores=$(nproc --all)
