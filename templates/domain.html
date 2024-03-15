@@ -6,7 +6,7 @@
     <ul>
         {% for feed in feeds %}
             <li>
-                <a href="/feed/{{ feed.id }}">{{ feed.feed_url }}</a>
+                <a href="{% url 'feed' feed.id %}">{{ feed.feed_url }}</a>
             </li>
         {% empty %}
             <li>Found no feeds for this domain.</li>

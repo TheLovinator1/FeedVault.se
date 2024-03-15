@@ -17,8 +17,8 @@ from django.views import View
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 
-from feeds.add_feeds import add_feed
-from feeds.models import Domain, Entry, Feed
+from feedvault.add_feeds import add_feed
+from feedvault.models import Domain, Entry, Feed
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
@@ -188,7 +188,7 @@ class RegisterView(CreateView):
 
     template_name = "accounts/register.html"
     form_class = UserCreationForm
-    success_url = reverse_lazy("feeds:login")
+    success_url = reverse_lazy("login")
 
     # Add context data to the view
     def get_context_data(self, **kwargs) -> dict:  # noqa: ANN003
@@ -205,14 +205,14 @@ class RegisterView(CreateView):
 class CustomLogoutView(LogoutView):
     """Logout view."""
 
-    next_page = "feeds:index"  # Redirect to index after logout
+    next_page = "index"  # Redirect to index after logout
 
 
 class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
     """Custom password change view."""
 
     template_name = "accounts/change_password.html"
-    success_url = reverse_lazy("feeds:index")
+    success_url = reverse_lazy("index")
     success_message = "Your password was successfully updated!"
 
     # Add context data to the view

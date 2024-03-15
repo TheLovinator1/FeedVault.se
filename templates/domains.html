@@ -9,7 +9,7 @@
         {% for domain in domains %}
             {% if not domain.hidden %}
                 <li>
-                    <a href="/domain/{{ domain.id }}">{{ domain.url }}</a> - {{ domain.created_at|date }}
+                    <a href="{% url 'domain' domain.id %}">{{ domain.url }}</a> - {{ domain.created_at|date }}
                 </li>
             {% endif %}
         {% empty %}

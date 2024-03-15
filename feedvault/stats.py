@@ -21,13 +21,18 @@ def get_db_size() -> str:
         logger.debug("Got db_size from cache")
         return db_size
 
+    # Get SQLite database size
     with connection.cursor() as cursor:
-        cursor.execute("SELECT pg_size_pretty(pg_database_size(current_database()))")
-        row = cursor.fetchone()
+        cursor.execute("PRAGMA page_size")
+        page_size_result = cursor.fetchone()
+        page_size = page_size_result[0] if page_size_result else None
 
-    db_size = "0 MB" if row is None else str(row[0])
+        cursor.execute("PRAGMA page_count")
+        page_count_result = cursor.fetchone()
+        page_count = page_count_result[0] if page_count_result else None
 
-    # Store value in cache for 15 minutes
+        db_size = page_size * page_count if page_size and page_count else None
+
     cache.set("db_size", db_size, 60 * 15)
 
-    return db_size
+    return f"{db_size / 1024 / 1024:.2f} MB" if db_size is not None else "0 MB"

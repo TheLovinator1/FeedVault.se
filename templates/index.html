@@ -5,7 +5,7 @@
         <p>
             Input the URLs of the feeds you wish to archive below. You can add as many as needed, and access them through the website or API. Alternatively, include links to .opml files, and the feeds within will be archived.
         </p>
-        <form action='{% url "feeds:add" %}' method='post'>
+        <form action="/add" method='post'>
             {% csrf_token %}
             <textarea id="urls" name="urls" rows="5" cols="50" required></textarea>
             <button type="submit">Add feeds</button>
@@ -18,7 +18,7 @@
         </p>
         <form enctype="multipart/form-data"
               method="post"
-              action="{% url 'feeds:upload' %}">
+              action="{% url 'upload' %}">
             {% csrf_token %}
             <p>
                 <input type="file" name="file" id="file" required>
@@ -31,7 +31,7 @@
             FeedVault is a service that archives web feeds. It allows users to access and search for historical content from various websites. The service is designed to preserve the history of the web and provide a reliable source for accessing content that may no longer be available on the original websites.
         </p>
         <p>
-            You need to <a href='{% url "feeds:login" %}'>login</a> or <a href='{% url "feeds:register" %}'>register</a> to add new feeds or upload files.
+            You need to <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> to add new feeds or upload files.
         </p>
     {% endif %}
     <h2>FAQ</h2>

@@ -15,7 +15,7 @@ def add_global_context(request: HttpRequest) -> dict[str, str | int]:  # noqa: A
     Returns:
         A dictionary with the global context.
     """
-    from feeds.stats import get_db_size  # noqa: PLC0415
+    from feedvault.stats import get_db_size  # noqa: PLC0415
 
     from .models import Feed  # noqa: PLC0415
 

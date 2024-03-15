@@ -2,7 +2,7 @@
 
 _A seed vault for your feeds._
 
-FeedVault is an open-source web application that allows users to archive and search their favorite RSS, Atom, and JSON feeds. With FeedVault, users can effortlessly add their favorite feeds, ensuring they have a centralized location for accessing and preserving valuable content.
+[FeedVault](https://feedvault.se/) is an open-source web application that allows users to archive and search their favorite RSS, Atom, and JSON feeds. With FeedVault, users can effortlessly add their favorite feeds, ensuring they have a centralized location for accessing and preserving valuable content.
 
 ## Features
 
@@ -17,7 +17,7 @@ _Note: Some features are currently in development._
 
 ## Usage
 
-- Visit the FeedVault website.
+- [Visit the FeedVault website](https://feedvault.se/).
 - Sign up for an account or log in if you already have one.
 - Add your favorite feeds to start archiving content.
 - Explore, manage, and enjoy your centralized feed archive.

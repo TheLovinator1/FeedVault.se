@@ -10,7 +10,7 @@ import feedparser
 from django.utils import timezone
 from feedparser import FeedParserDict
 
-from feeds.models import Author, Domain, Entry, Feed, Generator, Publisher
+from feedvault.models import Author, Domain, Entry, Feed, Generator, Publisher
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import AbstractBaseUser, AnonymousUser
@@ -129,7 +129,7 @@ def parse_feed(url: str | None) -> dict | None:
     Returns:
         The parsed feed.
     """
-    # TODO(TheLovinator): Backup the feed URL to a cloudflare worker.  # noqa: TD003
+    # TODO(TheLovinator): Backup the feed URL.  # noqa: TD003
     if not url:
         return None
 
@@ -299,7 +299,7 @@ def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | 
     try:
         feed.save()
     except Exception:
-        logger.exception("Error saving feed: %s", feed)
+        logger.exception("Got exception while saving feed: %s", url)
         return None
 
     entries = parsed_feed.get("entries", [])

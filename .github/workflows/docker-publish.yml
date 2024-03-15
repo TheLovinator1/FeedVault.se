@@ -15,29 +15,15 @@ jobs:
       ADMIN_EMAIL: 4153203+TheLovinator1@users.noreply.github.com
       EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
       EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
-      POSTGRES_PASSWORD: githubtest
-      POSTGRES_HOST: 127.0.0.1
-      POSTGRES_USER: feedvault
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-          POSTGRES_HOST: ${{ env.POSTGRES_HOST }}
-          POSTGRES_USER: ${{ env.POSTGRES_USER }}
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 1s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.12
       - run: pipx install poetry
-      - run: pipx inject poetry poetry-plugin-export
       - run: poetry install
       - run: poetry run python manage.py migrate
-      # - run: poetry run python manage.py test
+      - run: poetry run python manage.py test
   build:
     runs-on: ubuntu-latest
     permissions:

@@ -82,7 +82,7 @@
     {% endif %}
     <span class="title">
       <h1>
-        <a href='{% url "feeds:index" %}'>FeedVault</a>
+        <a href="{% url 'index' %}">FeedVault</a>
       </h1>
     </span>
     <div class="leftright">
@@ -104,21 +104,21 @@
       <small>
         <div class="leftright">
           <div class="left">
-            <a href='{% url "feeds:index" %}'>Home</a> |
-            <a href='{% url "feeds:domains" %}'>Domains</a> |
-            <a href='{% url "feeds:feeds" %}'>Feeds</a> |
-            <a href='{% url "feeds:api" %}'>API</a>
+            <a href="{% url 'index' %}">Home</a> |
+            <a href="{% url 'domains' %}">Domains</a> |
+            <a href="{% url 'feeds' %}">Feeds</a> |
+            <a href="{% url 'api' %}">API</a>
           </div>
           <div class="right">
             <a href="https://github.com/TheLovinator1/FeedVault">GitHub</a> |
             <a href="https://github.com/sponsors/TheLovinator1">Donate</a>
             <!-- Show login if not logged in -->
             {% if not user.is_authenticated %}
-              | <a href='{% url "feeds:login" %}'>Login</a>
+              | <a href="{% url 'login' %}">Login</a>
             {% endif %}
             <!-- Show username if logged in -->
             {% if user.is_authenticated %}
-              | <a href='{% url "feeds:profile" %}'>{{ user.username }}</a>
+              | <a href="{% url 'profile' %}">{{ user.username }}</a>
             {% endif %}
           </div>
         </div>

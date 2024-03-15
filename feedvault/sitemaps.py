@@ -10,10 +10,10 @@ class StaticViewSitemap(Sitemap):
     changefreq: str = "daily"
     priority: float = 0.5
 
-    def items(self: StaticViewSitemap) -> list[str]:
+    def items(self: StaticViewSitemap) -> list[str]:  # noqa: PLR6301
         """Return all the items in the sitemap."""
         return ["feeds:index", "feeds:feeds", "feeds:domains"]
 
-    def location(self, item: str) -> str:
+    def location(self: StaticViewSitemap, item: str) -> str:  # noqa: PLR6301
         """Return the location of the item."""
         return reverse(item)

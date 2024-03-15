@@ -7,10 +7,9 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-django = {extras = ["argon2"], version = "^5.0.2"}
+django = { extras = ["argon2"], version = "^5.0.3" }
 python-dotenv = "^1.0.1"
 feedparser = "^6.0.11"
-psycopg = {extras = ["binary"], version = "^3.1.18"}
 gunicorn = "^21.2.0"
 
 [tool.poetry.group.dev.dependencies]
@@ -26,17 +25,21 @@ exclude = ["migrations"]
 fix = true
 unsafe-fixes = true
 preview = true
+line-length = 120
 lint.select = ["ALL"]
 lint.ignore = [
-    "PLR6301", # Checks for the presence of unused self parameter in methods definitions
-    "CPY001",  # Missing copyright notice at top of file
-    "ERA001",  # Found commented-out code
-    "FIX002",  # Line contains TODO
-    "D104",    # Missing docstring in public package # TODO(TheLovinator): Fix this
-    "D100",    # Missing docstring in public module # TODO(TheLovinator): Fix this
-    # https://github.com/TheLovinator1/panso.se/issues/25
+    "CPY001", # Missing copyright notice at top of file
+    "ERA001", # Found commented-out code
+    "FIX002", # Line contains TODO
+    "D100",   # Checks for undocumented public module definitions.
+    "D101",   # Checks for undocumented public class definitions.
+    "D102",   # Checks for undocumented public method definitions.
+    "D104",   # Missing docstring in public package.
+    "D105",   # Missing docstring in magic method.
+    "D106",   # Checks for undocumented public class definitions, for nested classes.
+    "COM812", # Checks for the absence of trailing commas.
+    "ISC001", # Checks for implicitly concatenated strings on a single line.
 ]
-line-length = 120
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
@@ -50,7 +53,6 @@ convention = "google"
     "D102",    # Allow missing docstrings in tests
     "PLR6301", # Checks for the presence of unused self parameter in methods definitions.
 ]
-
 
 [tool.djlint]
 format_attribute_template_tags = true

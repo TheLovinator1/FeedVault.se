@@ -5,7 +5,7 @@
         {% for feed in feeds %}
             <li>{{ feed.feed_url }} - {{ feed.created_at|date }}</li>
             <li>
-                <a href="/feed/{{ feed.id }}">View</a>
+                <a href="{% url 'feed' feed.id %}">View</a>
             </li>
         {% empty %}
             <li>No feeds yet.</li>
