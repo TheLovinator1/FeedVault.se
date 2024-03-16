@@ -13,8 +13,9 @@ BASE_DIR: Path = Path(__file__).resolve().parent.parent
 SECRET_KEY: str = os.getenv("SECRET_KEY", default="")
 ADMINS: list[tuple[str, str]] = [("Joakim Hellsén", "django@feedvault.se")]
 ALLOWED_HOSTS: list[str] = [".feedvault.se", ".localhost", "127.0.0.1"]
-CSRF_COOKIE_DOMAIN = ".feedvault.se"
-CSRF_TRUSTED_ORIGINS: list[str] = ["https://feedvault.se", "https://www.feedvault.se"]
+if not DEBUG:
+    CSRF_COOKIE_DOMAIN = ".feedvault.se"
+    CSRF_TRUSTED_ORIGINS: list[str] = ["https://feedvault.se", "https://www.feedvault.se"]
 TIME_ZONE = "Europe/Stockholm"
 USE_TZ = True
 USE_I18N = False

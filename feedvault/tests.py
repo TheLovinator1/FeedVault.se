@@ -85,8 +85,9 @@ class TestRobotsPage(TestCase):
         """Test if the robots page contains the expected content."""
         response: HttpResponse = self.client.get(reverse("robots"))
         assert (
-            response.content == b"User-agent: *\nDisallow: /add\nDisallow: /upload\nDisallow: /accounts/"
-        ), f"Expected b'User-agent: *\nDisallow: /add\nDisallow: /upload\nDisallow: /accounts/', got {response.content}"
+            response.content
+            == b"User-agent: *\nDisallow: /add\nDisallow: /upload\nDisallow: /accounts/\n\nSitemap: https://feedvault.se/sitemap.xml"
+        ), f"Expected b'User-agent: *\nDisallow: /add\nDisallow: /upload\nDisallow: /accounts/\n\nSitemap: https://feedvault.se/sitemap.xml', got {response.content}"  # noqa: E501
 
 
 class TestDomains(TestCase):
@@ -189,3 +190,15 @@ class TestLogoutPage(TestCase):
         response: HttpResponse = self.client.get(reverse("index"))
         assert response.status_code == 200
         assert "testuser" not in response.content.decode("utf-8")
+
+
+class TestSitemap(TestCase):
+    def test_sitemap(self) -> None:
+        """Test if the sitemap is accessible."""
+        response: HttpResponse = self.client.get(reverse("django.contrib.sitemaps.views.sitemap"))
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert "urlset" in response.content.decode()
+
+        response2 = self.client.get("/sitemap.xml")
+        assert response2.status_code == 200, f"Expected 200, got {response2.status_code}"
+        assert "urlset" in response2.content.decode()

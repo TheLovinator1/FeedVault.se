@@ -13,13 +13,11 @@ from feedvault.views import CustomLoginView, CustomLogoutView, ProfileView, Regi
 
 app_name: str = "feedvault"
 
-
 sitemaps = {
     "static": StaticViewSitemap,
     "feeds": GenericSitemap({"queryset": Feed.objects.all(), "date_field": "created_at"}),
     "domains": GenericSitemap({"queryset": Domain.objects.all(), "date_field": "created_at"}),
 }
-
 
 urlpatterns: list[URLPattern] = [
     path(route="", view=views.IndexView.as_view(), name="index"),

@@ -254,7 +254,7 @@ class RobotsView(View):
     def get(self, request: HttpRequest) -> HttpResponse:  # noqa: ARG002
         """Load the robots.txt file."""
         return HttpResponse(
-            content="User-agent: *\nDisallow: /add\nDisallow: /upload\nDisallow: /accounts/",
+            content="User-agent: *\nDisallow: /add\nDisallow: /upload\nDisallow: /accounts/\n\nSitemap: https://feedvault.se/sitemap.xml",
             content_type="text/plain",
         )
 
