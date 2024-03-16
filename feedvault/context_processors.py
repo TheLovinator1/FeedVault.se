@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from django.http import HttpRequest
 
 
-def add_global_context(request: HttpRequest) -> dict[str, str | int]:  # noqa: ARG001
+def add_global_context(request: HttpRequest) -> dict[str, str | int]:
     """Add global context to all templates.
 
     Args:

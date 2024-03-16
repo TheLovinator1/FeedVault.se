@@ -21,7 +21,7 @@ class FeedVaultConfig(AppConfig):
 
 
 @receiver(signal=connection_created)
-def activate_wal(sender: DatabaseWrapper, connection: DatabaseWrapper, **kwargs: dict) -> None:  # noqa: ARG001
+def activate_wal(sender: DatabaseWrapper, connection: DatabaseWrapper, **kwargs: dict) -> None:
     """Activate Write-Ahead Logging (WAL) for SQLite databases.
 
     WAL mode allows for concurrent reads and writes to the database.
