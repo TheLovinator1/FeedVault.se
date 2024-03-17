@@ -15,13 +15,9 @@ def get_db_size() -> str:
     """
     # Get SQLite database size
     with connection.cursor() as cursor:
-        cursor.execute("PRAGMA page_size")
-        page_size_result = cursor.fetchone()
-        page_size = page_size_result[0] if page_size_result else None
-
         cursor.execute("PRAGMA page_count")
-        page_count_result = cursor.fetchone()
-        page_count = page_count_result[0] if page_count_result else None
+        page_count_result: tuple[int, ...] | None = cursor.fetchone()
+        page_count: int | None = page_count_result[0] if page_count_result else None
 
-        db_size = page_size * page_count if page_size and page_count else None
+        db_size: int | None = 4096 * page_count if page_count else None
     return f"{db_size / 1024 / 1024:.2f} MB" if db_size is not None else "0 MB"
