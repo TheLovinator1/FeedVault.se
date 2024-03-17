@@ -4,6 +4,7 @@ import os
 import sys
 from pathlib import Path
 
+from django.utils import timezone
 from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(dotenv_path=find_dotenv(), verbose=True)
@@ -33,20 +34,29 @@ EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL: str = os.getenv(key="EMAIL_HOST_USER", default="webmaster@localhost")
 SERVER_EMAIL: str = os.getenv(key="EMAIL_HOST_USER", default="webmaster@localhost")
 USE_X_FORWARDED_HOST = True
-INTERNAL_IPS: list[str] = ["127.0.0.1", "localhost"]
+INTERNAL_IPS: list[str] = ["127.0.0.1", "localhost", "192.168.1.143"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SITE_ID = 1
 PASSWORD_HASHERS: list[str] = ["django.contrib.auth.hashers.Argon2PasswordHasher"]
 ROOT_URLCONF = "feedvault.urls"
 WSGI_APPLICATION = "feedvault.wsgi.application"
 NINJA_PAGINATION_PER_PAGE = 1000
+STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "static"
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
+
 
 # Is True when running tests, used for not spamming Discord when new users are created
 TESTING: bool = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 INSTALLED_APPS: list[str] = [
     "feedvault.apps.FeedVaultConfig",
+    "debug_toolbar",
     "django.contrib.auth",
+    "django.contrib.staticfiles",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
@@ -54,6 +64,7 @@ INSTALLED_APPS: list[str] = [
 ]
 
 MIDDLEWARE: list[str] = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -120,3 +131,41 @@ TEMPLATES = [
         },
     },
 ]
+
+
+# Create data/logs folder if it doesn't exist
+log_folder: Path = BASE_DIR / "data" / "logs"
+log_folder.mkdir(parents=True, exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+        },
+        "file": {
+            "level": "DEBUG",
+            "class": "logging.FileHandler",
+            "filename": BASE_DIR / "data" / "logs" / f"{timezone.now().strftime('%Y%m%d')}.log",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console", "file"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "django.utils.autoreload": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "": {
+            "handlers": ["console", "file"],
+            "level": "DEBUG",
+            "propagate": True,
+        },
+    },
+}

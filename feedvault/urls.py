@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from django.contrib.sitemaps import GenericSitemap
 from django.contrib.sitemaps.views import sitemap
-from django.urls import URLPattern, path
+from django.urls import include, path
 from django.views.decorators.cache import cache_page
 
 from feedvault import views
@@ -19,8 +19,9 @@ sitemaps = {
     "domains": GenericSitemap({"queryset": Domain.objects.all(), "date_field": "created_at"}),
 }
 
-urlpatterns: list[URLPattern] = [
+urlpatterns: list = [
     path(route="", view=views.IndexView.as_view(), name="index"),
+    path("__debug__/", include("debug_toolbar.urls")),
     path(route="feed/<int:feed_id>/", view=views.FeedView.as_view(), name="feed"),
     path(route="feeds/", view=views.FeedsView.as_view(), name="feeds"),
     path(route="add", view=views.AddView.as_view(), name="add"),
