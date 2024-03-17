@@ -6,6 +6,7 @@ services:
     user: "1000:1000"
     restart: always
     networks:
+      - feedvault_db
       - feedvault_web
     environment:
       - SECRET_KEY=${SECRET_KEY}
@@ -13,6 +14,11 @@ services:
       - EMAIL_HOST_USER=${EMAIL_HOST_USER}
       - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
       - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+      - DB_NAME=feedvault
+      - DB_HOST=feedvault_postgres
+      - DB_PORT=5432
+      - DB_USER=feedvault
+      - DB_PASSWORD=${DB_PASSWORD}
     volumes:
       - /mnt/Fourteen/Docker/FeedVault/staticfiles:/app/staticfiles
       - /mnt/Fourteen/Docker/FeedVault/media:/app/media
@@ -36,6 +42,23 @@ services:
       - feedvault_web
       - feedvault_tunnel
 
+  # Postgres - Database
+  postgres:
+    container_name: feedvault_postgres
+    image: postgres:16
+    user: "1000:1000"
+    ports:
+      - 5432:5432
+    restart: always
+    environment:
+      - POSTGRES_USER=feedvault
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=feedvault
+    volumes:
+      - /mnt/Fourteen/Docker/FeedVault/Postgres:/var/lib/postgresql/data
+    networks:
+      - feedvault_db
+
   # Cloudflare Tunnel - Securely connect your server to Cloudflare
   tunnel:
     container_name: feedvault_tunnel
@@ -49,6 +72,8 @@ services:
 
 networks:
   feedvault_tunnel:
+    driver: bridge
+  feedvault_db:
     driver: bridge
   feedvault_web:
     driver: bridge

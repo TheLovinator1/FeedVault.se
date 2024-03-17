@@ -78,23 +78,21 @@ MIDDLEWARE: list[str] = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-database_folder: Path = BASE_DIR / "data"
-database_folder.mkdir(parents=True, exist_ok=True)
-DATABASES: dict[str, dict[str, str | Path | bool | int]] = {
+# Use PostgreSQL as the default database
+DATABASES: dict[str, dict[str, str]] = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": database_folder / "feedvault.sqlite3",
-        "ATOMIC_REQUESTS": True,
-        "timeout": 30,
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME", default="feedvault"),
+        "USER": os.getenv("DB_USER", default="feedvault"),
+        "PASSWORD": os.getenv("DB_PASSWORD", default="feedvault"),
+        "HOST": os.getenv("DB_HOST", default="localhost"),
+        "PORT": os.getenv("DB_PORT", default="5432"),
     },
 }
 
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",

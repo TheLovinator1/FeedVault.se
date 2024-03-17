@@ -17,6 +17,7 @@ django-ninja = "^1.1.0"
 django-debug-toolbar = "^4.3.0"
 whitenoise = {extras = ["brotli"], version = "^6.6.0"}
 rich = "^13.7.1"
+psycopg = {extras = ["binary"], version = "^3.1.18"}
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.3.0"

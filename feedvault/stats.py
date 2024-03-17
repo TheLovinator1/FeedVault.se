@@ -13,11 +13,10 @@ def get_db_size() -> str:
     Returns:
         str: The size of the database.
     """
-    # Get SQLite database size
+    # Get Postgres database size
     with connection.cursor() as cursor:
-        cursor.execute("PRAGMA page_count")
-        page_count_result: tuple[int, ...] | None = cursor.fetchone()
-        page_count: int | None = page_count_result[0] if page_count_result else None
+        cursor.execute("SELECT pg_size_pretty(pg_database_size(current_database()))")
+        db_size_result: tuple[str, ...] | None = cursor.fetchone()
+        db_size: str | None = db_size_result[0] if db_size_result else None
 
-        db_size: int | None = 4096 * page_count if page_count else None
-    return f"{db_size / 1024 / 1024:.2f} MB" if db_size is not None else "0 MB"
+    return db_size if db_size is not None else "0 MB"

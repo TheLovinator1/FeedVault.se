@@ -24,17 +24,15 @@ _Note: Some features are currently in development._
 
 ## Contributing
 
-All contributions are welcome regardless of skill level or experience.
+Feel free to contribute to the project. If you have any questions, please open an issue.
 
-Please create a new issue before submitting a big pull request. I am probably okay with anything, but I don't want you to waste your time on something that I won't accept.
-
-Try to minimize the number of dependencies you add to the project. If you need to add a new dependency, please create an issue first.
-
-
-## Development
+## Dependencies
 
 - [Python](https://www.python.org/)
 - [Poetry](https://python-poetry.org/)
+- [PostgreSQL 16](https://www.postgresql.org/)
+
+## tl;dr
 
 ```bash
 poetry install
@@ -45,12 +43,16 @@ python manage.py makemigrations
 python manage.py migrate
 python manage.py runserver
 
+# Optional
+pre-commit install
+pre-commit run --all-files
+
 # Update feeds
 python manage.py update_feeds
 ```
 
 ## Contact
 
-For any inquiries or support, please create an issue on GitHub.
+If you have any questions, please open an issue.
 
-Thank you for using FeedVault! Happy archiving!
+I can also be reached at [hello@panso.se](mailto:hello@panso.se) or on Discord: `TheLovinator#9276`
