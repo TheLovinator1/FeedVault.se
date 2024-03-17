@@ -8,6 +8,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from feedvault.models import Domain, Entry, Feed
+from feedvault.stats import get_db_size
 
 if TYPE_CHECKING:
     from django.http import HttpResponse
@@ -189,7 +190,9 @@ class TestLogoutPage(TestCase):
         # Check if the user is logged out
         response: HttpResponse = self.client.get(reverse("index"))
         assert response.status_code == 200
-        assert "testuser" not in response.content.decode("utf-8")
+        assert "testuser" not in response.content.decode(
+            "utf-8",
+        ), f"Expected 'testuser' not in response, got {response.content}"
 
 
 class TestSitemap(TestCase):
@@ -197,8 +200,16 @@ class TestSitemap(TestCase):
         """Test if the sitemap is accessible."""
         response: HttpResponse = self.client.get(reverse("django.contrib.sitemaps.views.sitemap"))
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
-        assert "urlset" in response.content.decode()
+        assert "urlset" in response.content.decode(), f"Expected 'urlset' in response, got {response.content}"
 
         response2 = self.client.get("/sitemap.xml")
         assert response2.status_code == 200, f"Expected 200, got {response2.status_code}"
-        assert "urlset" in response2.content.decode()
+        assert "urlset" in response2.content.decode(), f"Expected 'urlset' in response, got {response2.content}"
+
+
+class TestStats(TestCase):
+    def test_db_size(self) -> None:
+        """Test if the database size is returned."""
+        response: str = get_db_size()
+        assert isinstance(response, str), f"Expected a string, got {response}"
+        assert "MB" in response, f"Expected 'MB' in response, got {response}"
