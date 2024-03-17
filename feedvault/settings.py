@@ -9,6 +9,9 @@ from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(dotenv_path=find_dotenv(), verbose=True)
 
+# Is True when running tests, used for not spamming Discord when new users are created
+TESTING: bool = len(sys.argv) > 1 and sys.argv[1] == "test"
+
 DEBUG: bool = os.getenv(key="DEBUG", default="True").lower() == "true"
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 SECRET_KEY: str = os.getenv("SECRET_KEY", default="")
@@ -42,7 +45,12 @@ ROOT_URLCONF = "feedvault.urls"
 WSGI_APPLICATION = "feedvault.wsgi.application"
 NINJA_PAGINATION_PER_PAGE = 1000
 STATIC_URL = "static/"
-STATIC_ROOT: Path = BASE_DIR / "static"
+STATIC_ROOT: Path = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = (
+    "django.contrib.staticfiles.storage.StaticFilesStorage"
+    if TESTING
+    else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 MEDIA_URL = "media/"
 MEDIA_ROOT: Path = BASE_DIR / "media"
@@ -50,8 +58,6 @@ MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
 
-# Is True when running tests, used for not spamming Discord when new users are created
-TESTING: bool = len(sys.argv) > 1 and sys.argv[1] == "test"
 
 INSTALLED_APPS: list[str] = [
     "feedvault.apps.FeedVaultConfig",

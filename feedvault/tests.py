@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from django.contrib.auth.models import User
@@ -7,7 +8,7 @@ from django.http.response import HttpResponse
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from feedvault.models import Domain, Entry, Feed
+from feedvault.models import Domain, Entry, Feed, UserUploadedFile
 from feedvault.stats import get_db_size
 
 if TYPE_CHECKING:
@@ -63,17 +64,46 @@ class TestFeedsPage(TestCase):
 
 
 class TestAddPage(TestCase):
+    def setUp(self) -> None:
+        """Create a test user."""
+        self.user: User = User.objects.create_user(
+            username="testuser",
+            email="hello@feedvault.se",
+            password="testpassword",  # noqa: S106
+        )
+
+        self.client.force_login(user=self.user)
+
     def test_add_page(self) -> None:
         """Test if the add page is accessible."""
-        response: HttpResponse = self.client.get(reverse("add"))
+        response: HttpResponse = self.client.post(reverse("add"), {"urls": "https://feedvault.se/feed.xml"})
         assert response.status_code == 200, f"Expected 200, got {response.status_code}"
 
 
 class TestUploadPage(TestCase):
+    def setUp(self) -> None:
+        """Create a test user."""
+        self.user: User = User.objects.create_user(
+            username="testuser",
+            email="hello@feedvault.se",
+            password="testpassword",  # noqa: S106
+        )
+
+        self.client.force_login(user=self.user)
+
     def test_upload_page(self) -> None:
         """Test if the upload page is accessible."""
-        response: HttpResponse = self.client.get(reverse("upload"))
-        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        # Check the amounts of files in the database
+        assert UserUploadedFile.objects.count() == 0, f"Expected 0, got {UserUploadedFile.objects.count()}"
+
+        # Open this file and upload it
+        current_file = __file__
+        with Path(current_file).open("rb") as file:
+            response: HttpResponse = self.client.post(reverse("upload"), {"file": file})
+            assert response.status_code == 200, f"Expected 200, got {response.status_code}: {response.content}"
+
+        # Check if the file is in the database
+        assert UserUploadedFile.objects.count() == 1, f"Expected 1, got {UserUploadedFile.objects.count()}"
 
 
 class TestRobotsPage(TestCase):

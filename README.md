@@ -30,6 +30,25 @@ Please create a new issue before submitting a big pull request. I am probably ok
 
 Try to minimize the number of dependencies you add to the project. If you need to add a new dependency, please create an issue first.
 
+
+## Development
+
+- [Python](https://www.python.org/)
+- [Poetry](https://python-poetry.org/)
+
+```bash
+poetry install
+poetry shell
+python manage.py test
+python manage.py collectstatic
+python manage.py makemigrations
+python manage.py migrate
+python manage.py runserver
+
+# Update feeds
+python manage.py update_feeds
+```
+
 ## Contact
 
 For any inquiries or support, please create an issue on GitHub.

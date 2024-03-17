@@ -335,25 +335,34 @@ def populate_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Fe
     return feed
 
 
-def grab_entries(feed: Feed) -> None:
+def grab_entries(feed: Feed) -> None | list[Entry]:
     """Grab the entries from a feed.
 
     Args:
         feed: The feed to grab the entries from.
+
+    Returns:
+        The entries that were added. If no entries were added, None is returned.
     """
+    # Set the last checked time to now.
+    feed.last_checked = timezone.now()
+    feed.save()
+
+    entries_added: list[Entry] = []
     # Parse the feed.
     parsed_feed: dict | None = parse_feed(url=feed.feed_url)
     if not parsed_feed:
-        return
+        return None
 
     entries = parsed_feed.get("entries", [])
     for entry in entries:
         added_entry: Entry | None = add_entry(feed=feed, entry=entry)
         if not added_entry:
             continue
+        entries_added.append(added_entry)
 
-    logger.info("Grabbed entries for feed: %s", feed)
-    return
+    logger.info("Added entries: %s", entries_added)
+    return entries_added
 
 
 def add_url(url: str, user: AbstractBaseUser | AnonymousUser) -> FeedAddResult:

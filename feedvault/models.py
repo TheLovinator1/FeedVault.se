@@ -293,7 +293,7 @@ class Entry(models.Model):
 
     def __str__(self) -> str:
         """Return string representation of the entry."""
-        return f"{self.feed} - {self.title}"
+        return f"{self.feed.feed_url} - {self.title}"
 
 
 def get_upload_path(instance: UserUploadedFile, filename: str) -> str:

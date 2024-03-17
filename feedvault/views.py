@@ -22,7 +22,7 @@ from django.views import View
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 
-from feedvault.add_feeds import add_url
+from feedvault.feeds import add_url
 from feedvault.models import Domain, Entry, Feed, FeedAddResult, UserUploadedFile
 
 if TYPE_CHECKING:
