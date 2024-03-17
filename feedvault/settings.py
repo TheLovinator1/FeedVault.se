@@ -46,11 +46,6 @@ WSGI_APPLICATION = "feedvault.wsgi.application"
 NINJA_PAGINATION_PER_PAGE = 1000
 STATIC_URL = "static/"
 STATIC_ROOT: Path = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE = (
-    "django.contrib.staticfiles.storage.StaticFilesStorage"
-    if TESTING
-    else "whitenoise.storage.CompressedManifestStaticFilesStorage"
-)
 STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 MEDIA_URL = "media/"
 MEDIA_ROOT: Path = BASE_DIR / "media"
@@ -87,11 +82,12 @@ MIDDLEWARE: list[str] = [
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 database_folder: Path = BASE_DIR / "data"
 database_folder.mkdir(parents=True, exist_ok=True)
-DATABASES: dict[str, dict[str, str | Path | bool]] = {
+DATABASES: dict[str, dict[str, str | Path | bool | int]] = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": database_folder / "feedvault.sqlite3",
         "ATOMIC_REQUESTS": True,
+        "timeout": 30,
     },
 }
 
@@ -184,6 +180,8 @@ STORAGES: dict[str, dict[str, str]] = {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        if TESTING
+        else "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }

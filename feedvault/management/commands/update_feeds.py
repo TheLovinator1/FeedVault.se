@@ -1,13 +1,41 @@
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import timedelta
+from threading import Thread
 
 from django.core.management.base import BaseCommand, no_translations
 from django.db.models import Q
 from django.utils import timezone
+from rich.console import Console
+from rich.progress import Progress
 
 from feedvault.feeds import grab_entries
-from feedvault.models import Entry, Feed
+from feedvault.models import Feed
+
+console = Console()
+
+
+class DomainUpdater(Thread):
+    def __init__(self, feeds: list[Feed], progress: Progress, *args, **kwargs) -> None:  # noqa: ANN002, ANN003
+        """Update feeds in a separate thread.
+
+        Args:
+            feeds: The feeds to update.
+            progress: The Rich progress bar.
+            *args: Arbitrary positional arguments.
+            **kwargs: Arbitrary keyword arguments.
+        """
+        super().__init__(*args, **kwargs)
+        self.feeds: list[Feed] = feeds
+        self.progress: Progress = progress
+
+    def run(self) -> None:
+        with self.progress as progress:
+            task = progress.add_task("[cyan]Updating feeds...", total=len(self.feeds))
+            for feed in self.feeds:
+                grab_entries(feed)
+                progress.update(task, advance=1, description=f"[green]Updated {feed.feed_url}")
 
 
 class Command(BaseCommand):
@@ -16,22 +44,23 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *args, **options) -> None:  # noqa: ANN002, ANN003, ARG002
-        new_entries: int = 0
-
-        # Grab feeds that haven't been checked in 15 minutes OR haven't been checked at all
-        for feed in Feed.objects.filter(
+        feeds = Feed.objects.filter(
             Q(last_checked__lte=timezone.now() - timedelta(minutes=15)) | Q(last_checked__isnull=True),
-        ):
-            entries: None | list[Entry] = grab_entries(feed)
-            if not entries:
-                self.stdout.write(f"No new entries for {feed.title}")
-                continue
+        )
+        domain_feeds = defaultdict(list)
 
-            self.stdout.write(f"Updated {feed}")
-            self.stdout.write(f"Added {len(entries)} new entries for {feed}")
-            new_entries += len(entries)
+        for feed in feeds:
+            domain_feeds[feed.domain.pk].append(feed)
 
-        if new_entries:
-            self.stdout.write(self.style.SUCCESS(f"Successfully updated feeds. Added {new_entries} new entries"))
+        threads = []
+        progress = Progress()
 
-        self.stdout.write("No new entries found")
+        for feeds in domain_feeds.values():
+            thread = DomainUpdater(feeds, progress)
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+        console.log("[bold green]Successfully updated feeds")
