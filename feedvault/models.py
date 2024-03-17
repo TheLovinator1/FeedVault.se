@@ -2,12 +2,24 @@ from __future__ import annotations
 
 import logging
 import typing
+import uuid
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal
 
 from django.db import models
 from django.db.models import JSONField
 
 logger: logging.Logger = logging.getLogger(__name__)
+
+
+@dataclass
+class FeedAddResult:
+    """The result of adding a feed to the database."""
+
+    feed: Feed | None
+    created: bool
+    error: str | None
 
 
 class Domain(models.Model):
@@ -142,7 +154,7 @@ class Feed(models.Model):
     active = models.BooleanField(default=True)
 
     # General data
-    bozo = models.BooleanField()
+    bozo = models.BooleanField(default=False)
     bozo_exception = models.TextField(blank=True)
     encoding = models.TextField(blank=True)
     etag = models.TextField(blank=True)
@@ -282,3 +294,46 @@ class Entry(models.Model):
     def __str__(self) -> str:
         """Return string representation of the entry."""
         return f"{self.feed} - {self.title}"
+
+
+def get_upload_path(instance: UserUploadedFile, filename: str) -> str:
+    """Don't save the file with the original filename."""
+    ext: str = Path(filename).suffix
+    filename = f"{uuid.uuid4()}{ext}"  # For example: 51dc07a7-a299-473c-a737-1ef16bc71609.opml
+    return f"uploads/{instance.user.id}/{filename}"  # type: ignore  # noqa: PGH003
+
+
+class UserUploadedFile(models.Model):
+    """A file uploaded to the server by a user."""
+
+    file = models.FileField(upload_to=get_upload_path, help_text="The file that was uploaded.")
+    original_filename = models.TextField(help_text="The original filename of the file.")
+    created_at = models.DateTimeField(auto_now_add=True, help_text="The time the file was uploaded.")
+    modified_at = models.DateTimeField(auto_now=True, help_text="The last time the file was modified.")
+    user = models.ForeignKey(
+        "auth.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        help_text="The user that uploaded the file.",
+    )
+    has_been_processed = models.BooleanField(default=False, help_text="Has the file content been added to the archive?")
+    description = models.TextField(blank=True, help_text="Description added by user.")
+    notes = models.TextField(blank=True, help_text="Notes from admin.")
+
+    class Meta:
+        """Meta information for the uploaded file model."""
+
+        ordering: typing.ClassVar[list[str]] = ["-created_at"]
+        verbose_name: str = "Uploaded file"
+        verbose_name_plural: str = "Uploaded files"
+
+    def __str__(self) -> str:
+        return f"{self.original_filename} - {self.created_at}"
+
+    def get_absolute_url(self) -> str:
+        """Return the absolute URL of the uploaded file.
+
+        Note that you will need to be logged in to access the file.
+        """
+        return f"/download/{self.pk}"

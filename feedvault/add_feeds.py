@@ -9,7 +9,7 @@ import feedparser
 from django.utils import timezone
 from feedparser import FeedParserDict
 
-from feedvault.models import Author, Domain, Entry, Feed, Generator, Publisher
+from feedvault.models import Author, Domain, Entry, Feed, FeedAddResult, Generator, Publisher
 
 if TYPE_CHECKING:
     import datetime
@@ -171,59 +171,58 @@ def add_entry(feed: Feed, entry: FeedParserDict) -> Entry | None:
         dateparser.parse(date_string=str(pre_created_parsed)) if pre_created_parsed else None
     )
 
-    _entry = Entry(
+    entry_id = entry.get("id", "")
+    if not entry_id:
+        logger.error("Entry ID not found: %s", entry)
+
+    added_entry, created = Entry.objects.update_or_create(
         feed=feed,
-        author=entry.get("author", ""),
-        author_detail=author,
-        comments=entry.get("comments", ""),
-        content=entry.get("content", {}),
-        contributors=entry.get("contributors", {}),
-        created=entry.get("created", ""),
-        created_parsed=created_parsed,
-        enclosures=entry.get("enclosures", []),
-        expired=entry.get("expired", ""),
-        expired_parsed=expired_parsed,
-        _id=entry.get("id", ""),
-        license=entry.get("license", ""),
-        link=entry.get("link", ""),
-        links=entry.get("links", []),
-        published=entry.get("published", ""),
-        published_parsed=published_parsed,
-        publisher=entry.get("publisher", ""),
-        publisher_detail=publisher,
-        source=entry.get("source", {}),
-        summary=entry.get("summary", ""),
-        summary_detail=entry.get("summary_detail", {}),
-        tags=entry.get("tags", []),
-        title=entry.get("title", ""),
-        title_detail=entry.get("title_detail", {}),
-        updated=entry.get("updated", ""),
-        updated_parsed=updated_parsed,
+        entry_id=entry_id,
+        defaults={
+            "author": entry.get("author", ""),
+            "author_detail": author,
+            "comments": entry.get("comments", ""),
+            "content": entry.get("content", {}),
+            "contributors": entry.get("contributors", {}),
+            "created": entry.get("created", ""),
+            "created_parsed": created_parsed,
+            "enclosures": entry.get("enclosures", []),
+            "expired": entry.get("expired", ""),
+            "expired_parsed": expired_parsed,
+            "license": entry.get("license", ""),
+            "link": entry.get("link", ""),
+            "links": entry.get("links", []),
+            "published": entry.get("published", ""),
+            "published_parsed": published_parsed,
+            "publisher": entry.get("publisher", ""),
+            "publisher_detail": publisher,
+            "source": entry.get("source", {}),
+            "summary": entry.get("summary", ""),
+            "summary_detail": entry.get("summary_detail", {}),
+            "tags": entry.get("tags", []),
+            "title": entry.get("title", ""),
+            "title_detail": entry.get("title_detail", {}),
+            "updated": entry.get("updated", ""),
+            "updated_parsed": updated_parsed,
+        },
     )
+    if created:
+        logger.info("Created entry: %s", added_entry)
+        return added_entry
 
-    # Save the entry.
-    _entry.save()
-
-    logger.info("Created entry: %s", _entry)
-
-    return _entry
+    logger.info("Updated entry: %s", added_entry)
+    return added_entry
 
 
-def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | None:  # noqa: PLR0914
-    """Add a feed to the database.
+def add_domain_to_db(url: str | None) -> Domain | None:
+    """Add a domain to the database.
 
     Args:
-        url: The URL of the feed.
-        user: The user adding the feed.
+        url: The URL of the domain.
 
     Returns:
-        The feed that was added.
+        The domain that was added.
     """
-    # Parse the feed.
-    parsed_feed: dict | None = parse_feed(url=url)
-    if not parsed_feed:
-        return None
-
     domain_url: None | str = get_domain(url=url)
     if not domain_url:
         return None
@@ -234,6 +233,28 @@ def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | 
     if created:
         logger.info("Created domain: %s", domain.url)
         domain.save()
+
+    return domain
+
+
+def populate_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | None:
+    """Populate the feed with entries.
+
+    Args:
+        url: The URL of the feed.
+        user: The user adding the feed.
+
+    Returns:
+        The feed that was added.
+    """
+    domain: Domain | None = add_domain_to_db(url=url)
+    if not domain:
+        return None
+
+    # Parse the feed.
+    parsed_feed: dict | None = parse_feed(url=url)
+    if not parsed_feed:
+        return None
 
     author: Author = get_author(parsed_feed=parsed_feed)
     generator: Generator = def_generator(parsed_feed=parsed_feed)
@@ -252,58 +273,78 @@ def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | 
     pre_modified: str = str(parsed_feed.get("modified", ""))
     modified: timezone.datetime | None = dateparser.parse(date_string=pre_modified) if pre_modified else None
 
-    # Create the feed
-    feed = Feed(
+    # Create or update the feed
+    feed, created = Feed.objects.update_or_create(
         feed_url=url,
-        user=user,
         domain=domain,
-        last_checked=timezone.now(),
-        bozo=parsed_feed.get("bozo", 0),
-        bozo_exception=parsed_feed.get("bozo_exception", ""),
-        encoding=parsed_feed.get("encoding", ""),
-        etag=parsed_feed.get("etag", ""),
-        headers=parsed_feed.get("headers", {}),
-        href=parsed_feed.get("href", ""),
-        modified=modified,
-        namespaces=parsed_feed.get("namespaces", {}),
-        status=parsed_feed.get("status", 0),
-        version=parsed_feed.get("version", ""),
-        author=parsed_feed.get("author", ""),
-        author_detail=author,
-        cloud=parsed_feed.get("cloud", {}),
-        contributors=parsed_feed.get("contributors", {}),
-        docs=parsed_feed.get("docs", ""),
-        errorreportsto=parsed_feed.get("errorreportsto", ""),
-        generator=parsed_feed.get("generator", ""),
-        generator_detail=generator,
-        icon=parsed_feed.get("icon", ""),
-        _id=parsed_feed.get("id", ""),
-        image=parsed_feed.get("image", {}),
-        info=parsed_feed.get("info", ""),
-        language=parsed_feed.get("language", ""),
-        license=parsed_feed.get("license", ""),
-        link=parsed_feed.get("link", ""),
-        links=parsed_feed.get("links", []),
-        logo=parsed_feed.get("logo", ""),
-        published=parsed_feed.get("published", ""),
-        published_parsed=published_parsed,
-        publisher=parsed_feed.get("publisher", ""),
-        publisher_detail=publisher,
-        rights=parsed_feed.get("rights", ""),
-        rights_detail=parsed_feed.get("rights_detail", {}),
-        subtitle=parsed_feed.get("subtitle", ""),
-        subtitle_detail=parsed_feed.get("subtitle_detail", {}),
-        tags=parsed_feed.get("tags", []),
-        textinput=parsed_feed.get("textinput", {}),
-        title=parsed_feed.get("title", ""),
-        title_detail=parsed_feed.get("title_detail", {}),
-        ttl=parsed_feed.get("ttl", ""),
-        updated=parsed_feed.get("updated", ""),
-        updated_parsed=updated_parsed,
+        defaults={
+            "user": user,
+            "last_checked": timezone.now(),
+            "bozo": parsed_feed.get("bozo", 0),
+            "bozo_exception": parsed_feed.get("bozo_exception", ""),
+            "encoding": parsed_feed.get("encoding", ""),
+            "etag": parsed_feed.get("etag", ""),
+            "headers": parsed_feed.get("headers", {}),
+            "href": parsed_feed.get("href", ""),
+            "modified": modified,
+            "namespaces": parsed_feed.get("namespaces", {}),
+            "status": parsed_feed.get("status", 0),
+            "version": parsed_feed.get("version", ""),
+            "author": parsed_feed.get("author", ""),
+            "author_detail": author,
+            "cloud": parsed_feed.get("cloud", {}),
+            "contributors": parsed_feed.get("contributors", {}),
+            "docs": parsed_feed.get("docs", ""),
+            "errorreportsto": parsed_feed.get("errorreportsto", ""),
+            "generator": parsed_feed.get("generator", ""),
+            "generator_detail": generator,
+            "icon": parsed_feed.get("icon", ""),
+            "feed_id": parsed_feed.get("id", ""),
+            "image": parsed_feed.get("image", {}),
+            "info": parsed_feed.get("info", ""),
+            "language": parsed_feed.get("language", ""),
+            "license": parsed_feed.get("license", ""),
+            "link": parsed_feed.get("link", ""),
+            "links": parsed_feed.get("links", []),
+            "logo": parsed_feed.get("logo", ""),
+            "published": parsed_feed.get("published", ""),
+            "published_parsed": published_parsed,
+            "publisher": parsed_feed.get("publisher", ""),
+            "publisher_detail": publisher,
+            "rights": parsed_feed.get("rights", ""),
+            "rights_detail": parsed_feed.get("rights_detail", {}),
+            "subtitle": parsed_feed.get("subtitle", ""),
+            "subtitle_detail": parsed_feed.get("subtitle_detail", {}),
+            "tags": parsed_feed.get("tags", []),
+            "textinput": parsed_feed.get("textinput", {}),
+            "title": parsed_feed.get("title", ""),
+            "title_detail": parsed_feed.get("title_detail", {}),
+            "ttl": parsed_feed.get("ttl", ""),
+            "updated": parsed_feed.get("updated", ""),
+            "updated_parsed": updated_parsed,
+        },
     )
 
-    # Save the feed.
-    feed.save()
+    grab_entries(feed=feed)
+
+    if created:
+        logger.info("Created feed: %s", feed)
+        return feed
+
+    logger.info("Updated feed: %s", feed)
+    return feed
+
+
+def grab_entries(feed: Feed) -> None:
+    """Grab the entries from a feed.
+
+    Args:
+        feed: The feed to grab the entries from.
+    """
+    # Parse the feed.
+    parsed_feed: dict | None = parse_feed(url=feed.feed_url)
+    if not parsed_feed:
+        return
 
     entries = parsed_feed.get("entries", [])
     for entry in entries:
@@ -311,5 +352,16 @@ def add_feed(url: str | None, user: AbstractBaseUser | AnonymousUser) -> Feed | 
         if not added_entry:
             continue
 
-    logger.info("Created feed: %s", feed)
-    return feed
+    logger.info("Grabbed entries for feed: %s", feed)
+    return
+
+
+def add_url(url: str, user: AbstractBaseUser | AnonymousUser) -> FeedAddResult:
+    """Add a feed to the database so we can grab entries from it later."""
+    domain: Domain | None = add_domain_to_db(url=url)
+    if not domain:
+        return FeedAddResult(feed=None, created=False, error="Domain not found")
+
+    # Add the URL to the database.
+    _feed, _created = Feed.objects.get_or_create(feed_url=url, user=user, domain=domain)
+    return FeedAddResult(feed=_feed, created=_created, error=None)

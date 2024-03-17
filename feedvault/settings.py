@@ -42,12 +42,13 @@ ROOT_URLCONF = "feedvault.urls"
 WSGI_APPLICATION = "feedvault.wsgi.application"
 NINJA_PAGINATION_PER_PAGE = 1000
 STATIC_URL = "static/"
-STATIC_ROOT = BASE_DIR / "static"
+STATIC_ROOT: Path = BASE_DIR / "static"
+STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT: Path = BASE_DIR / "media"
+MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 LOGIN_REDIRECT_URL = "/"
 LOGOUT_REDIRECT_URL = "/"
-
 
 # Is True when running tests, used for not spamming Discord when new users are created
 TESTING: bool = len(sys.argv) > 1 and sys.argv[1] == "test"
@@ -56,6 +57,7 @@ INSTALLED_APPS: list[str] = [
     "feedvault.apps.FeedVaultConfig",
     "debug_toolbar",
     "django.contrib.auth",
+    "whitenoise.runserver_nostatic",
     "django.contrib.staticfiles",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -66,6 +68,7 @@ INSTALLED_APPS: list[str] = [
 MIDDLEWARE: list[str] = [
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -167,5 +170,14 @@ LOGGING = {
             "level": "DEBUG",
             "propagate": True,
         },
+    },
+}
+
+STORAGES: dict[str, dict[str, str]] = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }

@@ -155,5 +155,6 @@ cython_debug/
 # PyCharm
 .idea/
 
-# Postgres data directory
+# FeedVault directories
 data/
+media/

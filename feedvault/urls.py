@@ -24,8 +24,11 @@ urlpatterns: list = [
     path("__debug__/", include("debug_toolbar.urls")),
     path(route="feed/<int:feed_id>/", view=views.FeedView.as_view(), name="feed"),
     path(route="feeds/", view=views.FeedsView.as_view(), name="feeds"),
-    path(route="add", view=views.AddView.as_view(), name="add"),
-    path(route="upload", view=views.UploadView.as_view(), name="upload"),
+    path(route="add/", view=views.AddView.as_view(), name="add"),
+    path(route="upload/", view=views.UploadView.as_view(), name="upload"),
+    path(route="download/", view=views.DownloadView.as_view(), name="download"),
+    path(route="delete_upload/", view=views.DeleteUploadView.as_view(), name="delete_upload"),
+    path(route="edit_description/", view=views.EditDescriptionView.as_view(), name="edit_description"),
     path(route="robots.txt", view=cache_page(timeout=60 * 60 * 365)(views.RobotsView.as_view()), name="robots"),
     path(
         "sitemap.xml",

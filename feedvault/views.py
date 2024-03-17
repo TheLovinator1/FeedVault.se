@@ -1,14 +1,20 @@
 from __future__ import annotations
 
+import logging
+from mimetypes import guess_type
+from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import SuspiciousOperation
 from django.db.models.manager import BaseManager
-from django.http import HttpRequest, HttpResponse
+from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template import loader
 from django.urls import reverse_lazy
@@ -16,13 +22,15 @@ from django.views import View
 from django.views.generic.edit import CreateView
 from django.views.generic.list import ListView
 
-from feedvault.add_feeds import add_feed
-from feedvault.models import Domain, Entry, Feed
+from feedvault.add_feeds import add_url
+from feedvault.models import Domain, Entry, Feed, FeedAddResult, UserUploadedFile
 
 if TYPE_CHECKING:
     from django.contrib.auth.models import User
     from django.core.files.uploadedfile import UploadedFile
     from django.db.models.manager import BaseManager
+
+logger: logging.Logger = logging.getLogger(__name__)
 
 
 class IndexView(View):
@@ -86,7 +94,7 @@ class FeedsView(ListView):
         return context
 
 
-class AddView(View):
+class AddView(LoginRequiredMixin, View):
     """Add a feed."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
@@ -114,22 +122,22 @@ class AddView(View):
 
         # Split the urls by newline.
         for url in urls.split("\n"):
-            feed: None | Feed = add_feed(url, request.user)
-            if not feed:
-                messages.error(request, f"{url} - Failed to add")
+            feed_result: FeedAddResult = add_url(url, request.user)
+            feed: Feed | None = feed_result.feed
+            if not feed_result or not feed:
+                messages.error(request, f"{url} - Failed to add, {feed_result.error}")
                 continue
-            # Check if bozo is true.
-            if feed.bozo:
-                messages.warning(request, f"{feed.feed_url} - Bozo: {feed.bozo_exception}")
-
-            messages.success(request, f"{feed.feed_url} added")
+            if feed_result.created:
+                messages.success(request, f"{feed.feed_url} added to queue")
+            else:
+                messages.warning(request, f"{feed.feed_url} already exists")
 
         # Render the index page.
         template = loader.get_template(template_name="index.html")
         return HttpResponse(content=template.render(context={}, request=request))
 
 
-class UploadView(View):
+class UploadView(LoginRequiredMixin, View):
     """Upload a file."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
@@ -155,21 +163,138 @@ class UploadView(View):
         if not file:
             return HttpResponse(content="No file", status=400)
 
-        # Split the urls by newline.
-        for url in file.read().decode("utf-8").split("\n"):
-            feed: None | Feed = add_feed(url, request.user)
-            if not feed:
-                messages.error(request, f"{url} - Failed to add")
-                continue
-            # Check if bozo is true.
-            if feed.bozo:
-                messages.warning(request, f"{feed.feed_url} - Bozo: {feed.bozo_exception}")
-
-            messages.success(request, f"{feed.feed_url} added")
+        # Save file to media folder
+        UserUploadedFile.objects.create(user=request.user, file=file, original_filename=file.name)
 
         # Render the index page.
         template = loader.get_template(template_name="index.html")
+        messages.success(request, f"{file.name} uploaded")
+        messages.info(
+            request,
+            "You can find your uploads on your profile page. Files will be parsed and added to the archive when possible. Thanks.",  # noqa: E501
+        )
         return HttpResponse(content=template.render(context={}, request=request))
+
+
+class DeleteUploadView(LoginRequiredMixin, View):
+    """Delete an uploaded file."""
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        """Delete an uploaded file."""
+        file_id: str | None = request.POST.get("file_id", None)
+        if not file_id:
+            return HttpResponse("No file_id provided", status=400)
+
+        user_file: UserUploadedFile | None = UserUploadedFile.objects.filter(user=request.user, id=file_id).first()
+        if not user_file:
+            msg = "File not found"
+            raise Http404(msg)
+
+        user_upload_dir: Path = Path(settings.MEDIA_ROOT) / "uploads" / f"{request.user.id}"  # type: ignore  # noqa: PGH003
+        file_path: Path = user_upload_dir / Path(user_file.file.name).name
+        logger.debug("file_path: %s", file_path)
+
+        if not file_path.exists() or not file_path.is_file():
+            logger.error("User '%s' attempted to delete a file that does not exist: %s", request.user, file_path)
+            msg = "File not found"
+            raise Http404(msg)
+
+        if user_upload_dir not in file_path.parents:
+            logger.error(
+                "User '%s' attempted to delete a file that is not in their upload directory: %s",
+                request.user,
+                file_path,
+            )
+            msg = "Attempted unauthorized file access"
+            raise SuspiciousOperation(msg)
+
+        user_file.delete()
+
+        # Go back to the profile page
+        messages.success(request, f"{file_path.name} deleted")
+        return HttpResponse(status=204)
+
+
+class EditDescriptionView(LoginRequiredMixin, View):
+    """Edit the description of an uploaded file."""
+
+    def post(self, request: HttpRequest) -> HttpResponse:
+        """Edit the description of an uploaded file."""
+        new_description: str | None = request.POST.get("description", None)
+        file_id: str | None = request.POST.get("file_id", None)
+        if not new_description:
+            return HttpResponse("No description provided", status=400)
+        if not file_id:
+            return HttpResponse("No file_id provided", status=400)
+
+        user_file: UserUploadedFile | None = UserUploadedFile.objects.filter(user=request.user, id=file_id).first()
+        if not user_file:
+            msg = "File not found"
+            raise Http404(msg)
+
+        user_upload_dir: Path = Path(settings.MEDIA_ROOT) / "uploads" / f"{request.user.id}"  # type: ignore  # noqa: PGH003
+        file_path: Path = user_upload_dir / Path(user_file.file.name).name
+        logger.debug("file_path: %s", file_path)
+
+        if not file_path.exists() or not file_path.is_file():
+            logger.error("User '%s' attempted to delete a file that does not exist: %s", request.user, file_path)
+            msg = "File not found"
+            raise Http404(msg)
+
+        if user_upload_dir not in file_path.parents:
+            logger.error(
+                "User '%s' attempted to delete a file that is not in their upload directory: %s",
+                request.user,
+                file_path,
+            )
+            msg = "Attempted unauthorized file access"
+            raise SuspiciousOperation(msg)
+
+        old_description: str = user_file.description
+        user_file.description = new_description
+        user_file.save()
+
+        logger.info(
+            "User '%s' updated the description of file '%s' from '%s' to '%s'",
+            request.user,
+            file_path,
+            old_description,
+            new_description,
+        )
+        return HttpResponse(content=new_description, status=200)
+
+
+class DownloadView(LoginRequiredMixin, View):
+    """Download a file."""
+
+    def get(self, request: HttpRequest) -> HttpResponse | FileResponse:
+        """/download/?file_id=1."""
+        file_id: str | None = request.GET.get("file_id", None)
+
+        if not file_id:
+            return HttpResponse("No file_id provided", status=400)
+
+        user_file: UserUploadedFile | None = UserUploadedFile.objects.filter(user=request.user, id=file_id).first()
+        if not user_file:
+            msg = "File not found"
+            raise Http404(msg)
+
+        user_upload_dir: Path = Path(settings.MEDIA_ROOT) / "uploads" / f"{request.user.id}"  # type: ignore  # noqa: PGH003
+        file_path: Path = user_upload_dir / Path(user_file.file.name).name
+
+        if not file_path.exists() or not file_path.is_file():
+            msg = "File not found"
+            raise Http404(msg)
+
+        if user_upload_dir not in file_path.parents:
+            msg = "Attempted unauthorized file access"
+            raise SuspiciousOperation(msg)
+
+        content_type, _ = guess_type(file_path)
+        response = FileResponse(file_path.open("rb"), content_type=content_type or "application/octet-stream")
+        response["Content-Disposition"] = f'attachment; filename="{user_file.original_filename or file_path.name}"'
+
+        return response
 
 
 class CustomLoginView(LoginView):
@@ -228,7 +353,7 @@ class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
         return context
 
 
-class ProfileView(View):
+class ProfileView(LoginRequiredMixin, View):
     """Profile page."""
 
     def get(self, request: HttpRequest) -> HttpResponse:
@@ -236,6 +361,9 @@ class ProfileView(View):
         template = loader.get_template(template_name="accounts/profile.html")
 
         user_feeds: BaseManager[Feed] = Feed.objects.filter(user=request.user).order_by("-created_at")[:100]
+        user_uploads: BaseManager[UserUploadedFile] = UserUploadedFile.objects.filter(user=request.user).order_by(
+            "-created_at",
+        )[:100]
 
         context: dict[str, str | Any] = {
             "description": f"Profile page for {request.user.get_username()}",
@@ -244,6 +372,7 @@ class ProfileView(View):
             "canonical": "https://feedvault.se/accounts/profile/",
             "title": f"{request.user.get_username()}",
             "user_feeds": user_feeds,
+            "user_uploads": user_uploads,
         }
         return HttpResponse(content=template.render(context=context, request=request))
 

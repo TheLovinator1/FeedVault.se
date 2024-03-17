@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,11 +8,8 @@
     {% if keywords %}<meta name="keywords" content="{{ keywords }}" />{% endif %}
     {% if author %}<meta name="author" content="{{ author }}" />{% endif %}
     {% if canonical %}<link rel="canonical" href="{{ canonical }}" />{% endif %}
-    {% if title %}
-      <title>{{ title }}</title>
-    {% else %}
-      <title>FeedVault</title>
-    {% endif %}
+    <title>{{ title|default:"FeedVault" }}</title>
+    <script src="{% static 'htmx.min.js' %}"></script>
     <style>
       html {
         max-width: 88ch;
@@ -69,6 +67,10 @@
 
       .success {
         color: green;
+      }
+
+      .warning {
+        color: orange;
       }
     </style>
   </head>
