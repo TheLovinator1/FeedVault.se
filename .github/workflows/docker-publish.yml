@@ -25,7 +25,7 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
-          POSTGRES_DB: ${{ env.DB_HOST }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
           POSTGRES_USER: ${{ env.DB_USER }}
         ports:
           - 5432:5432
