@@ -47,6 +47,7 @@ NINJA_PAGINATION_PER_PAGE = 1000
 STATIC_URL = "static/"
 STATIC_ROOT: Path = BASE_DIR / "staticfiles"
 STATIC_ROOT.mkdir(parents=True, exist_ok=True)
+STATICFILES_DIRS: list[Path] = [BASE_DIR / "static"]
 MEDIA_URL = "media/"
 MEDIA_ROOT: Path = BASE_DIR / "media"
 MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
