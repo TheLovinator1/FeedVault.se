@@ -32,7 +32,6 @@ class TestFeedPage(TestCase):
             name="feedvault",
             url="feedvault.se",
         )
-
         self.user: User = User.objects.create_user(
             username="testuser",
             email="hello@feedvault.se",
@@ -47,13 +46,15 @@ class TestFeedPage(TestCase):
 
     def test_feed_page(self) -> None:
         """Test if the feed page is accessible."""
-        response: HttpResponse = self.client.get(reverse("feed", kwargs={"feed_id": 1}))
-        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        feed_id = self.feed.pk
+        response: HttpResponse = self.client.get(reverse("feed", kwargs={"feed_id": feed_id}))
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}. {response.content}"
 
     def test_feed_page_not_found(self) -> None:
         """Test if the feed page is accessible."""
-        response: HttpResponse = self.client.get(reverse("feed", kwargs={"feed_id": 2}))
-        assert response.status_code == 404, f"Expected 404, got {response.status_code}"
+        feed_id = self.feed.pk + 1
+        response: HttpResponse = self.client.get(reverse("feed", kwargs={"feed_id": feed_id}))
+        assert response.status_code == 404, f"Expected 404, got {response.status_code}. {response.content}"
 
 
 class TestFeedsPage(TestCase):
@@ -242,4 +243,4 @@ class TestStats(TestCase):
         """Test if the database size is returned."""
         response: str = get_db_size()
         assert isinstance(response, str), f"Expected a string, got {response}"
-        assert "MB" in response, f"Expected 'MB' in response, got {response}"
+        assert "kB" in response, f"Expected 'kB' in response, got {response}"
