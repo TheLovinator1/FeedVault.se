@@ -60,5 +60,8 @@ USER appuser
 # The port the application will listen on
 EXPOSE 8000
 
+# Shared volume for static files, media files, and logs
+VOLUME ["/app/staticfiles", "/app/media", "/app/data"]
+
 # Run startup script
 CMD ["./docker-entrypoint.sh"]
