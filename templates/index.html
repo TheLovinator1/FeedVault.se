@@ -5,7 +5,7 @@
         <p>
             Input the URLs of the feeds you wish to archive below. You can add as many as needed, and access them through the website or API. Alternatively, include links to .opml files, and the feeds within will be archived.
         </p>
-        <form action="/add" method='post'>
+        <form action="{% url 'add' %}" method='post'>
             {% csrf_token %}
             <textarea id="urls" name="urls" rows="5" cols="50" required></textarea>
             <button type="submit">Add feeds</button>
