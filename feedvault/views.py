@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from mimetypes import guess_type
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from django.conf import settings
 from django.contrib import messages
@@ -301,6 +301,7 @@ class CustomLoginView(LoginView):
     """Custom login view."""
 
     template_name = "accounts/login.html"
+    next_page = reverse_lazy("index")
 
     def form_valid(self, form: AuthenticationForm) -> HttpResponse:
         """Check if the form is valid."""
@@ -314,24 +315,27 @@ class RegisterView(CreateView):
 
     template_name = "accounts/register.html"
     form_class = UserCreationForm
-    success_url = reverse_lazy("login")
-
-    # Add context data to the view
-    def get_context_data(self, **kwargs) -> dict:  # noqa: ANN003
-        """Get the context data."""
-        context: dict[str, Any] = super().get_context_data(**kwargs)
-        context["description"] = "Register a new account"
-        context["keywords"] = "register, account, feed, rss, atom, archive, rss list"
-        context["author"] = "TheLovinator"
-        context["canonical"] = "https://feedvault.se/accounts/register/"
-        context["title"] = "Register"
-        return context
+    success_url: str = reverse_lazy("login")
+    extra_context: ClassVar[dict[str, str]] = {
+        "title": "Register",
+        "description": "Register a new account",
+        "keywords": "register, account",
+        "author": "TheLovinator",
+        "canonical": "https://feedvault.se/accounts/register/",
+    }
 
 
 class CustomLogoutView(LogoutView):
     """Logout view."""
 
-    next_page = "index"  # Redirect to index after logout
+    next_page = reverse_lazy("login")
+    extra_context: ClassVar[dict[str, str]] = {
+        "title": "Logout",
+        "description": "Logout of your account",
+        "keywords": "logout, account",
+        "author": "TheLovinator",
+        "canonical": "https://feedvault.se/accounts/logout/",
+    }
 
 
 class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
@@ -340,17 +344,13 @@ class CustomPasswordChangeView(SuccessMessageMixin, PasswordChangeView):
     template_name = "accounts/change_password.html"
     success_url = reverse_lazy("index")
     success_message = "Your password was successfully updated!"
-
-    # Add context data to the view
-    def get_context_data(self, **kwargs) -> dict:  # noqa: ANN003
-        """Get the context data."""
-        context = super().get_context_data(**kwargs)
-        context["description"] = "Change your password"
-        context["keywords"] = "change, password, account, feed, rss, atom, archive, rss list"
-        context["author"] = "TheLovinator"
-        context["canonical"] = "https://feedvault.se/accounts/change-password/"
-        context["title"] = "Change password"
-        return context
+    extra_context: ClassVar[dict[str, str]] = {
+        "title": "Change password",
+        "description": "Change your password",
+        "keywords": "change, password, account",
+        "author": "TheLovinator",
+        "canonical": "https://feedvault.se/accounts/change-password/",
+    }
 
 
 class ProfileView(LoginRequiredMixin, View):
@@ -360,6 +360,7 @@ class ProfileView(LoginRequiredMixin, View):
         """Load the profile page."""
         template = loader.get_template(template_name="accounts/profile.html")
 
+        # TODO(TheLovinator): Use htmx to load the feeds and uploads  # noqa: TD003
         user_feeds: BaseManager[Feed] = Feed.objects.filter(user=request.user).order_by("-created_at")[:100]
         user_uploads: BaseManager[UserUploadedFile] = UserUploadedFile.objects.filter(user=request.user).order_by(
             "-created_at",
