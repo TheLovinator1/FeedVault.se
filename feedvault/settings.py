@@ -16,43 +16,43 @@ DEBUG: bool = os.getenv(key="DEBUG", default="True").lower() == "true"
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 SECRET_KEY: str = os.getenv("SECRET_KEY", default="")
 ADMINS: list[tuple[str, str]] = [("Joakim Hellsén", "django@feedvault.se")]
+
 ALLOWED_HOSTS: list[str] = [".feedvault.se", ".localhost", "127.0.0.1"]
+
 if not DEBUG:
     CSRF_COOKIE_DOMAIN = ".feedvault.se"
     CSRF_TRUSTED_ORIGINS: list[str] = ["https://feedvault.se", "https://www.feedvault.se"]
+
 TIME_ZONE = "Europe/Stockholm"
-USE_TZ = True
-USE_I18N = False
-LANGUAGE_CODE = "en-us"
-DECIMAL_SEPARATOR = ","
-THOUSAND_SEPARATOR = " "
+
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER: str = os.getenv(key="EMAIL_HOST_USER", default="webmaster@localhost")
+EMAIL_HOST_USER: str = os.getenv(key="EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD: str = os.getenv(key="EMAIL_HOST_PASSWORD", default="")
 EMAIL_SUBJECT_PREFIX = "[FeedVault] "
 EMAIL_USE_LOCALTIME = True
 EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL: str = os.getenv(key="EMAIL_HOST_USER", default="webmaster@localhost")
 SERVER_EMAIL: str = os.getenv(key="EMAIL_HOST_USER", default="webmaster@localhost")
+
 USE_X_FORWARDED_HOST = True
 INTERNAL_IPS: list[str] = ["127.0.0.1", "localhost", "192.168.1.143"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SITE_ID = 1
+
+# https://docs.djangoproject.com/en/5.0/topics/auth/passwords/#using-argon2-with-django
 PASSWORD_HASHERS: list[str] = ["django.contrib.auth.hashers.Argon2PasswordHasher"]
 ROOT_URLCONF = "feedvault.urls"
-WSGI_APPLICATION = "feedvault.wsgi.application"
-NINJA_PAGINATION_PER_PAGE = 1000
+
 STATIC_URL = "static/"
 STATIC_ROOT: Path = BASE_DIR / "staticfiles"
 STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 STATICFILES_DIRS: list[Path] = [BASE_DIR / "static"]
+
 MEDIA_URL = "media/"
 MEDIA_ROOT: Path = BASE_DIR / "media"
 MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
-LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
 
 
 INSTALLED_APPS: list[str] = [
