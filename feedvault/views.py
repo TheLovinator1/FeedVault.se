@@ -13,6 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import SuspiciousOperation
+from django.core.paginator import EmptyPage, Paginator
 from django.db.models.manager import BaseManager
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -20,7 +21,6 @@ from django.template import loader
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic.edit import CreateView
-from django.views.generic.list import ListView
 
 from feedvault.feeds import add_url
 from feedvault.models import Domain, Entry, Feed, FeedAddResult, UserUploadedFile
@@ -31,6 +31,10 @@ if TYPE_CHECKING:
     from django.db.models.manager import BaseManager
 
 logger: logging.Logger = logging.getLogger(__name__)
+
+
+class HtmxHttpRequest(HttpRequest):
+    htmx: Any
 
 
 class IndexView(View):
@@ -74,24 +78,33 @@ class FeedView(View):
         return render(request, "feed.html", context)
 
 
-class FeedsView(ListView):
+class FeedsView(View):
     """All feeds."""
 
-    model = Feed
-    paginate_by = 100
-    template_name = "feeds.html"
-    context_object_name = "feeds"
+    def get(self, request: HtmxHttpRequest) -> HttpResponse:
+        """All feeds."""
+        feeds: BaseManager[Feed] = Feed.objects.only("id", "feed_url")
 
-    def get_context_data(self, **kwargs) -> dict:  # noqa: ANN003
-        """Get the context data."""
-        context = super().get_context_data(**kwargs)
-        feed_amount: int = Feed.objects.count() or 0
-        context["description"] = f"Archiving {feed_amount} feeds"
-        context["keywords"] = "feed, rss, atom, archive, rss list"
-        context["author"] = "TheLovinator"
-        context["canonical"] = "https://feedvault.se/feeds/"
-        context["title"] = "Feeds"
-        return context
+        paginator = Paginator(object_list=feeds, per_page=100)
+        page_number = int(request.GET.get("page", default=1))
+
+        try:
+            pages = paginator.get_page(page_number)
+        except EmptyPage:
+            return HttpResponse("")
+
+        context = {
+            "feeds": pages,
+            "description": "An archive of all feeds",
+            "keywords": "feed, rss, atom, archive, rss list",
+            "author": "TheLovinator",
+            "canonical": "https://feedvault.se/feeds/",
+            "title": "Feeds",
+            "page": page_number,
+        }
+
+        template_name = "partials/feeds.html" if request.htmx else "feeds.html"
+        return render(request, template_name, context)
 
 
 class AddView(LoginRequiredMixin, View):

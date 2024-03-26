@@ -9,7 +9,7 @@
     {% if author %}<meta name="author" content="{{ author }}" />{% endif %}
     {% if canonical %}<link rel="canonical" href="{{ canonical }}" />{% endif %}
     <title>{{ title|default:"FeedVault" }}</title>
-    <script src="{% static 'htmx.min.js' %}"></script>
+    <script src="{% static 'htmx.min.js' %}" defer></script>
     <style>
       html {
         max-width: 88ch;
