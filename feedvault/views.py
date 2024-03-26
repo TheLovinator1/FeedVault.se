@@ -13,7 +13,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView, PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import SuspiciousOperation
-from django.core.paginator import EmptyPage, Paginator
+from django.core.paginator import EmptyPage, Page, Paginator
 from django.db.models.manager import BaseManager
 from django.http import FileResponse, Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, render
@@ -89,11 +89,11 @@ class FeedsView(View):
         page_number = int(request.GET.get("page", default=1))
 
         try:
-            pages = paginator.get_page(page_number)
+            pages: Page = paginator.get_page(page_number)
         except EmptyPage:
             return HttpResponse("")
 
-        context = {
+        context: dict[str, str | Page | int] = {
             "feeds": pages,
             "description": "An archive of all feeds",
             "keywords": "feed, rss, atom, archive, rss list",
@@ -405,19 +405,30 @@ class RobotsView(View):
 class DomainsView(View):
     """All domains."""
 
-    def get(self: DomainsView, request: HttpRequest) -> HttpResponse:
+    def get(self: DomainsView, request: HtmxHttpRequest) -> HttpResponse:
         """Load the domains page."""
-        domains: BaseManager[Domain] = Domain.objects.all()
-        template = loader.get_template(template_name="domains.html")
-        context = {
-            "domains": domains,
+        domains: BaseManager[Domain] = Domain.objects.only("id", "url", "created_at")
+
+        paginator = Paginator(object_list=domains, per_page=100)
+        page_number = int(request.GET.get("page", default=1))
+
+        try:
+            pages: Page = paginator.get_page(page_number)
+        except EmptyPage:
+            return HttpResponse("")
+
+        context: dict[str, str | Page | int] = {
+            "domains": pages,
             "description": "Domains",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
             "canonical": "https://feedvault.se/domains/",
             "title": "Domains",
+            "page": page_number,
         }
-        return HttpResponse(content=template.render(context=context, request=request))
+
+        template_name = "partials/domains.html" if request.htmx else "domains.html"
+        return render(request, template_name, context)
 
 
 class DomainView(View):
