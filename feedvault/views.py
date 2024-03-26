@@ -43,7 +43,7 @@ class IndexView(View):
     def get(self, request: HttpRequest) -> HttpResponse:
         """Load the index page."""
         template = loader.get_template(template_name="index.html")
-        context = {
+        context: dict[str, str] = {
             "description": "FeedVault allows users to archive and search their favorite web feeds.",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
@@ -95,7 +95,7 @@ class FeedsView(View):
 
         context: dict[str, str | Page | int] = {
             "feeds": pages,
-            "description": "An archive of all feeds",
+            "description": "An archive of web feeds",
             "keywords": "feed, rss, atom, archive, rss list",
             "author": "TheLovinator",
             "canonical": "https://feedvault.se/feeds/",
@@ -450,3 +450,27 @@ class DomainView(View):
         }
 
         return render(request, "domain.html", context)
+
+
+class SearchView(View):
+    """Search view."""
+
+    def get(self, request: HtmxHttpRequest) -> HttpResponse:
+        """Load the search page."""
+        query: str | None = request.GET.get("q", None)
+        if not query:
+            return FeedsView().get(request)
+
+        feeds: BaseManager[Feed] = Feed.objects.filter(feed_url__icontains=query).order_by("-created_at")[:100]
+
+        context = {
+            "feeds": feeds,
+            "description": f"Search results for {query}",
+            "keywords": f"feed, rss, atom, archive, rss list, {query}",
+            "author": "TheLovinator",
+            "canonical": f"https://feedvault.se/search/?q={query}",
+            "title": f"Search results for {query}",
+            "query": query,
+        }
+
+        return render(request, "search.html", context)

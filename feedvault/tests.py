@@ -244,3 +244,50 @@ class TestStats(TestCase):
         response: str = get_db_size()
         assert isinstance(response, str), f"Expected a string, got {response}"
         assert "kB" in response, f"Expected 'kB' in response, got {response}"
+
+
+class TestSearch(TestCase):
+    def setUp(self) -> None:
+        """Create a test feed."""
+        self.domain: Domain = Domain.objects.create(
+            name="feedvault",
+            url="feedvault.se",
+        )
+        self.user: User = User.objects.create_user(
+            username="testuser",
+            email="hello@feedvault.se",
+            password="testpassword",  # noqa: S106
+        )
+        self.feed: Feed = Feed.objects.create(
+            user=self.user,
+            bozo=False,
+            feed_url="https://feedvault.se/feed.xml",
+            domain=self.domain,
+        )
+
+    def test_search_page(self) -> None:
+        """Test if the search page is accessible."""
+        response: HttpResponse = self.client.get(reverse("search"))
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+
+    def test_search_page_search(self) -> None:
+        """Search for a term that doesn't exist."""
+        response: HttpResponse = self.client.get(reverse("search"), {"q": "test"})
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert (
+            "No results found" in response.content.decode()
+        ), f"Expected 'No results found' in response, got {response.content}"
+
+    def test_search_page_search_found(self) -> None:
+        """Search for a term that exists."""
+        response: HttpResponse = self.client.get(reverse("search"), {"q": "feedvault"})
+        assert response.status_code == 200, f"Expected 200, got {response.status_code}"
+        assert "feedvault" in response.content.decode(), f"Expected 'feedvault' in response, got {response.content}"
+
+    def test_search_page_search_empty(self) -> None:
+        """Search for an empty term. This should redirect to the feeds page."""
+        response: HttpResponse = self.client.get(reverse("search"), {"q": ""})
+        assert response.status_code == 200, f"Expected 302, got {response.status_code}"
+        assert (
+            "Latest Feeds" in response.content.decode()
+        ), f"Expected 'Latest Feeds' in response, got {response.content}"

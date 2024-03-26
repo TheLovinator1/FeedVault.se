@@ -36,6 +36,7 @@ urlpatterns: list = [
         {"sitemaps": sitemaps},
         name="django.contrib.sitemaps.views.sitemap",
     ),
+    path(route="search/", view=views.SearchView.as_view(), name="search"),
     path(route="domains/", view=views.DomainsView.as_view(), name="domains"),
     path(route="domain/<int:domain_id>/", view=views.DomainView.as_view(), name="domain"),
     path("api/v1/", api_v1.urls),  # type: ignore  # noqa: PGH003
