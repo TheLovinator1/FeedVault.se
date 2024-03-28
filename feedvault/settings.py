@@ -15,8 +15,10 @@ TESTING: bool = len(sys.argv) > 1 and sys.argv[1] == "test"
 DEBUG: bool = os.getenv(key="DEBUG", default="True").lower() == "true"
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
 SECRET_KEY: str = os.getenv("SECRET_KEY", default="")
-ADMINS: list[tuple[str, str]] = [("Joakim Hellsén", "django@feedvault.se")]
+ROOT_URLCONF = "feedvault.urls"
 
+
+ADMINS: list[tuple[str, str]] = [("Joakim Hellsén", "django@feedvault.se")]
 ALLOWED_HOSTS: list[str] = [".feedvault.se", ".localhost", "127.0.0.1"]
 
 if not DEBUG:
@@ -41,9 +43,6 @@ INTERNAL_IPS: list[str] = ["127.0.0.1", "localhost", "192.168.1.143"]
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 SITE_ID = 1
 
-# https://docs.djangoproject.com/en/5.0/topics/auth/passwords/#using-argon2-with-django
-PASSWORD_HASHERS: list[str] = ["django.contrib.auth.hashers.Argon2PasswordHasher"]
-ROOT_URLCONF = "feedvault.urls"
 
 STATIC_URL = "static/"
 STATIC_ROOT: Path = BASE_DIR / "staticfiles"
@@ -86,8 +85,11 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": Path(DATABASE_PATH) / "feedvault.sqlite3",
+        "ATOMIC_REQUESTS": True,
         "OPTIONS": {
             "timeout": 30,
+            "transaction_mode": "IMMEDIATE",
+            "init_command": "PRAGMA journal_mode=WAL;",
         },
     },
 }
