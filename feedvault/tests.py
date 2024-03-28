@@ -9,7 +9,6 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from feedvault.models import Domain, Entry, Feed, UserUploadedFile
-from feedvault.stats import get_db_size
 
 if TYPE_CHECKING:
     from django.http import HttpResponse
@@ -236,14 +235,6 @@ class TestSitemap(TestCase):
         response2 = self.client.get("/sitemap.xml")
         assert response2.status_code == 200, f"Expected 200, got {response2.status_code}"
         assert "urlset" in response2.content.decode(), f"Expected 'urlset' in response, got {response2.content}"
-
-
-class TestStats(TestCase):
-    def test_db_size(self) -> None:
-        """Test if the database size is returned."""
-        response: str = get_db_size()
-        assert isinstance(response, str), f"Expected a string, got {response}"
-        assert "kB" in response, f"Expected 'kB' in response, got {response}"
 
 
 class TestSearch(TestCase):

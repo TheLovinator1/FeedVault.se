@@ -81,15 +81,14 @@ MIDDLEWARE: list[str] = [
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
-# Use PostgreSQL as the default database
-DATABASES: dict[str, dict[str, str]] = {
+DATABASE_PATH: str = os.getenv("DATABASE_PATH", "/data")
+DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("DB_NAME", default="feedvault"),
-        "USER": os.getenv("DB_USER", default="feedvault"),
-        "PASSWORD": os.getenv("DB_PASSWORD", default="feedvault"),
-        "HOST": os.getenv("DB_HOST", default="localhost"),
-        "PORT": os.getenv("DB_PORT", default="5432"),
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": Path(DATABASE_PATH) / "feedvault.sqlite3",
+        "OPTIONS": {
+            "timeout": 30,
+        },
     },
 }
 

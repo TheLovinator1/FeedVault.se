@@ -15,21 +15,6 @@ jobs:
       ADMIN_EMAIL: 4153203+TheLovinator1@users.noreply.github.com
       EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
       EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
-      DB_NAME: feedvault
-      DB_USER: feedvault
-      DB_PASSWORD: githubtest
-      DB_HOST: 127.0.0.1
-      DB_PORT: 5432
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
-          POSTGRES_DB: ${{ env.DB_NAME }}
-          POSTGRES_USER: ${{ env.DB_USER }}
-        ports:
-          - 5432:5432
-        options: --health-cmd pg_isready --health-interval 1s --health-timeout 5s --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

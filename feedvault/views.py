@@ -461,6 +461,8 @@ class SearchView(View):
         if not query:
             return FeedsView().get(request)
 
+        # TODO(TheLovinator): #20 Search more fields
+        # https://github.com/TheLovinator1/FeedVault/issues/20
         feeds: BaseManager[Feed] = Feed.objects.filter(feed_url__icontains=query).order_by("-created_at")[:100]
 
         context = {
