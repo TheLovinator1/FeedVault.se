@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class FeedVaultConfig(AppConfig):
+class FeedsConfig(AppConfig):
     default_auto_field: str = "django.db.models.BigAutoField"
-    name: str = "feedvault"
+    name = "feeds"

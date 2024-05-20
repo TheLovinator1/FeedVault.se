@@ -1,0 +1,27 @@
+<h2>Upload</h2>
+<p>
+    You can also upload files containing the feeds you wish to archive.
+    Currently supported file formats: .opml, .xml, .json.
+    Your file will be parsed in the future if not currently supported.
+    Feel free to upload databases, backups, or any other files containing feeds.
+</p>
+<form enctype="multipart/form-data"
+      method="post"
+      action="{% url 'feeds:upload' %}">
+    {% csrf_token %}
+    <p>
+        <label for="file">Choose a file to upload</label>
+        <br>
+        <br>
+        <input type="file" name="file" id="file" required>
+        <br>
+        <br>
+        <label for="description">Description (optional)</label>
+        <input type="text"
+               name="description"
+               id="description"
+               size="80"
+               placeholder="Description (optional)">
+    </p>
+    <button type="submit">Upload file</button>
+</form>

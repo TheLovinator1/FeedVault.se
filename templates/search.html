@@ -6,7 +6,7 @@
     </h2>
     {% if feeds %}
         {% for feed in feeds %}
-            <a href="{% url 'feed' feed.id %}">{{ feed.feed_url|default:"Unknown Feed" }} →</a>
+            <a href="{% url 'feeds:feed' feed.id %}">{{ feed.url|default:"Unknown Feed" }} →</a>
             <br>
         {% endfor %}
     {% else %}

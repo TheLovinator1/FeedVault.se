@@ -4,22 +4,29 @@ import os
 import sys
 from pathlib import Path
 
-from django.utils import timezone
 from dotenv import find_dotenv, load_dotenv
 
 load_dotenv(dotenv_path=find_dotenv(), verbose=True)
-
-# Is True when running tests, used for not spamming Discord when new users are created
 TESTING: bool = len(sys.argv) > 1 and sys.argv[1] == "test"
 
-DEBUG: bool = os.getenv(key="DEBUG", default="True").lower() == "true"
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
+
+DEBUG: bool = os.getenv(key="DEBUG", default="True").lower() == "true"
 SECRET_KEY: str = os.getenv("SECRET_KEY", default="")
-ROOT_URLCONF = "feedvault.urls"
 
+TIME_ZONE = "Europe/Stockholm"
+LANGUAGE_CODE = "en-us"
+USE_I18N = True
+USE_TZ = True
 
-ADMINS: list[tuple[str, str]] = [("Joakim Hellsén", "django@feedvault.se")]
+ADMINS: list[tuple[str, str]] = [("Joakim Hellsén", "tlovinator@gmail.com")]
 ALLOWED_HOSTS: list[str] = [".feedvault.se", ".localhost", "127.0.0.1"]
+USE_X_FORWARDED_HOST = True
+INTERNAL_IPS: list[str] = ["127.0.0.1", "localhost", "192.168.1.143"]
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+WSGI_APPLICATION = "feedvault.wsgi.application"
+ROOT_URLCONF = "feedvault.urls"
+SITE_ID = 1
 
 if not DEBUG:
     CSRF_COOKIE_DOMAIN = ".feedvault.se"
@@ -38,16 +45,14 @@ EMAIL_TIMEOUT = 10
 DEFAULT_FROM_EMAIL: str = os.getenv(key="EMAIL_HOST_USER", default="webmaster@localhost")
 SERVER_EMAIL: str = os.getenv(key="EMAIL_HOST_USER", default="webmaster@localhost")
 
-USE_X_FORWARDED_HOST = True
-INTERNAL_IPS: list[str] = ["127.0.0.1", "localhost", "192.168.1.143"]
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-SITE_ID = 1
-
 
 STATIC_URL = "static/"
 STATIC_ROOT: Path = BASE_DIR / "staticfiles"
 STATIC_ROOT.mkdir(parents=True, exist_ok=True)
 STATICFILES_DIRS: list[Path] = [BASE_DIR / "static"]
+for static_dir in STATICFILES_DIRS:
+    static_dir.mkdir(parents=True, exist_ok=True)
+
 
 MEDIA_URL = "media/"
 MEDIA_ROOT: Path = BASE_DIR / "media"
@@ -55,7 +60,7 @@ MEDIA_ROOT.mkdir(parents=True, exist_ok=True)
 
 
 INSTALLED_APPS: list[str] = [
-    "feedvault.apps.FeedVaultConfig",
+    "feeds.apps.FeedsConfig",
     "debug_toolbar",
     "django.contrib.auth",
     "whitenoise.runserver_nostatic",
@@ -80,38 +85,38 @@ MIDDLEWARE: list[str] = [
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
-DATABASE_PATH: str = os.getenv("DATABASE_PATH", "/data")
-DATABASES = {
+# TODO(TheLovinator): #1 Use unix socket for postgres in production
+# https://github.com/TheLovinator1/feedvault.se/issues/1
+DATABASES: dict[str, dict[str, str]] = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": Path(DATABASE_PATH) / "feedvault.sqlite3",
-        "ATOMIC_REQUESTS": True,
-        "OPTIONS": {
-            "timeout": 30,
-            "transaction_mode": "IMMEDIATE",
-            "init_command": "PRAGMA journal_mode=WAL;",
-        },
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DB_NAME", ""),
+        "USER": os.getenv("DB_USER", ""),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", ""),
+        "PORT": os.getenv("DB_PORT", ""),
     },
 }
 
+if not DEBUG:
+    SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+    SESSION_CACHE_ALIAS: str = "default"
 
-# Password validation
-# https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+# TODO(TheLovinator): #2 Use unix socket for redis in production
+# https://github.com/TheLovinator1/feedvault.se/issues/2
+REDIS_LOCATION: str = f"redis://{os.getenv('REDIS_HOST', "")}:{os.getenv('REDIS_PORT', "")}/1"
+CACHES: dict[str, dict[str, str | dict[str, str]]] = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_LOCATION,
+        "KEY_PREFIX": "feedvault-dev" if DEBUG else "feedvault",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PARSER_CLASS": "redis.connection._HiredisParser",
+            "PASSWORD": os.getenv("REDIS_PASSWORD", ""),
+        },
     },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
-
+}
 
 # A list containing the settings for all template engines to be used with Django.
 TEMPLATES = [
@@ -139,11 +144,6 @@ TEMPLATES = [
     },
 ]
 
-
-# Create data/logs folder if it doesn't exist
-log_folder: Path = BASE_DIR / "data" / "logs"
-log_folder.mkdir(parents=True, exist_ok=True)
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -152,15 +152,10 @@ LOGGING = {
             "level": "DEBUG",
             "class": "logging.StreamHandler",
         },
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "data" / "logs" / f"{timezone.now().strftime('%Y%m%d')}.log",
-        },
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
         },
@@ -170,7 +165,7 @@ LOGGING = {
             "propagate": True,
         },
         "": {
-            "handlers": ["console", "file"],
+            "handlers": ["console"],
             "level": "DEBUG",
             "propagate": True,
         },
@@ -187,3 +182,18 @@ STORAGES: dict[str, dict[str, str]] = {
         else "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
 }
+
+AUTH_PASSWORD_VALIDATORS: list[dict[str, str]] = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]

@@ -1,52 +1,14 @@
 {% extends "base.html" %}
 {% block content %}
-    {% if user.is_authenticated %}
-        <h2>Welcome, {{ user.username }}!</h2>
-        <p>
-            Input the URLs of the feeds you wish to archive below. You can add as many as needed, and access them through the website or API. Alternatively, include links to .opml files, and the feeds within will be archived.
-        </p>
-        <form action="{% url 'add' %}" method='post'>
-            {% csrf_token %}
-            <textarea id="urls" name="urls" rows="5" cols="50" required></textarea>
-            <button type="submit">Add feeds</button>
-        </form>
-        <br>
-        <h2>Upload</h2>
-        <p>
-            You can also upload files containing the feeds you wish to archive.
-            Currently supported file formats: .opml, .xml, .json.
-            Your file will be parsed in the future if not currently supported.
-            Feel free to upload databases, backups, or any other files containing feeds.
-        </p>
-        <form enctype="multipart/form-data"
-              method="post"
-              action="{% url 'upload' %}">
-            {% csrf_token %}
-            <p>
-                <label for="file">Choose a file to upload</label>
-                <br>
-                <br>
-                <input type="file" name="file" id="file" required>
-                <br>
-                <br>
-                <label for="description">Description (optional)</label>
-                <input type="text"
-                       name="description"
-                       id="description"
-                       size="80"
-                       placeholder="Description (optional)">
-            </p>
-            <button type="submit">Upload file</button>
-        </form>
-    {% else %}
-        <h2>Welcome to FeedVault!</h2>
-        <p>
-            FeedVault is a service that archives web feeds. It allows users to access and search for historical content from various websites. The service is designed to preserve the history of the web and provide a reliable source for accessing content that may no longer be available on the original websites.
-        </p>
-        <p>
-            You need to <a href="{% url 'login' %}">login</a> or <a href="{% url 'register' %}">register</a> to add new feeds or upload files.
-        </p>
-    {% endif %}
+    <h2>Welcome, archivist!</h2>
+    <p>
+        Input the URLs of the feeds you wish to archive below. You can add as many as needed, and access them through the website or API. Alternatively, include links to .opml files, and the feeds within will be archived.
+    </p>
+    <form action="{% url 'feeds:add' %}" method='post'>
+        {% csrf_token %}
+        <textarea id="urls" name="urls" rows="5" cols="50" required></textarea>
+        <button type="submit">Add feeds</button>
+    </form>
     <h2>FAQ</h2>
     <details>
         <summary>What are web feeds?</summary>

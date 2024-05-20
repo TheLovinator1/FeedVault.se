@@ -1,54 +1,46 @@
+version: "3"
 services:
-  # Django - Web framework
-  feedvault:
-    container_name: feedvault
-    image: ghcr.io/thelovinator1/feedvault:latest
+  # feedvault:
+  #   container_name: feedvault
+  #   image: ghcr.io/thelovinator1/feedvault:latest
+  #   user: "1000:1000"
+  #   restart: always
+  #   environment:
+  #     - DEBUG=False
+  #     - SECRET_KEY=${SECRET_KEY}
+  #     - DB_NAME=feedvault
+  #     - DB_USER=feedvault
+  #     - DB_PASSWORD=${DB_PASSWORD}
+  #     - DB_HOST=feedvault_postgres
+  #     - DB_PORT=5432
+  #     - REDIS_PASSWORD=${REDIS_PASSWORD}
+  #     - REDIS_PORT=6379
+  #     - REDIS_HOST=garnet
+  #   volumes:
+  #     - /Docker/FeedVault/FeedVault/staticfiles:/app/staticfiles
+  #     - /mnt/Fourteen/Docker/FeedVault/media:/app/media
+  feedvault_postgres:
+    container_name: feedvault_postgres
+    image: postgres:16
+    # user: "1000:1000"
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: feedvault
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: feedvault
+    volumes:
+      - /Docker/FeedVault/PostgreSQL:/var/lib/postgresql/data
+  garnet:
+    container_name: garnet
+    image: "ghcr.io/microsoft/garnet"
     user: "1000:1000"
     restart: always
-    networks:
-      - feedvault_web
-    environment:
-      - SECRET_KEY=${SECRET_KEY}
-      - DEBUG=${DEBUG}
-      - EMAIL_HOST_USER=${EMAIL_HOST_USER}
-      - EMAIL_HOST_PASSWORD=${EMAIL_HOST_PASSWORD}
-      - DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+    ulimits:
+      memlock: -1
+    command: ["--auth", "Password", "--password", "${REDIS_PASSWORD}"]
+    ports:
+      - "6379:6379"
     volumes:
-      - /mnt/Fourteen/Docker/FeedVault/staticfiles:/app/staticfiles
-      - /mnt/Fourteen/Docker/FeedVault/media:/app/media
-      - /mnt/Fourteen/Docker/FeedVault/data:/app/data
-
-  # Nginx - Reverse proxy
-  web:
-    container_name: feedvault_web
-    image: lscr.io/linuxserver/nginx:latest
-    restart: always
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/Stockholm
-    expose:
-      - 80
-      - 443
-    volumes:
-      - /mnt/Fourteen/Docker/FeedVault/Nginx:/config
-    networks:
-      - feedvault_web
-      - feedvault_tunnel
-
-  # Cloudflare Tunnel - Securely connect your server to Cloudflare
-  tunnel:
-    container_name: feedvault_tunnel
-    image: cloudflare/cloudflared:latest
-    command: tunnel --no-autoupdate run --token $TUNNEL_TOKEN
-    restart: always
-    networks:
-      - feedvault_tunnel
-    environment:
-      - TUNNEL_URL=http://feedvault_web:80
-
-networks:
-  feedvault_tunnel:
-    driver: bridge
-  feedvault_web:
-    driver: bridge
+      - /Docker/FeedVault/Garnet:/data

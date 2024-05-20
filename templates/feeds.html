@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
     <h2>Latest Feeds</h2>
-    {% include "partials/feeds.html" %}
+    <ul>
+        {% for feed in feeds %}
+            <li>
+                <a href="{% url 'feeds:feed' feed.id %}">{{ feed.url }}</a>
+                <p>{{ feed.description }}</p>
+            </li>
+        {% endfor %}
+    </ul>
 {% endblock %}

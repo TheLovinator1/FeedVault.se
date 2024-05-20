@@ -11,6 +11,14 @@
       "program": "${workspaceFolder}\\manage.py",
       "args": ["runserver"],
       "django": true
-    }
+    },
+    {
+      "name": "Python manage.py command",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}\\manage.py",
+      "args": ["update_feeds"],
+      "justMyCode": false
+    },
   ]
 }
