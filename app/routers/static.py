@@ -6,9 +6,10 @@ import time
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from fastapi import APIRouter, File, Request, UploadFile
+from fastapi import APIRouter, File, Form, Request, UploadFile
 from fastapi.responses import FileResponse
 from fastapi.templating import Jinja2Templates
+from reader import FeedExistsError, InvalidFeedURLError
 
 from app.dependencies import CommonReader, CommonStats  # noqa: TCH001
 from app.settings import MEDIA_ROOT
@@ -131,3 +132,40 @@ async def upload_page(request: Request, stats: CommonStats):
 async def contact(request: Request, stats: CommonStats):
     """Contact page."""
     return templates.TemplateResponse(request=request, name="contact.html", context={"stats": stats})
+
+
+@static_router.post(path="/contact", summary="Contact page.", tags=["HTML"])
+async def contact_form(request: Request, stats: CommonStats, message: str = Form(...)):
+    """Contact page."""
+    # TODO(TheLovinator): Send the message to the admin.  # noqa: TD003
+    return {
+        "message": message,
+        "stats": stats,
+    }
+
+
+@static_router.get(path="/add", summary="Add feeds page.", tags=["HTML"])
+async def add_page(request: Request, stats: CommonStats):
+    """Add feeds page."""
+    return templates.TemplateResponse(request=request, name="add.html", context={"stats": stats})
+
+
+@static_router.post(path="/add", summary="Add feeds page.", tags=["HTML"])
+async def add_feed(reader: CommonReader, stats: CommonStats, feed_urls: str = Form(...)):
+    """Add feeds page."""
+    feed_info = []
+    # Each line is a feed URL.
+    for feed_url in feed_urls.split("\n"):
+        try:
+            reader.add_feed(feed_url.strip())
+            feed_info.append({"url": feed_url.strip(), "status": "Added"})
+        except FeedExistsError as e:
+            feed_info.append({"url": feed_url.strip(), "status": str(e)})
+        except InvalidFeedURLError as e:
+            feed_info.append({"url": feed_url.strip(), "status": str(e)})
+
+    return {
+        "feed_urls": feed_urls,
+        "stats": stats,
+        "feed_info": feed_info,
+    }

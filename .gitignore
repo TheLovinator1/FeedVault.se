@@ -159,3 +159,10 @@ cython_debug/
 data/
 media/
 staticfiles/
+
+# https://github.com/lemon24/reader
+*.sqlite.search
+*.sqlite
+
+# When running the cli.py script, the following files are created
+broken_feeds.csv

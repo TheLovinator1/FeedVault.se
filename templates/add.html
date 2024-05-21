@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Add feeds</h2>
+    <form method="post" action='{{ url_for("add_feed") }}'>
+        <p>
+            <label for="feed_urls">Feed URLs</label>
+            <textarea id="feed_urls"
+                      name="feed_urls"
+                      rows="4"
+                      cols="50"
+                      required
+                      placeholder="Enter the URLs of the feeds you want to add"></textarea>
+        </p>
+        <button type="submit">Add feeds</button>
+    </form>
+{% endblock content %}
