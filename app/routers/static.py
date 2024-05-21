@@ -4,7 +4,7 @@ import logging
 import os
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 from fastapi import APIRouter, File, Request, UploadFile
 from fastapi.responses import FileResponse
@@ -14,6 +14,8 @@ from app.dependencies import CommonReader, CommonStats  # noqa: TCH001
 from app.settings import MEDIA_ROOT
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from fastapi.datastructures import Address
     from reader import Feed
     from reader.types import Entry, EntrySearchResult

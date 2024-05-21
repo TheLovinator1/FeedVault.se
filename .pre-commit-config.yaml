@@ -1,13 +1,6 @@
 default_language_version:
   python: python3.12
 repos:
-  # Apply a consistent format to pyproject.toml files.
-  # https://pyproject-fmt.readthedocs.io/en/latest/
-  - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: "1.7.0"
-    hooks:
-      - id: pyproject-fmt
-
   # Automatically add trailing commas to calls and literals.
   - repo: https://github.com/asottile/add-trailing-comma
     rev: v3.1.0
@@ -16,7 +9,7 @@ repos:
 
     # Some out-of-the-box hooks for pre-commit.
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v4.6.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -46,7 +39,7 @@ repos:
 
   # An extremely fast Python linter and formatter.
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.4
+    rev: v0.4.4
     hooks:
       - id: ruff-format
       - id: ruff
@@ -54,6 +47,6 @@ repos:
 
   # Static checker for GitHub Actions workflow files.
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.6.27
+    rev: v1.7.0
     hooks:
       - id: actionlint
