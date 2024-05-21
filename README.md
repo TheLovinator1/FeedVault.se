@@ -26,31 +26,6 @@ _Note: Some features are currently in development._
 
 Feel free to contribute to the project. If you have any questions, please open an issue.
 
-## Dependencies
-
-- [Python](https://www.python.org/)
-- [Poetry](https://python-poetry.org/)
-- [PostgreSQL 16](https://www.postgresql.org/)
-
-## tl;dr
-
-```bash
-poetry install
-poetry shell
-python manage.py test
-python manage.py collectstatic
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver
-
-# Optional
-pre-commit install
-pre-commit run --all-files
-
-# Update feeds
-python manage.py update_feeds
-```
-
 ## Contact
 
 If you have any questions, please open an issue.

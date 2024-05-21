@@ -1,16 +1,18 @@
 from __future__ import annotations
 
+import sys
+import traceback
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import click
-from reader import Feed, Reader, UpdateError, UpdateResult
-from reader.types import UpdatedFeed
+from reader import Feed, ParseError, Reader, StorageError, UpdateError, UpdateResult
 
 from app.dependencies import get_reader
 
 if TYPE_CHECKING:
-    from reader import UpdatedFeed
+    from collections.abc import Iterable
 
 
 def add_broken_feed_to_csv(feed: Feed | UpdateResult | None) -> None:
@@ -29,28 +31,47 @@ def update_feeds() -> None:
     reader: Reader = get_reader()
     click.echo("Updating feeds...")
 
-    for feed in reader.update_feeds_iter(updates_enabled=True, workers=100):
-        url: str = feed.url
-        value: UpdatedFeed | None | UpdateError = feed.value
+    all_feeds: Iterable[Feed] = reader.get_feeds(updates_enabled=True)
+    feeds = []
 
-        if isinstance(value, UpdateError):
+    # Only get feeds that hasn't been updated in the last 30 minutes.
+    for feed in all_feeds:
+        if feed.last_updated:
+            now: datetime = datetime.now(tz=feed.last_updated.tzinfo)
+            delta: timedelta = now - feed.last_updated
+
+            thirty_minutes: int = 60 * 30  # 30 minutes
+            if delta.total_seconds() < thirty_minutes:
+                feeds.append(feed)
+        else:
+            feeds.append(feed)
+
+    click.echo(f"Feeds to update: {len(feeds)}")
+
+    for feed in feeds:
+        try:
+            reader.update_feed(feed)
+            click.echo(f"Updated feed: {feed.url}")
+        except ParseError:
+            # An error occurred while retrieving/parsing the feed.
+            click.echo(f"Error parsing feed: {feed.url}", err=True)
+        except UpdateError:
+            # An error occurred while updating the feed.
+            # Parent of all update-related exceptions.
+            click.echo(f"Error updating feed: {feed.url}", err=True)
+        except StorageError as e:
+            # An exception was raised by the underlying storage.
+            click.echo(f"Error updating feed: {feed.url}", err=True)
+            click.echo(f"Storage error: {e}", err=True)
+        except AssertionError:
+            # An assertion failed.
+            click.echo(f"Assertion error: {feed.url}", err=True)
+            traceback.print_exc(file=sys.stderr)
+            reader.disable_feed_updates(feed)
             add_broken_feed_to_csv(feed)
-            reader.disable_feed_updates(url)
-            continue
-
-        if value is None:
-            click.echo(f"Feed not updated: {url}")
-            continue
-
-        click.echo(f"Updated feed: {url}")
 
     click.echo("Feeds updated.")
 
 
 if __name__ == "__main__":
-    reader: Reader = get_reader()
-
-    for feed in reader.get_feeds(updates_enabled=False):
-        reader.enable_feed_updates(feed)
-
     update_feeds()
