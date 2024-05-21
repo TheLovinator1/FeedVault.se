@@ -7,8 +7,8 @@
         {% for entry in entries %}
             <li>
                 <a href="{{ entry.link }}">{{ entry.title }}</a>
-                <p>{{ entry.summary|safe }}</p>
+                <p>{{ entry.summary | safe }}</p>
             </li>
         {% endfor %}
     </ul>
-{% endblock %}
+{% endblock content %}

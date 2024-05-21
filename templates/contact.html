@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+    <h2>Contact</h2>
+    <p>
+        If you have any questions, suggestions, or feedback, feel free to contact me. I am always happy to help.
+        <br>
+        You can contact me through the following methods:
+    </p>
+    <p>
+        <ul>
+            <li>
+                <a href="https://github.com/TheLovinator1/FeedVault.se/issues">GitHub issues</a>
+            </li>
+            <li>
+                <a href="mailto:tlovinator@gmail.com">tlovinator@gmail.com</a>
+            </li>
+            <li>TheLovinator#9276 on Discord</li>
+            <li>Use the form below to send me a message</li>
+        </ul>
+    </p>
+    <h3>Send a message</h3>
+    <form method="post" action='{{ url_for("contact") }}'>
+        <p>
+            <label for="message">Message</label>
+            <textarea id="message"
+                      name="message"
+                      rows="4"
+                      cols="50"
+                      required
+                      placeholder="Enter your message"></textarea>
+        </p>
+        <button type="submit">Send message</button>
+    </form>
+{% endblock content %}

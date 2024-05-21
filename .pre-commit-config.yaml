@@ -35,15 +35,7 @@ repos:
       - id: end-of-file-fixer
       - id: mixed-line-ending
       - id: name-tests-test
-        args: [--django]
       - id: trailing-whitespace
-
-  # Automatically upgrade your Django project code
-  - repo: https://github.com/adamchainz/django-upgrade
-    rev: "1.16.0"
-    hooks:
-      - id: django-upgrade
-        args: [--target-version, "5.0"]
 
   # Run Pyupgrade on all Python files. This will upgrade the code to Python 3.12.
   - repo: https://github.com/asottile/pyupgrade

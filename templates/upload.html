@@ -1,27 +1,47 @@
-<h2>Upload</h2>
-<p>
-    You can also upload files containing the feeds you wish to archive.
-    Currently supported file formats: .opml, .xml, .json.
-    Your file will be parsed in the future if not currently supported.
-    Feel free to upload databases, backups, or any other files containing feeds.
-</p>
-<form enctype="multipart/form-data"
-      method="post"
-      action="{% url 'feeds:upload' %}">
-    {% csrf_token %}
+{% extends "base.html" %}
+{% block content %}
+    <h2>Upload</h2>
     <p>
-        <label for="file">Choose a file to upload</label>
+        You can upload files to the archive here.
         <br>
+        Things you can upload include:
+        <ul>
+            <li>Lists of URLs</li>
+            <li>Databases</li>
+            <li>Backups</li>
+            <li>Archives</li>
+            <li>Anything else that is relevant</li>
+        </ul>
         <br>
-        <input type="file" name="file" id="file" required>
+        Uploaded files will be manually reviewed and indexed. If you have any questions, feel free to <a href='{{ url_for("contact") }}''>contact me</a>.
         <br>
-        <br>
-        <label for="description">Description (optional)</label>
-        <input type="text"
-               name="description"
-               id="description"
-               size="80"
-               placeholder="Description (optional)">
+        You can also provide a description for the file you are uploading.
     </p>
-    <button type="submit">Upload file</button>
-</form>
+    <form enctype="multipart/form-data"
+          method="post"
+          action='{{ url_for("upload_files") }}'>
+        <p>
+            <input type="file" name="files" required multiple>
+            <br>
+            <br>
+            <label for="description">Description (optional)</label>
+            <textarea id="description"
+                      name="description"
+                      rows="4"
+                      cols="50"
+                      placeholder="Enter a description for the file"></textarea>
+        </p>
+        <input type="checkbox" id="public" name="public">
+        <label for="public">Public</label>
+        <br>
+        <br>
+        <small>
+            Public files will be listed on FeedVault for everyone to see and download.
+            <br>
+            Private files will only be used for indexing feeds.
+        </small>
+        <br>
+        <br>
+        <button type="submit">Upload file</button>
+    </form>
+{% endblock content %}

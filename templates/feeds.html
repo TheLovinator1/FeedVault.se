@@ -4,9 +4,9 @@
     <ul>
         {% for feed in feeds %}
             <li>
-                <a href="{% url 'feeds:feed' feed.id %}">{{ feed.url }}</a>
+                <a href="{{ url_for('feed', feed_url=feed.url) }}">{{ feed.url }}</a>
                 <p>{{ feed.description }}</p>
             </li>
         {% endfor %}
     </ul>
-{% endblock %}
+{% endblock content %}

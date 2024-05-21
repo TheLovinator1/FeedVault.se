@@ -19,19 +19,6 @@ services:
   #   volumes:
   #     - /Docker/FeedVault/FeedVault/staticfiles:/app/staticfiles
   #     - /mnt/Fourteen/Docker/FeedVault/media:/app/media
-  feedvault_postgres:
-    container_name: feedvault_postgres
-    image: postgres:16
-    # user: "1000:1000"
-    restart: always
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: feedvault
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DB: feedvault
-    volumes:
-      - /Docker/FeedVault/PostgreSQL:/var/lib/postgresql/data
   garnet:
     container_name: garnet
     image: "ghcr.io/microsoft/garnet"

@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,8 +7,7 @@
     {% if keywords %}<meta name="keywords" content="{{ keywords }}" />{% endif %}
     {% if author %}<meta name="author" content="{{ author }}" />{% endif %}
     {% if canonical %}<link rel="canonical" href="{{ canonical }}" />{% endif %}
-    <title>{{ title|default:"FeedVault" }}</title>
-    <script src="{% static 'htmx.min.js' %}" defer></script>
+    <title>{{ title | default("FeedVault") }}</title>
     <style>
       html {
         max-width: 88ch;
@@ -84,19 +82,18 @@
     {% endif %}
     <span class="title">
       <h1>
-        <a href="{% url 'feeds:index' %}">FeedVault</a>
+        <a href='{{ url_for("index") }}'>FeedVault</a>
       </h1>
     </span>
     <div class="leftright">
       <div class="left">
         <small>Archive of
           <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>.
-          {% if amount_of_feeds %}{{ amount_of_feeds }} feeds.{% endif %}
-          {% if db_size %}~{{ db_size }}.{% endif %}
+          {{ stats }}
         </small>
       </div>
       <div class="right">
-        <form action="{% url 'feeds:search' %}" method="get">
+        <form action='{{ url_for("search") }}' method="get" class="search">
           <input type="text" name="q" placeholder="Search" />
           <button type="submit">Search</button>
         </form>
@@ -106,15 +103,14 @@
       <small>
         <div class="leftright">
           <div class="left">
-            <a href="{% url 'feeds:index' %}">Home</a> |
-            <a href="{% url 'feeds:feeds' %}">Feeds</a> |
-            <a href="{% url 'feeds:upload' %}">Upload</a>
+            <a href='{{ url_for("index") }}'>Home</a> |
+            <a href='{{ url_for("feeds") }}'>Feeds</a> |
+            <a href='{{ url_for("upload_files") }}'>Upload</a> |
+            <a href='{{ url_for("contact") }}'>Contact</a>
           </div>
           <div class="right">
             <a href="https://github.com/TheLovinator1/FeedVault">GitHub</a> |
             <a href="https://github.com/sponsors/TheLovinator1">Donate</a>
-            {% if not user.is_authenticated %}| <a href="">Login</a>{% endif %}
-            {% if user.is_authenticated %}| <a href="">{{ user.username }}</a>{% endif %}
           </div>
         </div>
       </small>
@@ -127,9 +123,7 @@
     <footer>
       <small>
         <div class="leftright">
-          <div class="left">
-            <a href="">Privacy Policy</a> | <a href="">Terms of Service</a>
-          </div>
+          <div class="left">Web scraping is not a crime.</div>
           <div class="right">No rights reserved.</div>
         </div>
         <div class="leftright">
