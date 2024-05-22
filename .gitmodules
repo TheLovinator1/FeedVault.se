@@ -1,0 +1,3 @@
+[submodule "RSS-Link-Database"]
+	path = RSS-Link-Database
+	url = https://github.com/rumca-js/RSS-Link-Database
