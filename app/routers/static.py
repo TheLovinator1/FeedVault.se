@@ -153,7 +153,7 @@ async def add_page(request: Request, stats: CommonStats):
 @static_router.post(path="/add", summary="Add feeds page.", tags=["HTML"])
 async def add_feed(reader: CommonReader, stats: CommonStats, feed_urls: str = Form(...)):
     """Add feeds page."""
-    feed_info = []
+    feed_info: list[dict[str, str]] = []
     # Each line is a feed URL.
     for feed_url in feed_urls.split("\n"):
         try:

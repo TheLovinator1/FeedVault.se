@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import click
-from reader import Feed, ParseError, Reader, StorageError, UpdateError, UpdateResult
+from reader import Feed, ParseError, Reader, StorageError, UpdatedFeed, UpdateError, UpdateResult
 
 from app.dependencies import get_reader
 
@@ -31,17 +31,17 @@ def update_feeds() -> None:
     reader: Reader = get_reader()
     click.echo("Updating feeds...")
 
-    all_feeds: Iterable[Feed] = reader.get_feeds(updates_enabled=True)
-    feeds = []
+    all_feeds: Iterable[Feed] = reader.get_feeds(updates_enabled=True, broken=False)
+    feeds: list[Feed] = []
 
-    # Only get feeds that hasn't been updated in the last 30 minutes.
+    # Only get feeds that hasn't been updated in the last 3 hours
     for feed in all_feeds:
         if feed.last_updated:
             now: datetime = datetime.now(tz=feed.last_updated.tzinfo)
             delta: timedelta = now - feed.last_updated
 
-            thirty_minutes: int = 60 * 30  # 30 minutes
-            if delta.total_seconds() < thirty_minutes:
+            three_hours: int = 60 * 60 * 3
+            if delta.total_seconds() < three_hours:
                 feeds.append(feed)
         else:
             feeds.append(feed)
@@ -50,15 +50,20 @@ def update_feeds() -> None:
 
     for feed in feeds:
         try:
-            reader.update_feed(feed)
+            updated_feed: UpdatedFeed | None = reader.update_feed(feed)
             click.echo(f"Updated feed: {feed.url}")
-        except ParseError:
+            if updated_feed is not None:
+                click.echo(
+                    f"New: {updated_feed.new}, modified: {updated_feed.modified}, unmodified: {updated_feed.unmodified}",  # noqa: E501
+                )
+
+        except ParseError as e:
             # An error occurred while retrieving/parsing the feed.
-            click.echo(f"Error parsing feed: {feed.url}", err=True)
-        except UpdateError:
+            click.echo(f"Error parsing feed: {feed.url} ({e})", err=True)
+        except UpdateError as e:
             # An error occurred while updating the feed.
             # Parent of all update-related exceptions.
-            click.echo(f"Error updating feed: {feed.url}", err=True)
+            click.echo(f"Error updating feed: {feed.url} ({e})", err=True)
         except StorageError as e:
             # An exception was raised by the underlying storage.
             click.echo(f"Error updating feed: {feed.url}", err=True)
