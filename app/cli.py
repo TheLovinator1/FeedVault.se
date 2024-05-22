@@ -7,15 +7,22 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import click
+import typer
 from reader import Feed, ParseError, Reader, StorageError, UpdatedFeed, UpdateError, UpdateResult
 
 from app.dependencies import get_reader
+from app.scrapers.rss_link_database import scrape
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+app = typer.Typer(
+    name="FeedVault CLI",
+    no_args_is_help=True,
+)
 
-def add_broken_feed_to_csv(feed: Feed | UpdateResult | None) -> None:
+
+def _add_broken_feed_to_csv(feed: Feed | UpdateResult | None) -> None:
     """Add a broken feed to a CSV file."""
     if feed is None:
         click.echo("Feed is None.", err=True)
@@ -25,7 +32,10 @@ def add_broken_feed_to_csv(feed: Feed | UpdateResult | None) -> None:
         f.write(f"{feed.url}\n")
 
 
-@click.command()
+@app.command(
+    name="update_feeds",
+    help="Update all the feeds.",
+)
 def update_feeds() -> None:
     """Update all the feeds."""
     reader: Reader = get_reader()
@@ -73,10 +83,21 @@ def update_feeds() -> None:
             click.echo(f"Assertion error: {feed.url}", err=True)
             traceback.print_exc(file=sys.stderr)
             reader.disable_feed_updates(feed)
-            add_broken_feed_to_csv(feed)
+            _add_broken_feed_to_csv(feed)
 
     click.echo("Feeds updated.")
 
 
+@app.command(
+    name="grab_links",
+    help="Grab RSS feeds from different sources.",
+)
+def grab_links() -> None:
+    """Grab RSS feeds from different sources."""
+    click.echo("Grabbing links...")
+    rss_links: str = scrape()
+    click.echo(rss_links)
+
+
 if __name__ == "__main__":
-    update_feeds()
+    app()
