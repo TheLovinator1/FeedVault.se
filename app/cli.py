@@ -2,16 +2,18 @@ from __future__ import annotations
 
 import sys
 import traceback
-from datetime import datetime, timedelta
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import requests
 import typer
 from reader import Feed, ParseError, Reader, StorageError, UpdatedFeed, UpdateError, UpdateResult
 from rich import print
 
 from app.dependencies import get_reader
 from app.scrapers.rss_link_database import scrape
+from app.settings import DATA_DIR
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -41,51 +43,113 @@ def update_feeds() -> None:
     reader: Reader = get_reader()
     print("Updating feeds...")
 
-    all_feeds: Iterable[Feed] = reader.get_feeds(updates_enabled=True, broken=False)
-    feeds: list[Feed] = []
+    feeds: Iterable[Feed] = reader.get_feeds(broken=False, updates_enabled=True, new=True)
 
-    # Only get feeds that hasn't been updated in the last 3 hours
-    for feed in all_feeds:
-        if feed.last_updated:
-            now: datetime = datetime.now(tz=feed.last_updated.tzinfo)
-            delta: timedelta = now - feed.last_updated
+    total_feeds: int | None = reader.get_feed_counts(broken=False, updates_enabled=True).total
+    if not total_feeds:
+        print("[bold red]No feeds to update[/bold red]")
+        return
 
-            three_hours: int = 60 * 60 * 3
-            if delta.total_seconds() < three_hours:
-                feeds.append(feed)
-        else:
-            feeds.append(feed)
+    print(f"Feeds to update: {total_feeds}")
 
-    print(f"Feeds to update: {len(feeds)}")
-
-    for feed in feeds:
+    def update_feed(feed: Feed) -> None:
         try:
             updated_feed: UpdatedFeed | None = reader.update_feed(feed)
-            print(f"Updated feed: {feed.url}")
             if updated_feed is not None:
                 print(
-                    f"New: [green]{updated_feed.new}[/green], modified: [yellow]{updated_feed.modified}[/yellow], unmodified: {updated_feed.unmodified}",  # noqa: E501
+                    f"New: [green]{updated_feed.new}[/green], modified: [yellow]{updated_feed.modified}[/yellow], unmodified: {updated_feed.unmodified} - {feed.url}",  # noqa: E501
                 )
 
         except ParseError as e:
-            # An error occurred while retrieving/parsing the feed.
             print(f"[bold red]Error parsing feed[/bold red]: {feed.url} ({e})")
+
         except UpdateError as e:
-            # An error occurred while updating the feed.
-            # Parent of all update-related exceptions.
             print(f"[bold red]Error updating feed[/bold red]: {feed.url} ({e})")
+
         except StorageError as e:
-            # An exception was raised by the underlying storage.
             print(f"[bold red]Error updating feed[/bold red]: {feed.url}")
             print(f"[bold red]Storage error[/bold red]: {e}")
+
         except AssertionError:
-            # An assertion failed.
             print(f"[bold red]Assertion error[/bold red]: {feed.url}")
             traceback.print_exc(file=sys.stderr)
             reader.disable_feed_updates(feed)
             _add_broken_feed_to_csv(feed)
 
-    print("Feeds updated.")
+        except KeyboardInterrupt:
+            print("[bold red]Keyboard interrupt[/bold red]")
+            reader.close()
+            sys.exit(1)
+
+    with ThreadPoolExecutor(max_workers=50) as executor:
+        executor.map(update_feed, feeds)
+
+    print(f"Updated {total_feeds} feeds.")
+
+
+@app.command(
+    name="download_steam_ids",
+    help="Download Steam IDs from the Steam API.",
+)
+def download_steam_ids() -> None:
+    """Download Steam IDs from "https://api.steampowered.com/ISteamApps/GetAppList/v2/"."""
+    print("Downloading Steam IDs...")
+
+    r: requests.Response = requests.get("https://api.steampowered.com/ISteamApps/GetAppList/v2/", timeout=10)
+    r.raise_for_status()
+
+    data: dict[str, dict[str, list[dict[str, str]]]] = r.json()
+    app_ids: list[dict[str, str]] = data["applist"]["apps"]
+
+    file_path: Path = Path(DATA_DIR) / "steam_ids.txt"
+    with file_path.open("w", encoding="utf-8") as f:
+        for app_id in app_ids:
+            f.write(f"{app_id["appid"]}\n")
+
+    print(f"Steam IDs downloaded. {len(app_ids)} IDs saved to {file_path}.")
+
+
+@app.command(
+    name="add_steam_feeds",
+    help="Add Steam feeds to the reader. Needs 'download_steam_ids' to be run first.",
+)
+def add_steam_feeds() -> None:
+    """Add the ids from "steam_ids.txt" to the reader."""
+    reader: Reader = get_reader()
+    print("Adding Steam feeds...")
+
+    file_path: Path = Path(DATA_DIR) / "steam_ids.txt"
+    if not file_path.exists():
+        print("File not found.")
+        return
+
+    with file_path.open("r", encoding="utf-8") as f:
+        steam_ids: list[str] = f.read().splitlines()
+
+    for count, steam_id in enumerate(steam_ids):
+        try:
+            reader.add_feed(f"https://store.steampowered.com/feeds/news/app/{steam_id}")
+            print(f"[{count}/{len(steam_ids)}] Added feed: {steam_id}")
+
+        except ParseError as e:
+            print(f"[bold red]Error parsing feed[/bold red] ({e})")
+
+        except UpdateError as e:
+            print(f"[bold red]Error updating feed[/bold red] ({e})")
+
+        except StorageError as e:
+            print(f"[bold red]Error updating feed[/bold red] ({e})")
+
+        except AssertionError as e:
+            print(f"[bold red]Assertion error[/bold red] ({e})")
+            traceback.print_exc(file=sys.stderr)
+
+        except KeyboardInterrupt:
+            print("[bold red]Keyboard interrupt[/bold red]")
+            reader.close()
+            sys.exit(1)
+
+    print(f"Added {len(steam_ids)} Steam feeds.")
 
 
 @app.command(
