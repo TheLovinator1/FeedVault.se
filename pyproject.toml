@@ -15,7 +15,7 @@ python-dotenv = "^1.0.1"
 python-multipart = "^0.0.9"
 reader = "^3.12"
 orjson = "^3.10.3"
-typer = {extras = ["all"], version = "^0.12.3"}
+typer = { extras = ["all"], version = "^0.12.3" }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.4"
@@ -42,6 +42,7 @@ lint.ignore = [
   "D104",   # Checks for undocumented public package definitions.
   "FIX002", # Checks for "TODO" comments.
   "RUF029", # Checks for functions declared async that do not await or otherwise use features requiring the function to be declared async.
+  "ERA001", # Checks for commented-out Python code.
 ]
 
 [tool.ruff.lint.pydocstyle]

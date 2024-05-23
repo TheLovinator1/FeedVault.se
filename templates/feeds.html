@@ -9,4 +9,6 @@
             </li>
         {% endfor %}
     </ul>
+    {% if next_url %}<a href='{{ url_for("feeds") }}?next_url={{ next_url }}'>Next</a>{% endif %}
+    {% if previous_url %}<a href='{{ url_for("feeds") }}?previous_url={{ previous_url }}'>Previous</a>{% endif %}
 {% endblock content %}

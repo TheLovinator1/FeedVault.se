@@ -19,7 +19,6 @@ if TYPE_CHECKING:
 
     from fastapi.datastructures import Address
     from reader import Feed
-    from reader.types import Entry, EntrySearchResult
 
 
 logger: logging.Logger = logging.getLogger(__name__)
@@ -37,22 +36,44 @@ async def favicon(request: Request):
 @static_router.get(path="/", summary="Index page.", tags=["HTML"])
 async def index(request: Request, reader: CommonReader, stats: CommonStats):
     """Index page."""
-    feeds: Iterable[Feed] = reader.get_feeds()
+    feeds: Iterable[Feed] = reader.get_feeds(limit=15)
     return templates.TemplateResponse(request=request, name="index.html", context={"feeds": feeds, "stats": stats})
 
 
 @static_router.get(path="/feeds", summary="Feeds page.", tags=["HTML"])
-async def feeds(request: Request, reader: CommonReader, stats: CommonStats):
+async def feeds(
+    request: Request,
+    reader: CommonReader,
+    stats: CommonStats,
+    next_url: str | None = None,
+    prev_url: str | None = None,
+):
     """Feeds page."""
-    feeds: Iterable[Feed] = reader.get_feeds()
-    return templates.TemplateResponse(request=request, name="feeds.html", context={"feeds": feeds, "stats": stats})
+    if next_url:
+        feeds = list(reader.get_feeds(starting_after=next_url, limit=15))
+    elif prev_url:
+        feeds = list(reader.get_feeds(starting_after=prev_url, limit=15))
+    else:
+        feeds = list(reader.get_feeds(limit=15))
+
+    # This is the last feed on the page.
+    next_url = feeds[-1].url if feeds else None
+
+    # This is the first feed on the page.
+    prev_url = feeds[0].url if feeds else None
+
+    return templates.TemplateResponse(
+        request=request,
+        name="feeds.html",
+        context={"feeds": feeds, "stats": stats, "next_url": next_url, "prev_url": prev_url},
+    )
 
 
 @static_router.get(path="/feed/{feed_url:path}", summary="Feed page.", tags=["HTML"])
 async def feed(request: Request, feed_url: str, reader: CommonReader, stats: CommonStats):
     """Feed page."""
     feed: Feed = reader.get_feed(feed_url)
-    entries: Iterable[Entry] = reader.get_entries(feed=feed.url)
+    entries = list(reader.get_entries(feed=feed.url))
     return templates.TemplateResponse(
         request=request,
         name="feed.html",
@@ -61,15 +82,39 @@ async def feed(request: Request, feed_url: str, reader: CommonReader, stats: Com
 
 
 @static_router.get(path="/search", summary="Search page.", tags=["HTML"])
-async def search(request: Request, q: str, reader: CommonReader, stats: CommonStats):
+async def search(  # noqa: PLR0913, PLR0917
+    request: Request,
+    q: str,
+    reader: CommonReader,
+    stats: CommonStats,
+    next_feed: str | None = None,
+    next_entry: str | None = None,
+    prev_feed: str | None = None,
+    prev_entry: str | None = None,
+):
     """Search page."""
+    if next_feed and next_entry:
+        entries = list(reader.search_entries(q, starting_after=(next_feed, next_entry), limit=15))
+    elif prev_feed and prev_entry:
+        entries = list(reader.search_entries(q, starting_after=(prev_feed, prev_entry), limit=15))
+    else:
+        entries = list(reader.search_entries(q, limit=15))
+
     # TODO(TheLovinator): We need to show the entries in the search results.  # noqa: TD003
     reader.update_search()
-    entries: Iterable[EntrySearchResult] = reader.search_entries(q)
+
     return templates.TemplateResponse(
         request=request,
         name="search.html",
-        context={"query": q, "entries": entries, "stats": stats},
+        context={
+            "query": q,
+            "entries": entries,
+            "stats": stats,
+            "next_feed": next_feed,
+            "next_entry": next_entry,
+            "prev_feed": prev_feed,
+            "prev_entry": prev_entry,
+        },
     )
 
 

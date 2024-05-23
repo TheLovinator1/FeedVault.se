@@ -12,4 +12,10 @@
     {% else %}
         <p>No entries found.</p>
     {% endif %}
+    {% if next_feed and next_entry %}
+        <a href='{{ url_for("search") }}?query={{ query }}&next_feed={{ next_feed }}&next_entry={{ next_entry }}'>Next</a>
+    {% endif %}
+    {% if prev_feed and prev_entry %}
+        <a href='{{ url_for("search") }}?query={{ query }}&prev_feed={{ prev_feed }}&prev_entry={{ prev_entry }}'>Previous</a>
+    {% endif %}
 {% endblock content %}

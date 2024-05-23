@@ -7,7 +7,7 @@ from typing import Annotated
 
 import humanize
 from fastapi import Depends
-from reader import EntryCounts, FeedCounts, Reader, make_reader
+from reader import Reader, make_reader
 
 from app.settings import DB_PATH
 
@@ -20,21 +20,22 @@ def get_reader() -> Reader:
 
 def get_stats() -> str:
     """Return the stats."""
-    db_size: int = DB_PATH.stat().st_size
-
-    # Get the feed counts.
-    feed_counts: FeedCounts = get_reader().get_feed_counts()
-    total_feed_counts: int | None = feed_counts.total
-    if total_feed_counts is None:
-        total_feed_counts = 0
-
-    # Get the entry counts.
-    entry_counts: EntryCounts = get_reader().get_entry_counts()
-    total_entry_counts: int | None = entry_counts.total
-    if total_entry_counts is None:
-        total_entry_counts = 0
-
-    return f"{total_feed_counts} feeds ({total_entry_counts} entries) ~{humanize.naturalsize(db_size, binary=True)}"
+    # db_size: int = DB_PATH.stat().st_size
+    #
+    # # Get the feed counts.
+    # feed_counts: FeedCounts = get_reader().get_feed_counts()
+    # total_feed_counts: int | None = feed_counts.total
+    # if total_feed_counts is None:
+    #     total_feed_counts = 0
+    #
+    # # Get the entry counts.
+    # entry_counts: EntryCounts = get_reader().get_entry_counts()
+    # total_entry_counts: int | None = entry_counts.total
+    # if total_entry_counts is None:
+    #     total_entry_counts = 0
+    #
+    # return f"{total_feed_counts} feeds ({total_entry_counts} entries) ~{humanize.naturalsize(db_size, binary=True)}"
+    return f"0 feeds (0 entries) ~{humanize.naturalsize(0, binary=True)}"
 
 
 CommonReader = Annotated[Reader, Depends(get_reader)]
