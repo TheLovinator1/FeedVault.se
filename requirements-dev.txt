@@ -1,0 +1,5 @@
+ruff
+djlint
+pre-commit
+pytest
+httpx
