@@ -25,7 +25,7 @@
         margin: 0;
       }
 
-      .title {
+      header {
         text-align: center;
       }
 
@@ -74,43 +74,51 @@
   </head>
   <body>
     {% if messages %}
-      <ul class="messages">
+      <ul class="messages" role="alert" aria-live="polite">
         {% for message in messages %}
-          <li {% if message.tags %}class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+          <li {% if message.tags %}class="{{ message.tags }}"{% endif %}
+              role="alert">{{ message }}</li>
         {% endfor %}
       </ul>
     {% endif %}
-    <span class="title">
+    <header>
       <h1>
-        <a href='{{ url_for("index") }}'>FeedVault</a>
+        <a href='{{ url_for("index") }}' aria-label="FeedVault Home">FeedVault</a>
       </h1>
-    </span>
+    </header>
     <div class="leftright">
       <div class="left">
         <small>Archive of
-          <a href="https://en.wikipedia.org/wiki/Web_feed">web feeds</a>.
+          <a href="https://en.wikipedia.org/wiki/Web_feed"
+             aria-label="Wikipedia article on web feeds">web feeds</a>.
           {{ stats }}
         </small>
       </div>
       <div class="right">
-        <form action='{{ url_for("search") }}' method="get" class="search">
-          <input type="text" name="q" placeholder="Search" />
-          <button type="submit">Search</button>
+        <form role="search"
+              action='{{ url_for("search") }}'
+              method="get"
+              class="search"
+              aria-label="Search form">
+          <input type="search" name="q" placeholder="Search" aria-label="Search input" />
+          <button type="submit" aria-label="Search button">Search</button>
         </form>
       </div>
     </div>
-    <nav>
+    <nav aria-label="Main navigation">
       <small>
         <div class="leftright">
           <div class="left">
-            <a href='{{ url_for("index") }}'>Home</a> |
-            <a href='{{ url_for("feeds") }}'>Feeds</a> |
-            <a href='{{ url_for("upload_files") }}'>Upload</a> |
-            <a href='{{ url_for("contact") }}'>Contact</a>
+            <a href='{{ url_for("index") }}' aria-label="Home page">Home</a> |
+            <a href='{{ url_for("feeds") }}' aria-label="Feeds page">Feeds</a> |
+            <a href='{{ url_for("upload_files") }}' aria-label="Upload page">Upload</a> |
+            <a href='{{ url_for("contact") }}' aria-label="Contact page">Contact</a>
           </div>
           <div class="right">
-            <a href="https://github.com/TheLovinator1/FeedVault">GitHub</a> |
-            <a href="https://github.com/sponsors/TheLovinator1">Donate</a>
+            <a href="https://github.com/TheLovinator1/FeedVault"
+               aria-label="GitHub page">GitHub</a> |
+            <a href="https://github.com/sponsors/TheLovinator1"
+               aria-label="Donate page">Donate</a>
           </div>
         </div>
       </small>
