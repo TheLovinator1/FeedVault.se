@@ -6,7 +6,7 @@ import orjson
 from click import echo
 
 
-def scrape():
+def scrape() -> str:
     """Scrape.
 
     Raises:
@@ -17,7 +17,7 @@ def scrape():
         msg = "RSS-Link-Database repository not found."
         raise FileNotFoundError(msg)
 
-    rss_links = []
+    rss_links: list[str] = []
     for file in repository_path.glob("*.json"):
         echo(f"Scraping {file.name}...")
 

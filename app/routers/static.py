@@ -37,7 +37,11 @@ async def favicon(request: Request):
 async def index(request: Request, reader: CommonReader, stats: CommonStats):
     """Index page."""
     feeds: Iterable[Feed] = reader.get_feeds(limit=15)
-    return templates.TemplateResponse(request=request, name="index.html", context={"feeds": feeds, "stats": stats})
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"feeds": feeds, "stats": stats},
+    )
 
 
 @static_router.get(path="/feeds", summary="Feeds page.", tags=["HTML"])
@@ -65,12 +69,22 @@ async def feeds(
     return templates.TemplateResponse(
         request=request,
         name="feeds.html",
-        context={"feeds": feeds, "stats": stats, "next_url": next_url, "prev_url": prev_url},
+        context={
+            "feeds": feeds,
+            "stats": stats,
+            "next_url": next_url,
+            "prev_url": prev_url,
+        },
     )
 
 
 @static_router.get(path="/feed/{feed_url:path}", summary="Feed page.", tags=["HTML"])
-async def feed(request: Request, feed_url: str, reader: CommonReader, stats: CommonStats):
+async def feed(
+    request: Request,
+    feed_url: str,
+    reader: CommonReader,
+    stats: CommonStats,
+):
     """Feed page."""
     feed: Feed = reader.get_feed(feed_url)
     entries = list(reader.get_entries(feed=feed.url))
@@ -94,9 +108,13 @@ async def search(  # noqa: PLR0913, PLR0917
 ):
     """Search page."""
     if next_feed and next_entry:
-        entries = list(reader.search_entries(q, starting_after=(next_feed, next_entry), limit=15))
+        entries = list(
+            reader.search_entries(q, starting_after=(next_feed, next_entry), limit=15),
+        )
     elif prev_feed and prev_entry:
-        entries = list(reader.search_entries(q, starting_after=(prev_feed, prev_entry), limit=15))
+        entries = list(
+            reader.search_entries(q, starting_after=(prev_feed, prev_entry), limit=15),
+        )
     else:
         entries = list(reader.search_entries(q, limit=15))
 
@@ -170,13 +188,21 @@ async def upload_files(request: Request, files: list[UploadFile] = File(...)):
 @static_router.get(path="/upload", summary="Upload page.", tags=["HTML"])
 async def upload_page(request: Request, stats: CommonStats):
     """Upload page."""
-    return templates.TemplateResponse(request=request, name="upload.html", context={"stats": stats})
+    return templates.TemplateResponse(
+        request=request,
+        name="upload.html",
+        context={"stats": stats},
+    )
 
 
 @static_router.get(path="/contact", summary="Contact page.", tags=["HTML"])
 async def contact(request: Request, stats: CommonStats):
     """Contact page."""
-    return templates.TemplateResponse(request=request, name="contact.html", context={"stats": stats})
+    return templates.TemplateResponse(
+        request=request,
+        name="contact.html",
+        context={"stats": stats},
+    )
 
 
 @static_router.post(path="/contact", summary="Contact page.", tags=["HTML"])
@@ -192,11 +218,19 @@ async def contact_form(request: Request, stats: CommonStats, message: str = Form
 @static_router.get(path="/add", summary="Add feeds page.", tags=["HTML"])
 async def add_page(request: Request, stats: CommonStats):
     """Add feeds page."""
-    return templates.TemplateResponse(request=request, name="add.html", context={"stats": stats})
+    return templates.TemplateResponse(
+        request=request,
+        name="add.html",
+        context={"stats": stats},
+    )
 
 
 @static_router.post(path="/add", summary="Add feeds page.", tags=["HTML"])
-async def add_feed(reader: CommonReader, stats: CommonStats, feed_urls: str = Form(...)):
+async def add_feed(
+    reader: CommonReader,
+    stats: CommonStats,
+    feed_urls: str = Form(...),
+):
     """Add feeds page."""
     feed_info: list[dict[str, str]] = []
     # Each line is a feed URL.

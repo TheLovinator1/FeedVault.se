@@ -22,6 +22,14 @@ _Note: Some features are currently in development._
 - Add your favorite feeds to start archiving content.
 - Explore, manage, and enjoy your centralized feed archive.
 
+### CLI
+
+There is a CLI available for FeedVault. You can run the CLI with the following command:
+
+```bash
+python -m cli
+```
+
 ## Contributing
 
 Feel free to contribute to the project. If you have any questions, please open an issue.
