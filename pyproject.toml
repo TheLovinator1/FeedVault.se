@@ -1,28 +1,117 @@
+[project]
+name = "feedvault"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "celery",
+    "django-auto-prefetch",
+    "django-celery-beat",
+    "django-celery-results",
+    "django-debug-toolbar",
+    "django-silk",
+    "django",
+    "flower",
+    "gunicorn",
+    "hiredis",
+    "index-now-for-python",
+    "platformdirs",
+    "psycopg[binary]",
+    "python-dotenv",
+    "redis",
+    "sentry-sdk",
+    "setproctitle",
+    "sitemap-parser",
+]
+
+[dependency-groups]
+dev = [
+    "celery-types",
+    "django-stubs",
+    "djlint",
+    "hypothesis[django]",
+    "pytest-cov",
+    "pytest-django",
+    "pytest-randomly",
+    "pytest-xdist[psutil]",
+    "pytest",
+]
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "*_test.py"]
+
 [tool.ruff]
-target-version = "py312"
 fix = true
-unsafe-fixes = true
 preview = true
-line-length = 120
+unsafe-fixes = true
+
+format.docstring-code-format = true
+format.preview = true
+
+lint.future-annotations = true
+lint.isort.force-single-line = true
+lint.pycodestyle.ignore-overlong-task-comments = true
+lint.pydocstyle.convention = "google"
 lint.select = ["ALL"]
+
+# Don't automatically remove unused variables
+lint.unfixable = ["F841"]
+
 lint.ignore = [
-  "ANN201", # Checks that public functions and methods have return type annotations.
-  "ARG001", # Checks for the presence of unused arguments in function definitions.
-  "B008",   # Checks for function calls in default function arguments.
-  "CPY001", # Checks for the absence of copyright notices within Python files.
-  "D100",   # Checks for undocumented public module definitions.
-  "D104",   # Checks for undocumented public package definitions.
-  "FIX002", # Checks for "TODO" comments.
-  "RUF029", # Checks for functions declared async that do not await or otherwise use features requiring the function to be declared async.
-  "ERA001", # Checks for commented-out Python code.
+    "ANN002",  # Checks that function *args arguments have type annotations.
+    "ANN003",  # Checks that function **kwargs arguments have type annotations.
+    "C901",    # Checks for functions with a high McCabe complexity.
+    "CPY001",  # Checks for the absence of copyright notices within Python files.
+    "D100",    # Checks for undocumented public module definitions.
+    "D104",    # Checks for undocumented public package definitions.
+    "D105",    # Checks for undocumented magic method definitions.
+    "D106",    # Checks for undocumented public class definitions, for nested classes.
+    "E501",    # Checks for lines that exceed the specified maximum character length.
+    "ERA001",  # Checks for commented-out Python code.
+    "FIX002",  # Checks for "TODO" comments.
+    "PLR0911", # Checks for functions or methods with too many return statements.
+    "PLR0912", # Checks for functions or methods with too many branches, including (nested) if, elif, and else branches, for loops, try-except clauses, and match and case statements.
+    "PLR6301", # Checks for the presence of unused self parameter in methods definitions.
+    "RUF012",  # Checks for mutable default values in class attributes.
+    "ARG001",  # Checks for the presence of unused arguments in function definitions.
+
+    # Conflicting lint rules when using Ruff's formatter
+    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    "COM812", # Checks for the absence of trailing commas.
+    "COM819", # Checks for the presence of prohibited trailing commas.
+    "D206",   # Checks for docstrings that are indented with tabs.
+    "D300",   # Checks for docstrings that use '''triple single quotes''' instead of """triple double quotes""".
+    "E111",   # Checks for indentation with a non-multiple of 4 spaces.
+    "E114",   # Checks for indentation of comments with a non-multiple of 4 spaces.
+    "E117",   # Checks for over-indented code.
+    "ISC001", # Checks for implicitly concatenated strings on a single line.
+    "ISC002", # Checks for implicitly concatenated strings that span multiple lines.
+    "Q000",   # Checks for inline strings that use single quotes or double quotes, depending on the value of the lint.flake8-quotes.inline-quotes option.
+    "Q001",   # Checks for multiline strings that use single quotes or double quotes, depending on the value of the lint.flake8-quotes.multiline-quotes setting.
+    "Q002",   # Checks for docstrings that use single quotes or double quotes, depending on the value of the lint.flake8-quotes.docstring-quotes setting.
+    "Q003",   # Checks for strings that include escaped quotes, and suggests changing the quote style to avoid the need to escape them.
+    "W191",   # Checks for indentation that uses tabs.
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**/*.py" = ["S101", "ARG", "FBT", "PLR2004", "S311"]
-
-[tool.ruff.lint.pydocstyle]
-convention = "google"
+"**/tests/**" = [
+    "ARG",
+    "FBT",
+    "PLR0904",
+    "PLR2004",
+    "PLR6301",
+    "S101",
+    "S105",
+    "S106",
+    "S311",
+    "SLF001",
+]
+"**/migrations/**" = ["RUF012"]
 
 [tool.djlint]
-profile = "jinja"
-format_attribute_template_tags = true
+profile = "django"
+ignore = "H021,H030"
+
+[tool.uv.sources]
+sitemap-parser = { git = "https://github.com/TheLovinator1/sitemap-parser.git" }

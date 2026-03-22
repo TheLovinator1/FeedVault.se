@@ -1,8 +1,0 @@
-fastapi
-humanize
-jinja2
-python-dotenv
-python-multipart
-reader
-orjson
-typer

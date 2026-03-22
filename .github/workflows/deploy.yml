@@ -1,0 +1,27 @@
+name: Deploy to Server
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    env:
+      DJANGO_DEBUG: False
+      DJANGO_SECRET_KEY: 1234567890
+
+    steps:
+      - uses: actions/checkout@v6
+      - run: uv sync --all-extras --dev -U
+      - run: uv run pytest
+      - name: Check if makemigrations are needed
+        run: |
+          if uv run python manage.py makemigrations --check --dry-run; then
+            echo "No migrations needed."
+          else
+            echo "Migrations needed. Please create and commit migrations before deploying."
+            exit 1
+          fi
