@@ -35,8 +35,6 @@ POSTGRES_HOST=/run/postgresql
 POSTGRES_PORT=5432
 ```
 
-### Linux (Systemd)
-
 ```bash
 sudo useradd --create-home --home-dir /home/feedvault --shell /bin/fish feedvault
 sudo passwd feedvault
