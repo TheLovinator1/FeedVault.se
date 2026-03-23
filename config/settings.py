@@ -140,10 +140,6 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     # Internal apps
-    "twitch.apps.TwitchConfig",
-    "kick.apps.KickConfig",
-    "youtube.apps.YoutubeConfig",
-    "core.apps.CoreConfig",
     # Third-party apps
     "django_celery_results",
     "django_celery_beat",
