@@ -10,7 +10,7 @@ dependencies = [
     "django-celery-beat",
     "django-celery-results",
     "django-debug-toolbar",
-    "django-silk",
+    "django-silk[formatting]",
     "django",
     "flower",
     "gunicorn",
