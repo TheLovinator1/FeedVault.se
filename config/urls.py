@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from django.urls.resolvers import URLResolver
 
 urlpatterns: list[URLPattern | URLResolver] = [
-    path(route="silk/", view=include("silk.urls", namespace="silk")),
+    path("", include("feeds.urls")),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

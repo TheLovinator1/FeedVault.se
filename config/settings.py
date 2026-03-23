@@ -140,6 +140,7 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     # Internal apps
+    "feeds.apps.FeedsConfig",
     # Third-party apps
     "django_celery_results",
     "django_celery_beat",
