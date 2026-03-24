@@ -4,9 +4,12 @@ import sys
 from pathlib import Path
 from typing import Any
 
+import django_stubs_ext
 import sentry_sdk
 from dotenv import load_dotenv
 from platformdirs import user_data_dir
+
+django_stubs_ext.monkeypatch()
 
 logger: logging.Logger = logging.getLogger("feedvault.settings")
 
@@ -224,3 +227,6 @@ CELERY_BROKER_URL: str = REDIS_URL_CELERY
 CELERY_RESULT_BACKEND = "django-db"
 CELERY_RESULT_EXTENDED = True
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+USER_AGENT = "FeedVault/1.0 (+https://feedvault.se/bot; archiving feeds; contact: Discord: TheLovinator#9276, Email: bot@feedvault.se)"
+BOT_CONTACT_EMAIL = "bot@feedvault.se"

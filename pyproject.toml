@@ -11,18 +11,24 @@ dependencies = [
     "django-celery-results",
     "django-debug-toolbar",
     "django-silk[formatting]",
+    "django-stubs-ext",
     "django",
     "flower",
     "gunicorn",
     "hiredis",
     "index-now-for-python",
+    "niquests",
     "platformdirs",
     "psycopg[binary]",
+    "pydantic",
     "python-dotenv",
     "redis",
     "sentry-sdk",
     "setproctitle",
     "sitemap-parser",
+    "xmltodict",
+    "dateparser>=1.3.0",
+    "xxhash>=3.6.0",
 ]
 
 [dependency-groups]
@@ -36,6 +42,7 @@ dev = [
     "pytest-randomly",
     "pytest-xdist[psutil]",
     "pytest",
+    "types-xmltodict",
 ]
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "config.settings"
