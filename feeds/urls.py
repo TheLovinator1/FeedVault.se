@@ -12,4 +12,9 @@ if TYPE_CHECKING:
 urlpatterns: list[URLPattern | URLResolver] = [
     path("", views.feed_list, name="feed-list"),
     path("feeds/<int:feed_id>/", views.feed_detail, name="feed-detail"),
+    path(
+        "feeds/<int:feed_id>/entries/<int:entry_id>/",
+        views.entry_detail,
+        name="entry-detail",
+    ),
 ]
