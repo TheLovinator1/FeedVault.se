@@ -1,0 +1,3 @@
+# Exclude test data files from language statistics
+**/tests/*.xml linguist-vendored=true
+**/tests/*.json linguist-vendored=true
