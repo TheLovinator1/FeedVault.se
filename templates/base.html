@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="keywords" content="feeds, archive, FeedVault" />
+        <title>
+            {% block title %}
+                FeedVault
+            {% endblock title %}
+        </title>
+    </head>
+    <body>
+        <header>
+            <h1>FeedVault</h1>
+            <nav>
+                <ul>
+                    <li>
+                        <a href="{% url 'home' %}">Home</a>
+                    </li>
+                    <li>
+                        <a href="{% url 'feed-list' %}">Feeds</a>
+                    </li>
+                </ul>
+            </nav>
+        </header>
+        <main>
+            {% block content %}
+            {% endblock content %}
+        </main>
+        <footer>
+            <p>Web scraping is not a crime. - No rights reserved. - A birthday present for Plipp ❤️</p>
+        </footer>
+    </body>
+</html>

@@ -1,9 +1,13 @@
+from __future__ import annotations
+
 import html
 import json
 from typing import TYPE_CHECKING
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.shortcuts import render
 
 from feeds.models import Entry
 from feeds.models import Feed
@@ -20,17 +24,7 @@ def feed_list(request: HttpRequest) -> HttpResponse:
         HttpResponse: An HTML response containing the list of feeds.
     """
     feeds = Feed.objects.all().order_by("id")
-    html = [
-        "<!DOCTYPE html>",
-        "<html><head><title>FeedVault - Feeds</title></head><body>",
-        "<h1>Feed List</h1>",
-        "<ul>",
-    ]
-    html.extend(
-        f'<li><a href="/feeds/{feed.pk}/">{feed.url}</a></li>' for feed in feeds
-    )
-    html.extend(("</ul>", "</body></html>"))
-    return HttpResponse("\n".join(html))
+    return render(request, "feeds/feed_list.html", {"feeds": feeds})
 
 
 def feed_detail(request: HttpRequest, feed_id: int) -> HttpResponse:
@@ -115,3 +109,15 @@ def entry_detail(request: HttpRequest, feed_id: int, entry_id: int) -> HttpRespo
         "</body></html>",
     ]
     return HttpResponse("\n".join(html_lines))
+
+
+def home(request: HttpRequest) -> HttpResponse:
+    """Redirect to the feed list as the homepage.
+
+    Args:
+        request: The HTTP request object.
+
+    Returns:
+        HttpResponse: A redirect response to the feed list.
+    """
+    return redirect("/feeds/")
