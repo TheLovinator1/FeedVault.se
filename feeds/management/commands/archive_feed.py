@@ -2,6 +2,7 @@ from typing import TYPE_CHECKING
 from typing import Any
 
 from django.core.management.base import BaseCommand
+from django.db.models.query import QuerySet
 
 from feeds.models import Entry
 from feeds.models import Feed
@@ -19,7 +20,7 @@ class Command(BaseCommand):
     amount_to_show: int = 10
 
     def add_arguments(self, parser: CommandParser) -> None:
-        """Add URL argument and --reset option to the command."""
+        """Add URL argument and options to the command."""
         parser.add_argument(
             "url",
             type=str,
@@ -30,11 +31,17 @@ class Command(BaseCommand):
             action="store_true",
             help="Remove all entries for this feed before archiving.",
         )
+        parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Run the command non-interactively, skipping confirmations.",
+        )
 
     def handle(self, *args, **options) -> None:  # noqa: ARG002
         """Handle the command execution."""
         url: str = options["url"]
         reset: bool = options.get("reset", False)
+        force: bool = options.get("force", False)
 
         feed, created = Feed.objects.get_or_create(url=url)
 
@@ -51,32 +58,12 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.WARNING(msg))
 
             else:
-                msg = f"The following {count} entries will be removed for feed: {url}"
-                self.stdout.write(self.style.WARNING(msg))
+                if not force:
+                    return self.confirm_and_list_entries(url, entries_qs, count)
 
-                entries = entries_qs.order_by("-published_at")[: self.amount_to_show]
-                for entry in entries:
-                    title: str | None = get_entry_title(entry)
-
-                    msg = f"- entry_id: {entry.entry_id}, published_at: {entry.published_at}, title: {title}"
-                    self.stdout.write(self.style.WARNING(msg))
-
-                if count > self.amount_to_show:
-                    self.stdout.write(f"...and {count - self.amount_to_show} more.")
-
-                prompt = "Are you sure you want to delete these entries? Type 'yes' to confirm: "
-                confirm: str = input(prompt)
-
-                if confirm.strip().lower() == "yes":
-                    deleted, _ = entries_qs.delete()
-
-                    msg = f"Deleted {deleted} entr{'y' if deleted == 1 else 'ies'} for feed: {url}"
-                    self.stdout.write(self.style.SUCCESS(msg))
-
-                else:
-                    msg = "Aborted reset. No entries were deleted."
-                    self.stdout.write(self.style.ERROR(msg))
-                    return
+                entries_qs.delete()
+                msg = f"Deleted {count} entries for feed: {url}"
+                self.stdout.write(self.style.SUCCESS(msg))
 
         new_entries: int = fetch_and_archive_feed(feed)
         if new_entries:
@@ -86,6 +73,28 @@ class Command(BaseCommand):
         else:
             msg: str = "\tFeed is up to date, but no new entries were archived."
             self.stdout.write(self.style.WARNING(msg))
+        return None
+
+    def confirm_and_list_entries(
+        self,
+        url: str,
+        entries_qs: QuerySet[Entry, Entry],
+        count: int,
+    ) -> None:
+        """Confirm with the user before deleting entries and list some of them."""
+        msg: str = f"The following {count} entries will be removed for feed: {url}"
+        self.stdout.write(self.style.WARNING(msg))
+
+        entries: QuerySet[Entry, Entry] = entries_qs.order_by("-published_at")
+        entries = entries[: self.amount_to_show]
+        for entry in entries:
+            title: str | None = get_entry_title(entry)
+            self.stdout.write(f"- {title}")
+
+        confirm: str = input("Are you sure you want to proceed? (yes/no): ")
+        if confirm.lower() != "yes":
+            self.stdout.write(self.style.ERROR("Operation cancelled."))
+            return
 
 
 def get_entry_title(entry: Entry) -> str | None:
