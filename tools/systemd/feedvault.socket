@@ -1,0 +1,11 @@
+[Unit]
+Description=FeedVault Socket
+
+[Socket]
+ListenStream=/run/feedvault/feedvault.sock
+SocketUser=feedvault
+SocketGroup=feedvault
+SocketMode=0660
+
+[Install]
+WantedBy=sockets.target

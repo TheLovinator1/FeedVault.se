@@ -1,0 +1,27 @@
+[Unit]
+Description=FeedVault
+Requires=feedvault.socket
+
+[Service]
+User=feedvault
+Group=feedvault
+WorkingDirectory=/home/feedvault/feedvault
+EnvironmentFile=/home/feedvault/feedvault/.env
+RuntimeDirectory=feedvault
+ExecStart=/usr/bin/uv run gunicorn config.wsgi:application --bind unix:/run/feedvault/feedvault.sock --workers 13 --name feedvault --max-requests-jitter 50 --max-requests 1200
+ReadWritePaths=/home/feedvault/feedvault /run/feedvault
+
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=full
+ProtectHome=no
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictRealtime=yes
+LockPersonality=yes
+
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

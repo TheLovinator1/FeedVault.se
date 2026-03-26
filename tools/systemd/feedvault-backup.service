@@ -1,0 +1,10 @@
+[Unit]
+Description=FeedVault database backup
+
+[Service]
+Type=oneshot
+User=feedvault
+Group=feedvault
+WorkingDirectory=/home/feedvault/feedvault
+EnvironmentFile=/home/feedvault/feedvault/.env
+ExecStart=/usr/bin/uv run python manage.py backup_db

@@ -1,0 +1,9 @@
+[Unit]
+Description=Nightly FeedVault database backup
+
+[Timer]
+OnCalendar=*-*-* 03:15:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
