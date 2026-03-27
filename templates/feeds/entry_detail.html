@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Entry Detail</h1>
+    <p>
+        <b>Feed:</b> <a href="{% url 'details' feed.pk %}">{{ feed.url }}</a>
+    </p>
+    <p>
+        <b>Entry ID:</b> {{ entry.entry_id }}
+    </p>
+    <p>
+        <b>Published:</b> {{ entry.published_at }}
+    </p>
+    <p>
+        <b>Fetched:</b> {{ entry.fetched_at }}
+    </p>
+    <p>
+        <b>Content Hash:</b> {{ entry.content_hash }}
+    </p>
+    <p>
+        <b>Error Message:</b> {{ entry.error_message|default:"[none]" }}
+    </p>
+    <h2>Entry Data</h2>
+    {% if escaped_json %}
+        <div style="font-size:small;color:#666;margin-bottom:4px;">
+            Note: HTML in the JSON is escaped for display and will not be rendered as HTML.
+        </div>
+        <pre>{{ escaped_json|safe }}</pre>
+    {% else %}
+        <p>[No data]</p>
+    {% endif %}
+    <p>
+        <a href="{% url 'details' feed.pk %}">Back to feed</a>
+    </p>
+{% endblock content %}

@@ -10,9 +10,25 @@ if TYPE_CHECKING:
 
 
 urlpatterns: list[URLPattern | URLResolver] = [
-    path("", views.home, name="home"),
-    path("feeds/", views.feed_list, name="feed-list"),
-    path("feeds/<int:feed_id>/", views.feed_detail, name="feed-detail"),
+    # /
+    path(
+        "",
+        views.home,
+        name="home",
+    ),
+    # /feeds/
+    path(
+        "feeds/",
+        views.feed_list,
+        name="feeds",
+    ),
+    # /feeds/<feed_id>/
+    path(
+        "feeds/<int:feed_id>/",
+        views.feed_detail,
+        name="details",
+    ),
+    # /feeds/<feed_id>/entries/<entry_id>/
     path(
         "feeds/<int:feed_id>/entries/<int:entry_id>/",
         views.entry_detail,

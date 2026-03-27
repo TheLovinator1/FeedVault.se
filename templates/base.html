@@ -3,33 +3,141 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="keywords" content="feeds, archive, FeedVault" />
-        <title>
-            {% block title %}
-                FeedVault
-            {% endblock title %}
-        </title>
+        {% if description %}<meta name="description" content="{{ description }}" />{% endif %}
+        {% if keywords %}<meta name="keywords" content="{{ keywords }}" />{% endif %}
+        {% if author %}<meta name="author" content="{{ author }}" />{% endif %}
+        {% if canonical %}<link rel="canonical" href="{{ canonical }}" />{% endif %}
+        <title>{{ title|default:"FeedVault" }}</title>
+        <style>
+            html {
+                max-width: 88ch;
+                padding: calc(1vmin + 0.5rem);
+                margin-inline: auto;
+                font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em);
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                    Helvetica, Arial, sans-serif;
+                color-scheme: light dark;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+                font-weight: 600;
+                margin: 0;
+            }
+
+            header {
+                text-align: center;
+            }
+
+            .search {
+                display: flex;
+                justify-content: center;
+                margin-top: 1rem;
+                margin-inline: auto;
+            }
+
+            .leftright {
+                display: flex;
+                justify-content: center;
+            }
+
+            .left {
+                margin-right: auto;
+            }
+
+            .right {
+                margin-left: auto;
+            }
+
+            textarea {
+                width: 100%;
+                height: 10rem;
+                resize: vertical;
+            }
+
+            .messages {
+                list-style-type: none;
+            }
+
+            .error {
+                color: red;
+            }
+
+            .success {
+                color: green;
+            }
+
+            .warning {
+                color: orange;
+            }
+        </style>
     </head>
     <body>
+        {% if messages %}
+            <ul class="messages" role="alert" aria-live="polite">
+                {% for message in messages %}
+                    <li {% if message.tags %}class="{{ message.tags }}"{% endif %}
+                        role="alert">{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
         <header>
-            <h1>FeedVault</h1>
-            <nav>
-                <ul>
-                    <li>
-                        <a href="{% url 'home' %}">Home</a>
-                    </li>
-                    <li>
-                        <a href="{% url 'feed-list' %}">Feeds</a>
-                    </li>
-                </ul>
-            </nav>
+            <h1>
+                <a href="{% url 'home' %}" aria-label="FeedVault Home">FeedVault</a>
+            </h1>
         </header>
+        <div class="leftright">
+            <div class="left">
+                <small>Archive of
+                    <a href="https://en.wikipedia.org/wiki/Web_feed"
+                       aria-label="Wikipedia article on web feeds">web feeds</a>.
+                    {{ stats }}
+                </small>
+            </div>
+            <div class="right">
+                <form role="search"
+                      action="#"
+                      method="get"
+                      class="search"
+                      aria-label="Search form">
+                    <input type="search" name="q" placeholder="Search" aria-label="Search input" />
+                    <button type="submit" aria-label="Search button">Search</button>
+                </form>
+            </div>
+        </div>
+        <nav aria-label="Main navigation">
+            <small>
+                <div class="leftright">
+                    <div class="left">
+                        <a href="{% url 'home' %}" aria-label="Home page">Home</a> |
+                        <a href="{% url 'feeds' %}" aria-label="Feeds page">Feeds</a> |
+                        <a href="#" aria-label="Contact page">Contact</a>
+                    </div>
+                    <div class="right">
+                        <a href="https://github.com/TheLovinator1/FeedVault"
+                           aria-label="GitHub page">GitHub</a> |
+                        <a href="https://github.com/sponsors/TheLovinator1"
+                           aria-label="Donate page">Donate</a>
+                    </div>
+                </div>
+            </small>
+        </nav>
+        <hr />
         <main>
-            {% block content %}
-            {% endblock content %}
+            {% block content %}<!-- default content -->{% endblock %}
         </main>
+        <hr />
         <footer>
-            <p>Web scraping is not a crime. - No rights reserved. - A birthday present for Plipp ❤️</p>
+            <small>
+                <div class="leftright">
+                    <div class="left">Web scraping is not a crime.</div>
+                    <div class="right">No rights reserved.</div>
+                </div>
+                <div class="leftright">
+                    <div class="left">TheLovinator#9276 on Discord</div>
+                    <div class="right">A birthday present for Plipp ❤️</div>
+                </div>
+            </small>
         </footer>
     </body>
 </html>

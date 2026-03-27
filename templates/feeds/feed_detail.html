@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Feed Detail</h1>
+    <p>
+        <b>URL:</b> {{ feed.url }}
+    </p>
+    <p>
+        <b>Domain:</b> {{ feed.domain }}
+    </p>
+    <p>
+        <b>Active:</b> {{ feed.is_active|yesno:"yes,no" }}
+    </p>
+    <p>
+        <b>Created:</b> {{ feed.created_at }}
+    </p>
+    <p>
+        <b>Last fetched:</b> {{ feed.last_fetched_at }}
+    </p>
+    <h2>Entries (latest 50)</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Title/Description</th>
+                <th>Entry ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in entries %}
+                <tr>
+                    <td>
+                        <a href="{% url 'entry-detail' feed.pk entry.pk %}">
+                            {{ entry.data.title|default:entry.data.description|default:"[no title]" }}
+                        </a>
+                        <br />
+                        <small>{{ entry.published_at|default:entry.fetched_at }}</small>
+                    </td>
+                    <td>
+                        <small>
+                            <a href="{{ entry.entry_id }}">{{ entry.entry_id|cut:'https://'|truncatechars:50 }}</a>
+                        </small>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p>
+        <a href="{% url 'feeds' %}">Back to list</a>
+    </p>
+{% endblock content %}
