@@ -56,14 +56,18 @@ class Command(BaseCommand):
             if count == 0:
                 msg = f"No entries found for feed: {url}"
                 self.stdout.write(self.style.WARNING(msg))
-
             else:
+                proceed: bool = True
                 if not force:
-                    return self.confirm_and_list_entries(url, entries_qs, count)
-
-                entries_qs.delete()
-                msg = f"Deleted {count} entries for feed: {url}"
-                self.stdout.write(self.style.SUCCESS(msg))
+                    proceed: bool = self.confirm_and_list_entries(
+                        url=url,
+                        entries_qs=entries_qs,
+                        count=count,
+                    )
+                if proceed:
+                    entries_qs.delete()
+                    msg = f"Deleted {count} entries for feed: {url}"
+                    self.stdout.write(self.style.SUCCESS(msg))
 
         new_entries: int = fetch_and_archive_feed(feed)
         if new_entries:
@@ -73,15 +77,23 @@ class Command(BaseCommand):
         else:
             msg: str = "\tFeed is up to date, but no new entries were archived."
             self.stdout.write(self.style.WARNING(msg))
-        return None
 
     def confirm_and_list_entries(
         self,
         url: str,
         entries_qs: QuerySet[Entry, Entry],
         count: int,
-    ) -> None:
-        """Confirm with the user before deleting entries and list some of them."""
+    ) -> bool:
+        """Confirm with the user before deleting entries and list some of them.
+
+        Args:
+            url (str): The URL of the feed.
+            entries_qs (QuerySet[Entry, Entry]): The queryset of entries to be deleted.
+            count (int): The total number of entries to be deleted.
+
+        Returns:
+            True if user confirms, False otherwise.
+        """
         msg: str = f"The following {count} entries will be removed for feed: {url}"
         self.stdout.write(self.style.WARNING(msg))
 
@@ -94,7 +106,8 @@ class Command(BaseCommand):
         confirm: str = input("Are you sure you want to proceed? (yes/no): ")
         if confirm.lower() != "yes":
             self.stdout.write(self.style.ERROR("Operation cancelled."))
-            return
+            return False
+        return True
 
 
 def get_entry_title(entry: Entry) -> str | None:
